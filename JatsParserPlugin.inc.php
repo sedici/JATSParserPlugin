@@ -128,7 +128,8 @@ class JatsParserPlugin extends GenericPlugin {
 		//$this->ojsCitationsExtraction($article, $templateMgr, $htmlDocument, $request);
 
 		// extends TCPDF object
-		$pdfDocument = new TCPDFDocument();
+		$journal = $request->getContext();
+		$pdfDocument = new TCPDFDocument($journal->getId());
 
 		$pdfDocument->setTitle($publication->getLocalizedFullTitle($localeKey));
 
