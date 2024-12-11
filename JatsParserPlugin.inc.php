@@ -281,7 +281,6 @@ class JatsParserPlugin extends GenericPlugin {
 				$pdfDocument->SetFont('helvetica', 'I', 10);
 				$pdfDocument->SetTextColor(0, 102, 102);
 				$pdfDocument->Write(0, $orcidLink, $orcidLink, false, 'L', true); 
-
 				// Email and Institution
 				$pdfDocument->SetTextColor(65, 65, 65);
 				$email = htmlspecialchars($author->getEmail());
