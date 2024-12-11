@@ -128,8 +128,19 @@ class JatsParserPlugin extends GenericPlugin {
 		//$this->ojsCitationsExtraction($article, $templateMgr, $htmlDocument, $request);
 
 		// extends TCPDF object
+		//maing an array with metadata for the header
 		$journal = $request->getContext();
-		$pdfDocument = new TCPDFDocument($journal->getId());
+		$journalId =  $journal->getId();
+		if ($publication->getData('pub-id::doi')) {
+			$doi = $publication->getData('pub-id::doi');
+		} else {
+			$doi = "";
+		}
+		$authors = $publication->getData('authors');
+		$issn = $journal->getData('onlineIssn');
+		$journalTitle = $journal->getLocalizedData('name');
+
+		$pdfDocument = new TCPDFDocument($journalId, $doi, $authors, $localeKey, $issn, $journalTitle);
 
 		$pdfDocument->setTitle($publication->getLocalizedFullTitle($localeKey));
 
@@ -159,70 +170,259 @@ class JatsParserPlugin extends GenericPlugin {
 			$articleDataString .= ", ". $pages;
 		}
 
+		/* 
 		if ($doi = $publication->getData('pub-id::doi')) {
 			$articleDataString .= "\n" . __('plugins.pubIds.doi.readerDisplayName', null, $localeKey) . ': ' . $doi;
 		}
+		*/
 
 		$pdfDocument->SetHeaderData($pdfHeaderLogo, PDF_HEADER_LOGO_WIDTH, $journal->getName($localeKey), $articleDataString);
 
 		$pdfDocument->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
-		$pdfDocument->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
 		$pdfDocument->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
 		$pdfDocument->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
 		$pdfDocument->SetHeaderMargin(PDF_MARGIN_HEADER);
-		$pdfDocument->SetFooterMargin(PDF_MARGIN_FOOTER);
 		$pdfDocument->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
 		$pdfDocument->setImageScale(PDF_IMAGE_SCALE_RATIO);
+	
+		$pdfDocument->SetFooterMargin(PDF_MARGIN_FOOTER);
+		$pdfDocument->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+		$pdfDocument->Footer();
 
 		$pdfDocument->AddPage();
 
-		// Article title
-
+		//GENERATE FORM
+		$x = 0; 
+		$y = 27;
+		$width = 30;
+		$height = 40;
+		$pdfDocument->SetFillColor(0, 64, 53);
+		$pdfDocument->Rect($x, $y, $width, $height, 'F');
 		$pdfDocument->SetFillColor(255, 255, 255);
-		$pdfDocument->SetFont('dejavuserif', 'B', 20);
-		$pdfDocument->MultiCell('', '', $publication->getLocalizedFullTitle($localeKey), 0, 'L', 1, 1, '' ,'', true);
+
+		// Metadata
+		$pdfDocument->SetFont('helvetica', '', 10);
+		$pdfDocument->SetTextColor(0, 0, 0);
+
+		// Initialize x and y position
+		$xMetadata = $x + $width + 3;
+		$yMetadata = $y + 5;
+
+		// License
+		if ($licenseUrl = $publication->getData('licenseUrl')) {
+			$pdfDocument->SetXY($xMetadata, $yMetadata);
+			$pdfDocument->SetTextColor(0, 64, 53);
+			$pdfDocument->Write(0, $licenseUrl, $licenseUrl);
+			$pdfDocument->SetTextColor(0, 0, 0);
+			$yMetadata = $yMetadata + 5;
+		}
+
+		// Article Title
+		$pdfDocument->SetXY($xMetadata, $yMetadata);
+		$pdfDocument->Cell(0, 5, $publication->getLocalizedData('title'), 0, 1, 'L');
+		$yMetadata = $yMetadata + 5;
+
+		// Author/Authors
+		$authors = $publication->getData('authors');
+		$authorName = '| ';
+		if (count($authors) > 0) {
+			foreach ($authors as $author) {
+				$authorName .= htmlspecialchars($author->getGivenName($localeKey)) . ' ' . htmlspecialchars($author->getFamilyName($localeKey) . ' | ');
+			}
+		}
+		$pdfDocument->SetXY($xMetadata, $yMetadata);
+		$pdfDocument->Cell(0, 5, $authorName, 0, 1, 'L');
+		$yMetadata = $yMetadata + 5;
+
+		// Journal Title
+		$pdfDocument->SetXY($xMetadata, $yMetadata);
+		$pdfDocument->Cell(0, 5, $journal->getLocalizedData('name') . ', (' . $issue->getIssueIdentification() . ') ', 0, 1, 'L');
+		$yMetadata = $yMetadata + 5;
+
+		// ISSN
+		$pdfDocument->SetXY($xMetadata, $yMetadata);
+		$pdfDocument->Cell(0, 5, 'ISSN ' . $journal->getData('onlineIssn'), 0, 'L');
+		$yMetadata = $yMetadata + 5;
+		
+		// DOI
+		$pdfDocument->SetXY($xMetadata, $yMetadata);
+		$doiUrl = 'https://doi.org/' . $publication->getData('pub-id::doi');
+		$pdfDocument->SetTextColor(0, 64, 53);
+		$pdfDocument->Write(5, $doiUrl, $doiUrl);
+		$pdfDocument->SetTextColor(0, 0, 0);
+		$yMetadata = $yMetadata + 5;
+
+		//SPACE
+		$pdfDocument->Ln(25);
+		$pdfDocument->SetLeftMargin(70);
+
+		// Article title
+		$pdfDocument->Ln(6);
+		$pdfDocument->SetTextColor(0, 64, 53);
+		$pdfDocument->SetFont('helvetica', 'B', 20);
+		$pdfDocument->MultiCell('', '', $publication->getLocalizedFullTitle($localeKey), 0, 'C', 1, 1, '' ,'', true);
 		$pdfDocument->Ln(6);
 
+		$pdfDocument->SetTextColor(0, 0, 0);
+		$pdfDocument->SetFillColor(255, 255, 255); 
+		
 		// Article's authors
 		$authors = $publication->getData('authors');
 		if (count($authors) > 0) {
-			/* @var $author Author */
 			foreach ($authors as $author) {
-				$pdfDocument->SetFont('dejavuserif', 'I', 10);
-
-				// Calculating the line height for author name and affiliation
+				// Author's bold name
+				$pdfDocument->SetFont('helvetica', 'B', 10); 
+				$pdfDocument->SetTextColor(0, 98, 85);
 				$authorName = htmlspecialchars($author->getGivenName($localeKey)) . ' ' . htmlspecialchars($author->getFamilyName($localeKey));
+				
+				// ORCID link
+				$orcidLink = htmlspecialchars($author->getOrcid());
+				$pdfDocument->MultiCell(0, 0, $authorName, 0, 'L', false, 1, '', '', true);
+				$pdfDocument->SetFont('helvetica', 'I', 10);
+				$pdfDocument->SetTextColor(0, 102, 102);
+				$pdfDocument->Write(0, $orcidLink, $orcidLink, false, 'L', true); 
+
+				// Email and Institution
+				$pdfDocument->SetTextColor(65, 65, 65);
+				$email = htmlspecialchars($author->getEmail());
 				$affiliation = htmlspecialchars($author->getAffiliation($localeKey));
+				$pdfDocument->SetFont('helvetica', '', 10);
+				$pdfDocument->MultiCell(0, 0, $email . " | " . $affiliation, 0, 'L', false, 1, '', '', true);
 
-				$authorLineWidth = 60;
-				$authorNameStringHeight = $pdfDocument->getStringHeight($authorLineWidth, $authorName);
-
-				$affiliationLineWidth = 110;
-				$afilliationStringHeight = $pdfDocument->getStringHeight(110, $affiliation);
-
-				$authorNameStringHeight > $afilliationStringHeight ? $cellHeight = $authorNameStringHeight : $cellHeight = $afilliationStringHeight;
-
-				// Writing affiliations into cells
-				$pdfDocument->MultiCell($authorLineWidth, 0, $authorName, 0, 'L', 1, 0, 19, '', true, 0, false, true, 0, "T", true);
-				$pdfDocument->SetFont('dejavuserif', '', 10);
-				$pdfDocument->MultiCell($affiliationLineWidth, $cellHeight, $affiliation, 0, 'L', 1, 1, '', '', true, 0, false, true, 0, "T", true);
+				// Space between authors
+				$pdfDocument->SetTextColor(0, 0, 0);
+				$pdfDocument->Ln(3); 
 			}
-			$pdfDocument->Ln(6);
+			$pdfDocument->Ln(3);
 		}
 
-		// Abstract
-		if ($abstract = $publication->getLocalizedData('abstract', $localeKey)) {
-			$pdfDocument->setCellPaddings(5, 5, 5, 5);
-			$pdfDocument->SetFillColor(248, 248, 255);
-			$pdfDocument->SetFont('dejavuserif', '', 10);
-			$pdfDocument->SetLineStyle(array('width' => 0.5, 'cap' => 'butt', 'join' => 'miter', 'dash' => 4, 'color' => array(255, 140, 0)));
-			$pdfDocument->writeHTMLCell('', '', '', '', $abstract, 'B', 1, 1, true, 'J', true);
-			$pdfDocument->Ln(4);
+
+		// SPANISH
+
+		//Spanish abstract
+		if ($abstract = $publication->getLocalizedData('abstract', 'es_ES')) {
+			// Abstract Title
+			$pdfDocument->SetFont('helvetica', 'B', 14); 
+			$pdfDocument->SetTextColor(0, 64, 53); 
+			$pdfDocument->Cell(0, 10, 'Resumen', 0, 1, 'L');
+
+			$pdfDocument->SetTextColor(0, 0, 0);
+			$pdfDocument->SetFont('helvetica', '', 10);
+			$abstractText = strip_tags($abstract); //Delete HTML tags. Only needs plain text.
+			$pdfDocument->MultiCell(0, 0, $abstractText, 0, 'L', false, 1, '', '', true);
+			$pdfDocument->Ln(1);
 		}
+		//Spanish Keywords
+		if ($keywords = $publication->getLocalizedData('keywords', 'es_ES')) {
+			// Keywords Title
+			$pdfDocument->SetFont('helvetica', 'B', 14); 
+			$pdfDocument->SetTextColor(0, 64, 53); 
+			$pdfDocument->Cell(0, 10, 'Palabras Clave', 0, 1, 'L');
+		
+			$pdfDocument->SetTextColor(0, 0, 0);
+			$pdfDocument->SetFont('helvetica', '', 10);
+
+			$keywordsText = implode(', ', $keywords);
+		
+			$pdfDocument->MultiCell(0, 0, $keywordsText, 0, 'L', false, 1, '', '', true);
+			$pdfDocument->Ln(15);
+		}		
+
+		// ENGLISH
+
+		//English abstract
+		if ($abstract = $publication->getLocalizedData('abstract', 'en_US')) {
+			// Abstract Title
+			$pdfDocument->SetFont('helvetica', 'B', 14); 
+			$pdfDocument->SetTextColor(0, 64, 53); 
+			$pdfDocument->Cell(0, 10, 'Abstract', 0, 1, 'L');
+
+			$pdfDocument->SetTextColor(0, 0, 0);
+			$pdfDocument->SetFont('helvetica', '', 10);
+			$abstractText = strip_tags($abstract); //Delete HTML tags. Only needs plain text.
+			$pdfDocument->MultiCell(0, 0, $abstractText, 0, 'L', false, 1, '', '', true);
+			$pdfDocument->Ln(1);
+		}
+
+		//English Keywords
+		if ($keywords = $publication->getLocalizedData('keywords', 'en_US')) {
+			// Keywords Title
+			$pdfDocument->SetFont('helvetica', 'B', 14); 
+			$pdfDocument->SetTextColor(0, 64, 53); 
+			$pdfDocument->Cell(0, 10, 'Keywords', 0, 1, 'L');
+		
+			$pdfDocument->SetTextColor(0, 0, 0);
+			$pdfDocument->SetFont('helvetica', '', 10);
+
+			$keywordsText = implode(', ', $keywords);
+		
+			$pdfDocument->MultiCell(0, 0, $keywordsText, 0, 'L', false, 1, '', '', true);
+			$pdfDocument->Ln(15);
+		}		
+
+		// PORTUGUESE
+
+		//Portuguese Abstract
+		if ($abstract = $publication->getLocalizedData('abstract', 'pt_BR')) {
+			// Abstract Title
+			$pdfDocument->SetFont('helvetica', 'B', 14); 
+			$pdfDocument->SetTextColor(0, 64, 53); 
+			$pdfDocument->Cell(0, 10, 'Resumo', 0, 1, 'L');
+
+			$pdfDocument->SetTextColor(0, 0, 0);
+			$pdfDocument->SetFont('helvetica', '', 10);
+			$abstractText = strip_tags($abstract); //Delete HTML tags. Only needs plain text.
+			$pdfDocument->MultiCell(0, 0, $abstractText, 0, 'L', false, 1, '', '', true);
+			$pdfDocument->Ln(1);
+		}		
+
+		//Portuguese Keywords
+		if ($keywords = $publication->getLocalizedData('keywords', 'pt_BR')) {
+			// Keywords Title
+			$pdfDocument->SetFont('helvetica', 'B', 14); 
+			$pdfDocument->SetTextColor(0, 64, 53); 
+			$pdfDocument->Cell(0, 10, 'Palavras chave', 0, 1, 'L');
+		
+			$pdfDocument->SetTextColor(0, 0, 0);
+			$pdfDocument->SetFont('helvetica', '', 10);
+
+			$keywordsText = implode(', ', $keywords);
+		
+			$pdfDocument->MultiCell(0, 0, $keywordsText, 0, 'L', false, 1, '', '', true);
+			$pdfDocument->Ln(15);
+		}
+
+		// Dates: Recibido, Aceptado, Publicado
+		$dateSubmitted = $submission->getData('dateSubmitted');
+		$dateAccepted = $submission->getData('dateAccepted');
+		$datePublished = DAORegistry::getDAO('IssueDAO')->getById(
+			$submission->getCurrentPublication()->getData('issueId')
+		)->getDatePublished();
+		// Check if dates exist to avoid errors
+		if ($dateSubmitted || $dateAccepted || $datePublished) {
+			$pdfDocument->SetFont('helvetica', 'I', 11);
+			$pdfDocument->SetTextColor(0, 0, 0);
+			$pdfDocument->Ln(10); 
+			// Prepare the text for each date
+			$submittedText = $dateSubmitted ? 'Recibido ' . date('d/m/Y', strtotime($dateSubmitted)) : '';
+			$acceptedText = $dateAccepted ? 'Aceptado ' . date('d/m/Y', strtotime($dateAccepted)) : '';
+			$publishedText = $datePublished ? 'Publicado ' . date('d/m/Y', strtotime($datePublished)) : '';
+			// Combine the texts with spacing
+			$datesText = trim(implode('   ', array_filter([$submittedText, $acceptedText, $publishedText])));
+			// Add the styled text to the PDF
+			$pdfDocument->SetFillColor(255, 255, 255); // White background
+			$pdfDocument->SetTextColor(0, 64, 53); // Match the greenish color in the image
+			$pdfDocument->Cell(0, 10, $datesText, 0, 1, 'C'); // Centered alignment
+			$pdfDocument->SetTextColor(0, 0, 0);
+		}
+		// // // // // // // // // // // // //
+		$pdfDocument->AddPage();
+
+		$pdfDocument->SetLeftMargin(15);
 
 		// Text (goes from JATSParser
 		$pdfDocument->setCellPaddings(0, 0, 0, 0);
-		$pdfDocument->SetFont('dejavuserif', '', 10);
+		$pdfDocument->SetFont('helvetica', '', 10);
 
 		$htmlString .= "\n" . '<style>' . "\n" . file_get_contents($this->getPluginPath() . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . 'styles' . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'pdfGalley.css') . '</style>';
 		$htmlString = $this->_prepareForPdfGalley($htmlString);
