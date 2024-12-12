@@ -18,10 +18,14 @@ import('plugins.generic.jatsParser.classes.components.forms.PublicationJATSUploa
 import('lib.pkp.classes.citation.Citation');
 import('lib.pkp.classes.file.PrivateFileManager');
 
+use APP\facades\Repo;
 use JATSParser\Body\Document;
 use JATSParser\PDF\TCPDFDocument;
 use JATSParser\HTML\Document as HTMLDocument;
-use \PKP\components\forms\FormComponent;
+use PKP\components\forms\FormComponent;
+use APP\core\Services;
+use APP\core\Request;
+use APP\i18n\AppLocale;
 
 define("CREATE_PDF_QUERY", "download=pdf");
 
@@ -109,19 +113,13 @@ class JatsParserPlugin extends GenericPlugin {
 		return parent::manage($args, $request);
 	}
 
-	/**
-	 * @param $article Submission
-	 * @param $request PKPRequest
-	 * @param $htmlDocument HTMLDocument
-	 * @param $issue Issue
-	 * @param
-	 */
 	private function pdfCreation(string $htmlString, Publication $publication, Request $request, string $localeKey): string
 	{
 		// HTML preparation
 		$context = $request->getContext(); /* @var $context Journal */
-		$submission = Services::get('submission')->get($publication->getData('submissionId')); /* @var $submission Submission */
+		$submission = Repo::submission()->get($publication->getData('submissionId')); /* @var $submission Submission */
 		$issueDao = DAORegistry::getDAO('IssueDAO');
+		$issue = $issueDao->getById($publication->getData('issueId'), $context->getId());
 		$issue = $issueDao->getById($publication->getData('issueId'), $context->getId());
 
 		//$this->imageUrlReplacement($xmlGalley, $xpath);
@@ -569,6 +567,7 @@ class JatsParserPlugin extends GenericPlugin {
 		$state = $templateMgr->getTemplateVars('state');
 		$state['components'][FORM_PUBLICATION_JATS_FULLTEXT] = $form->getConfig();
 		$state['publicationFormIds'][] = FORM_PUBLICATION_JATS_FULLTEXT;
+		$state['publicationFormIds'][] = FORM_PUBLICATION_JATS_FULLTEXT;
 		$templateMgr->assign('state', $state);
 
 		$templateMgr->display($this->getTemplateResource("workflowJatsFulltext.tpl"));
@@ -730,7 +729,7 @@ class JatsParserPlugin extends GenericPlugin {
 	 * @brief creates a new PDF submission file
 	 */
 	private function _setPdfSubmissionFile(string $pdfBinaryString, Publication $publication, ArticleGalley $galley) {
-		$submission = Services::get('submission')->get($publication->getData('submissionId')); /* @var $submission Submission */
+		$submission = Repo::submission()->get($publication->getData('submissionId')); /* @var $submission Submission */
 		$request = $this->getRequest();
 
 		// Create a temporary file
@@ -788,8 +787,7 @@ class JatsParserPlugin extends GenericPlugin {
 		if (empty($rawCitations)) return $htmlString;
 
 		// Use OJS raw citations tokenizer
-		import('lib.pkp.classes.citation.CitationListTokenizerFilter');
-		$citationTokenizer = new CitationListTokenizerFilter();
+		$citationTokenizer = new \PKP\citation\CitationListTokenizerFilter();
 		$citationStrings = $citationTokenizer->execute($rawCitations);
 
 		if (!is_array($citationStrings) || empty($citationStrings)) return $htmlString;
@@ -866,8 +864,7 @@ class JatsParserPlugin extends GenericPlugin {
 	 * @brief retrieves PHP DOM representation of the article's full-text
 	 */
 	public function getFullTextFromJats (SubmissionFile $submissionFile): HTMLDocument {
-		import('lib.pkp.classes.file.PrivateFileManager');
-		$fileMgr = new PrivateFileManager();
+		$fileMgr = new \PKP\file\PrivateFileManager();
 		$htmlDocument = new HTMLDocument(new Document($fileMgr->getBasePath() . DIRECTORY_SEPARATOR . $submissionFile->getData('path')));
 		return $htmlDocument;
 	}
@@ -950,7 +947,7 @@ class JatsParserPlugin extends GenericPlugin {
 		$genreDao = DAORegistry::getDAO('GenreDAO');
 		foreach ($dependentFilesIterator as $dependentFile) {
 			$genre = $genreDao->getById($dependentFile->getData('genreId'));
-			if ($genre->getCategory() !== GENRE_CATEGORY_ARTWORK) continue; // only art works are supported
+			if ($genre && $genre->getCategory() !== GENRE_CATEGORY_ARTWORK) continue; // only art works are supported
 			if (!in_array($dependentFile->getData('mimetype'), self::getSupportedSupplFileTypes())) continue; // check if MIME type is supported
 			$submissionId = $submissionFile->getData('submissionId');
 			switch ($request->getRequestedOp()) {
@@ -1085,13 +1082,12 @@ class JatsParserPlugin extends GenericPlugin {
 		$user = $request->getUser();
 		$publicationDao = DAORegistry::getDAO('PublicationDAO');
 		$fileManager = new PrivateFileManager();
-
-		$submissions = Services::get('submission')->getMany([
-			'contextId' => $context->getId(),
-			'stageIds' => [
-				WORKFLOW_STAGE_ID_PRODUCTION
-			]
-		]);
+        $submissions = Repo::submission()->getMany(
+            Repo::submission()
+                ->getCollector()
+                ->filterByContextIds([$context->getId()])
+                ->filterByStageIds([WORKFLOW_STAGE_ID_PRODUCTION])
+        );
 
 		foreach ($submissions as $submission) {
 			$publication = $submission->getCurrentPublication();
@@ -1197,9 +1193,10 @@ class JatsParserPlugin extends GenericPlugin {
 
 		if (!$publicationId) return;
 
-		$publication = Services::get('publication')->get($publicationId);
+		$publication = Repo::publication()->get($publicationId);
 		if (!$publication) return;
 
+		$submissionFileIds = array_unique($publication->getData('jatsParser::fullTextFileId') ?? []);
 		$submissionFileIds = array_unique($publication->getData('jatsParser::fullTextFileId') ?? []);
 		if (empty($submissionFileIds)) return;
 
