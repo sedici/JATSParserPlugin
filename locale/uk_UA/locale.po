@@ -109,3 +109,6 @@ msgstr "наприклад: american-medical-association"
 
 msgid "plugins.generic.jatsParser.publication.jats.links.label"
 msgstr "Відформатувати посилання на бібліографічний список в тексті статті?"
+
+msgid "plugins.generic.jatsParser.pdf.abstract"
+msgstr "Резюме"
