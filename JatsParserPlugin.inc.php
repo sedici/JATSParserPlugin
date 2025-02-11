@@ -11,6 +11,9 @@
  */
 
 require_once __DIR__ . '/JATSParser/vendor/autoload.php';
+require_once __DIR__ . '/JATSParser/src/JATSParser/PDF/PDFConfig/Configuration.php';
+require_once __DIR__ . '/JATSParser/src/JATSParser/PDF/PDFConfig/Translations.php';
+require_once __DIR__ . '/JATSParser/src/JATSParser/PDF/TemplateStrategy.php';
 
 import('lib.pkp.classes.plugins.GenericPlugin');
 import('plugins.generic.jatsParser.classes.JATSParserDocument');
@@ -18,15 +21,16 @@ import('plugins.generic.jatsParser.classes.components.forms.PublicationJATSUploa
 import('lib.pkp.classes.citation.Citation');
 import('lib.pkp.classes.file.PrivateFileManager');
 
+use JATSParser\PDF\PDFConfig\Translations;
+use JATSParser\PDF\PDFConfig\Configuration;
 use JATSParser\Body\Document;
-use JATSParser\PDF\TCPDFDocument;
 use JATSParser\HTML\Document as HTMLDocument;
 use \PKP\components\forms\FormComponent;
 
 define("CREATE_PDF_QUERY", "download=pdf");
 
 class JatsParserPlugin extends GenericPlugin {
-
+	
 	function register($category, $path, $mainContextId = null) {
 		if (parent::register($category, $path, $mainContextId)) {
 
@@ -109,6 +113,60 @@ class JatsParserPlugin extends GenericPlugin {
 		return parent::manage($args, $request);
 	}
 
+	//add metadata to $GLOBAL_CONFIGURATION array
+	private function getMetadata($journal, $publication, $localeKey, $request, $htmlString) {
+		$submission = Services::get('submission')->get($publication->getData('submissionId')); /* @var $submission Submission */
+		$context = $request->getContext(); /* @var $context Journal */
+		$issueDao = DAORegistry::getDAO('IssueDAO');
+		$issue = $issueDao->getById($publication->getData('issueId'), $context->getId());
+		$userGroupDao = DAORegistry::getDAO('UserGroupDAO');
+		$userGroups = $userGroupDao->getByContextId($journal->getId())->toArray();
+
+		$editDecisionDao = DAORegistry::getDAO('EditDecisionDAO');
+		$decisions = $editDecisionDao->getEditorDecisions($submission->getId());
+	
+		$acceptedDate = null;
+		foreach ($decisions as $decision) {
+			if ($decision['stageId'] == 3 && $decision['decision'] == 1) {
+				$acceptedDate = $decision['dateDecided'];
+			}
+		}
+	
+		$metadata = [
+			'doi' => $publication->getData('pub-id::doi'),
+			'journal_id' => $journal->getId(),
+			'authors' => $publication->getData('authors'),
+			'online_issn' => $journal->getData('onlineIssn'),
+			'journal_title' => $journal->getLocalizedData('name'),
+			'journal_issue' => $publication->getData('issueId'),
+			'locale_key' => $localeKey,
+			'journal_thumbnail' => $journal->getLocalizedData('journalThumbnail'),
+			'full_title' => $publication->getLocalizedFullTitle($localeKey),
+			'license_url' => $publication->getData('licenseUrl'),
+			'article_title' => $publication->getLocalizedData('title'),
+			'submission' => $submission,
+			'date_submitted' => date('d/m/Y', strtotime($submission->getDateSubmitted())),
+			'date_accepted' => date('d/m/Y', strtotime($acceptedDate)),
+			'date_published' => str_replace('-', '/', $submission->getDatePublished()),
+			'journal_data' => $issue->getIssueIdentification(), // Includes volume, number, year of a journal.
+			'user_groups' => $userGroups,
+			'contributors' => $publication->getAuthorString($userGroups),
+			'subject' => $publication->getLocalizedData('subject', $localeKey),
+			'abstract_texts' => $publication->getData('abstract'), // Returns an array like this: ['es_ES' => 'Resumen', 'en_US' => 'Abstract']
+			'translations_config' => Translations::getTranslations(),
+			'keywords_texts' => $publication->getData('keywords'),
+			'plugin_path' => $this->getPluginPath(),
+			'html_string' => $htmlString,
+			'journal_url' => $request->getBaseUrl() . '/' . $journal->getPath(),
+			'titles' => $publication->getData('title'),
+			'subtitles' => $publication->getData('subtitle'),
+			'editorial' => $context->getLocalizedData('institution')
+		];
+	
+		return $metadata;
+	}
+	
+
 	/**
 	 * @param $article Submission
 	 * @param $request PKPRequest
@@ -116,372 +174,16 @@ class JatsParserPlugin extends GenericPlugin {
 	 * @param $issue Issue
 	 * @param
 	 */
-	private function pdfCreation(string $htmlString, Publication $publication, Request $request, string $localeKey): string
-	{
-		// HTML preparation
-		$context = $request->getContext(); /* @var $context Journal */
-		$submission = Services::get('submission')->get($publication->getData('submissionId')); /* @var $submission Submission */
-		$issueDao = DAORegistry::getDAO('IssueDAO');
-		$issue = $issueDao->getById($publication->getData('issueId'), $context->getId());
+	private function pdfCreation(string $htmlString, Publication $publication, Request $request, string $localeKey): string {
 
-		//$this->imageUrlReplacement($xmlGalley, $xpath);
-		//$this->ojsCitationsExtraction($article, $templateMgr, $htmlDocument, $request);
-
-		// extends TCPDF object
-		//maing an array with metadata for the header
 		$journal = $request->getContext();
-		$journalId =  $journal->getId();
-		if ($publication->getData('pub-id::doi')) {
-			$doi = $publication->getData('pub-id::doi');
-		} else {
-			$doi = "";
-		}
-		$authors = $publication->getData('authors');
-		$issn = $journal->getData('onlineIssn');
-		$journalTitle = $journal->getLocalizedData('name');
+		$metadata = $this->getMetadata($journal, $publication, $localeKey, $request, $htmlString);
+		$configuration = new Configuration($metadata);
 
-		$pdfDocument = new TCPDFDocument($journalId, $doi, $authors, $localeKey, $issn, $journalTitle);
+		$templateName = 'JATSParser\PDF\TemplateOne';
+		$templateStrategy = new TemplateStrategy($templateName, $configuration);
 
-		$pdfDocument->setTitle($publication->getLocalizedFullTitle($localeKey));
-
-		// get the logo
-		$journal = $request->getContext();
-		$thumb = $journal->getLocalizedData('journalThumbnail');
-		if (!empty($thumb)) {
-			$journalFilesPath = __DIR__ . '/../../../' . Config::getVar('files', 'public_files_dir') . '/journals/' . $journal->getId() . '/'; // TCPDF accepts only relative path
-			$pdfHeaderLogo = $journalFilesPath . $thumb['uploadName'];
-		} else {
-			$pdfHeaderLogo = __DIR__ . "/JATSParser/logo/logo.jpg";
-		}
-
-		$pdfDocument->SetCreator(PDF_CREATOR);
-		$userGroupDao = DAORegistry::getDAO('UserGroupDAO'); /* @var $userGroupDao UserGroupDAO */
-		$userGroups = $userGroupDao->getByContextId($context->getId())->toArray();
-		$pdfDocument->SetAuthor($publication->getAuthorString($userGroups));
-		$pdfDocument->SetSubject($publication->getLocalizedData('subject', $localeKey));
-
-		$articleDataString = '';
-
-		if ($issue && $issueIdentification = $issue->getIssueIdentification()) {
-			$articleDataString .= $issueIdentification;
-		}
-
-		if ($pages = $publication->getLocalizedData('subject', $localeKey)) {
-			$articleDataString .= ", ". $pages;
-		}
-
-		/* 
-		if ($doi = $publication->getData('pub-id::doi')) {
-			$articleDataString .= "\n" . __('plugins.pubIds.doi.readerDisplayName', null, $localeKey) . ': ' . $doi;
-		}
-		*/
-
-		$pdfDocument->SetHeaderData($pdfHeaderLogo, PDF_HEADER_LOGO_WIDTH, $journal->getName($localeKey), $articleDataString);
-
-		$pdfDocument->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
-		$pdfDocument->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
-		$pdfDocument->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
-		$pdfDocument->SetHeaderMargin(PDF_MARGIN_HEADER);
-		$pdfDocument->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
-		$pdfDocument->setImageScale(PDF_IMAGE_SCALE_RATIO);
-	
-		$pdfDocument->SetFooterMargin(PDF_MARGIN_FOOTER);
-		$pdfDocument->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
-		$pdfDocument->Footer();
-
-		$pdfDocument->AddPage();
-
-		//GENERATE FORM
-		$x = 0; 
-		$y = 27;
-		$width = 30;
-		$height = 40;
-		$pdfDocument->SetFillColor(0, 64, 53);
-		$pdfDocument->Rect($x, $y, $width, $height, 'F');
-		$pdfDocument->SetFillColor(255, 255, 255);
-
-		// Metadata
-		$pdfDocument->SetFont('helvetica', '', 10);
-		$pdfDocument->SetTextColor(0, 0, 0);
-
-		// Initialize x and y position
-		$xMetadata = $x + $width + 3;
-		$yMetadata = $y + 5;
-
-		// License
-		if ($licenseUrl = $publication->getData('licenseUrl')) {
-			$pdfDocument->SetXY($xMetadata, $yMetadata);
-			$pdfDocument->SetTextColor(0, 64, 53);
-			$pdfDocument->Write(0, $licenseUrl, $licenseUrl);
-			$pdfDocument->SetTextColor(0, 0, 0);
-			$yMetadata = $yMetadata + 5;
-		}
-
-		// Article Title
-		$pdfDocument->SetXY($xMetadata, $yMetadata);
-		$pdfDocument->Cell(0, 5, $publication->getLocalizedData('title'), 0, 1, 'L');
-		$yMetadata = $yMetadata + 5;
-
-		// Author/Authors
-		$authors = $publication->getData('authors');
-		$authorName = '| ';
-		if (count($authors) > 0) {
-			foreach ($authors as $author) {
-				$authorName .= htmlspecialchars($author->getGivenName($localeKey)) . ' ' . htmlspecialchars($author->getFamilyName($localeKey) . ' | ');
-			}
-		}
-		$pdfDocument->SetXY($xMetadata, $yMetadata);
-		$pdfDocument->Cell(0, 5, $authorName, 0, 1, 'L');
-		$yMetadata = $yMetadata + 5;
-
-		// Journal Title
-		$pdfDocument->SetXY($xMetadata, $yMetadata);
-		$pdfDocument->Cell(0, 5, $journal->getLocalizedData('name') . ', (' . $issue->getIssueIdentification() . ') ', 0, 1, 'L');
-		$yMetadata = $yMetadata + 5;
-
-		// ISSN
-		$pdfDocument->SetXY($xMetadata, $yMetadata);
-		$pdfDocument->Cell(0, 5, 'ISSN ' . $journal->getData('onlineIssn'), 0, 'L');
-		$yMetadata = $yMetadata + 5;
-		
-		// DOI
-		$pdfDocument->SetXY($xMetadata, $yMetadata);
-		$doiUrl = 'https://doi.org/' . $publication->getData('pub-id::doi');
-		$pdfDocument->SetTextColor(0, 64, 53);
-		$pdfDocument->Write(5, $doiUrl, $doiUrl);
-		$pdfDocument->SetTextColor(0, 0, 0);
-		$yMetadata = $yMetadata + 5;
-
-		//SPACE
-		$pdfDocument->Ln(25);
-		$pdfDocument->SetLeftMargin(70);
-
-		// Article title
-		$pdfDocument->Ln(6);
-		$pdfDocument->SetTextColor(0, 64, 53);
-		$pdfDocument->SetFont('helvetica', 'B', 20);
-		$pdfDocument->MultiCell('', '', $publication->getLocalizedFullTitle($localeKey), 0, 'C', 1, 1, '' ,'', true);
-		$pdfDocument->Ln(6);
-
-		$pdfDocument->SetTextColor(0, 0, 0);
-		$pdfDocument->SetFillColor(255, 255, 255); 
-		
-		// Article's authors
-		$authors = $publication->getData('authors');
-		if (count($authors) > 0) {
-			foreach ($authors as $author) {
-				// Author's bold name
-				$pdfDocument->SetFont('helvetica', 'B', 10); 
-				$pdfDocument->SetTextColor(0, 98, 85);
-				$authorName = htmlspecialchars($author->getGivenName($localeKey)) . ' ' . htmlspecialchars($author->getFamilyName($localeKey));
-				
-				// ORCID link
-				$orcidLink = htmlspecialchars($author->getOrcid());
-				$pdfDocument->MultiCell(0, 0, $authorName, 0, 'L', false, 1, '', '', true);
-				$pdfDocument->SetFont('helvetica', 'I', 10);
-				$pdfDocument->SetTextColor(0, 102, 102);
-				$pdfDocument->Write(0, $orcidLink, $orcidLink, false, 'L', true); 
-				// Email and Institution
-				$pdfDocument->SetTextColor(65, 65, 65);
-				$email = htmlspecialchars($author->getEmail());
-				$affiliation = htmlspecialchars($author->getAffiliation($localeKey));
-				$pdfDocument->SetFont('helvetica', '', 10);
-				$pdfDocument->MultiCell(0, 0, $email . " | " . $affiliation, 0, 'L', false, 1, '', '', true);
-
-				// Space between authors
-				$pdfDocument->SetTextColor(0, 0, 0);
-				$pdfDocument->Ln(3); 
-			}
-			$pdfDocument->Ln(3);
-		}
-
-
-		// SPANISH
-
-		//Spanish abstract
-		if ($abstract = $publication->getLocalizedData('abstract', 'es_ES')) {
-			// Abstract Title
-			$pdfDocument->SetFont('helvetica', 'B', 14); 
-			$pdfDocument->SetTextColor(0, 64, 53); 
-			$pdfDocument->Cell(0, 10, 'Resumen', 0, 1, 'L');
-
-			$pdfDocument->SetTextColor(0, 0, 0);
-			$pdfDocument->SetFont('helvetica', '', 10);
-			$abstractText = strip_tags($abstract); //Delete HTML tags. Only needs plain text.
-			$pdfDocument->MultiCell(0, 0, $abstractText, 0, 'L', false, 1, '', '', true);
-			$pdfDocument->Ln(1);
-		}
-		//Spanish Keywords
-		if ($keywords = $publication->getLocalizedData('keywords', 'es_ES')) {
-			// Keywords Title
-			$pdfDocument->SetFont('helvetica', 'B', 14); 
-			$pdfDocument->SetTextColor(0, 64, 53); 
-			$pdfDocument->Cell(0, 10, 'Palabras Clave', 0, 1, 'L');
-		
-			$pdfDocument->SetTextColor(0, 0, 0);
-			$pdfDocument->SetFont('helvetica', '', 10);
-
-			$keywordsText = implode(', ', $keywords);
-		
-			$pdfDocument->MultiCell(0, 0, $keywordsText, 0, 'L', false, 1, '', '', true);
-			$pdfDocument->Ln(15);
-		}		
-
-		// ENGLISH
-
-		//English abstract
-		if ($abstract = $publication->getLocalizedData('abstract', 'en_US')) {
-			// Abstract Title
-			$pdfDocument->SetFont('helvetica', 'B', 14); 
-			$pdfDocument->SetTextColor(0, 64, 53); 
-			$pdfDocument->Cell(0, 10, 'Abstract', 0, 1, 'L');
-
-			$pdfDocument->SetTextColor(0, 0, 0);
-			$pdfDocument->SetFont('helvetica', '', 10);
-			$abstractText = strip_tags($abstract); //Delete HTML tags. Only needs plain text.
-			$pdfDocument->MultiCell(0, 0, $abstractText, 0, 'L', false, 1, '', '', true);
-			$pdfDocument->Ln(1);
-		}
-
-		//English Keywords
-		if ($keywords = $publication->getLocalizedData('keywords', 'en_US')) {
-			// Keywords Title
-			$pdfDocument->SetFont('helvetica', 'B', 14); 
-			$pdfDocument->SetTextColor(0, 64, 53); 
-			$pdfDocument->Cell(0, 10, 'Keywords', 0, 1, 'L');
-		
-			$pdfDocument->SetTextColor(0, 0, 0);
-			$pdfDocument->SetFont('helvetica', '', 10);
-
-			$keywordsText = implode(', ', $keywords);
-		
-			$pdfDocument->MultiCell(0, 0, $keywordsText, 0, 'L', false, 1, '', '', true);
-			$pdfDocument->Ln(15);
-		}		
-
-		// PORTUGUESE
-
-		//Portuguese Abstract
-		if ($abstract = $publication->getLocalizedData('abstract', 'pt_BR')) {
-			// Abstract Title
-			$pdfDocument->SetFont('helvetica', 'B', 14); 
-			$pdfDocument->SetTextColor(0, 64, 53); 
-			$pdfDocument->Cell(0, 10, 'Resumo', 0, 1, 'L');
-
-			$pdfDocument->SetTextColor(0, 0, 0);
-			$pdfDocument->SetFont('helvetica', '', 10);
-			$abstractText = strip_tags($abstract); //Delete HTML tags. Only needs plain text.
-			$pdfDocument->MultiCell(0, 0, $abstractText, 0, 'L', false, 1, '', '', true);
-			$pdfDocument->Ln(1);
-		}		
-
-		//Portuguese Keywords
-		if ($keywords = $publication->getLocalizedData('keywords', 'pt_BR')) {
-			// Keywords Title
-			$pdfDocument->SetFont('helvetica', 'B', 14); 
-			$pdfDocument->SetTextColor(0, 64, 53); 
-			$pdfDocument->Cell(0, 10, 'Palavras chave', 0, 1, 'L');
-		
-			$pdfDocument->SetTextColor(0, 0, 0);
-			$pdfDocument->SetFont('helvetica', '', 10);
-
-			$keywordsText = implode(', ', $keywords);
-		
-			$pdfDocument->MultiCell(0, 0, $keywordsText, 0, 'L', false, 1, '', '', true);
-			$pdfDocument->Ln(15);
-		}
-
-		// Dates: Recibido, Aceptado, Publicado
-		$dateSubmitted = $submission->getData('dateSubmitted');
-		$dateAccepted = $submission->getData('dateAccepted');
-		$datePublished = DAORegistry::getDAO('IssueDAO')->getById(
-			$submission->getCurrentPublication()->getData('issueId')
-		)->getDatePublished();
-		// Check if dates exist to avoid errors
-		if ($dateSubmitted || $dateAccepted || $datePublished) {
-			$pdfDocument->SetFont('helvetica', 'I', 11);
-			$pdfDocument->SetTextColor(0, 0, 0);
-			$pdfDocument->Ln(10); 
-			// Prepare the text for each date
-			$submittedText = $dateSubmitted ? 'Recibido ' . date('d/m/Y', strtotime($dateSubmitted)) : '';
-			$acceptedText = $dateAccepted ? 'Aceptado ' . date('d/m/Y', strtotime($dateAccepted)) : '';
-			$publishedText = $datePublished ? 'Publicado ' . date('d/m/Y', strtotime($datePublished)) : '';
-			// Combine the texts with spacing
-			$datesText = trim(implode('   ', array_filter([$submittedText, $acceptedText, $publishedText])));
-			// Add the styled text to the PDF
-			$pdfDocument->SetFillColor(255, 255, 255); // White background
-			$pdfDocument->SetTextColor(0, 64, 53); // Match the greenish color in the image
-			$pdfDocument->Cell(0, 10, $datesText, 0, 1, 'C'); // Centered alignment
-			$pdfDocument->SetTextColor(0, 0, 0);
-		}
-		// // // // // // // // // // // // //
-		$pdfDocument->AddPage();
-
-		$pdfDocument->SetLeftMargin(15);
-
-		// Text (goes from JATSParser
-		$pdfDocument->setCellPaddings(0, 0, 0, 0);
-		$pdfDocument->SetFont('helvetica', '', 10);
-
-		$htmlString .= "\n" . '<style>' . "\n" . file_get_contents($this->getPluginPath() . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . 'styles' . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'pdfGalley.css') . '</style>';
-		$htmlString = $this->_prepareForPdfGalley($htmlString);
-		$pdfDocument->writeHTML($htmlString, true, false, true, false, '');
-
-		return $pdfDocument->Output('article.pdf', 'S');
-	}
-
-	/**
-	 * @param string $htmlString
-	 * @return string Preprocessed HTML string for TCPDF
-	 */
-	private function _prepareForPdfGalley(string $htmlString): string {
-
-		$dom = new DOMDocument('1.0', 'utf-8');
-		$htmlHead = "\n";
-		$htmlHead .= '<head>';
-		$htmlHead .= "\t" . '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>';
-		$htmlHead .= "\n";
-		$htmlHead .= '</head>';
-		$dom->loadHTML($htmlHead . $htmlString);
-
-		// set style for figures and table
-		$xpath = new \DOMXPath($dom);
-
-		$tableNodes = $xpath->evaluate('//table');
-		foreach ($tableNodes as $tableNode) {
-			$tableNode->setAttribute('border', '1');
-			$tableNode->setAttribute('cellpadding', '2');
-		}
-
-		$captionNodes = $xpath->evaluate('//figure/p[@class="caption"]|//table/caption');
-		foreach ($captionNodes as $captionNode) {
-			$captionParts = $xpath->evaluate('span[@class="label"]|span[@class="title"]', $captionNode);
-			foreach ($captionParts as $captionPart) {
-				$emptyTextNode = $dom->createTextNode(' ');
-				$captionPart->appendChild($emptyTextNode);
-			}
-		}
-
-		// TCPDF doesn't recognize display property, insert div
-		$tableCaptions = $xpath->evaluate('//table/caption');
-		foreach ($tableCaptions as $tableCaption) {
-			/* @var $tableNode \DOMNode */
-			$tableNode = $tableCaption->parentNode;
-			$divNode = $dom->createElement('div');
-			$divNode->setAttribute('class', 'caption');
-			$nextToTableNode = $tableNode->nextSibling;
-			if ($nextToTableNode) {
-				$tableNode->parentNode->insertBefore($divNode, $nextToTableNode);
-			}
-			$divNode->appendChild($tableCaption);
-		}
-
-		// Remove redundant whitespaces before caption label
-		$modifiedHtmlString = $dom->saveHTML();
-		$modifiedHtmlString = preg_replace('/<caption>\s*/', '<br>' . '<caption>', $modifiedHtmlString);
-		$modifiedHtmlString = preg_replace('/<p class="caption">\s*/', '<p class="caption">', $modifiedHtmlString);
-
-		return $modifiedHtmlString;
+		return $templateStrategy->OutputPdf();
 	}
 
 	/**
@@ -784,7 +486,7 @@ class JatsParserPlugin extends GenericPlugin {
 	 * @brief set references for PDF galley
 	 */
 	private function _setReferences(Publication $publication, string $locale, string $htmlString): string {
-		$rawCitations = $publication->getData('citationsRaw');
+		$rawCitations = $publication->getData('citationsRaw'); //References
 		if (empty($rawCitations)) return $htmlString;
 
 		// Use OJS raw citations tokenizer

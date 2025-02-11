@@ -112,3 +112,6 @@ msgstr "Format in-text links to references?"
 
 msgid "plugins.generic.jatsParser.settings.convert.pdf"
 msgstr "Enable PDF conversion"
+
+msgid "plugins.generic.jatsParser.pdf.abstract"
+msgstr "Abstract"

@@ -17,6 +17,30 @@ msgstr "Módulo JATSParser"
 msgid "plugins.generic.jatsParser.description"
 msgstr "El complemento transforma JATS XML en HTML y PDF para ser visualizados en el frontal de la revista."
 
+msgid "plugins.generic.jatsParser.article.fulltext.availableLocale"
+msgstr "El texto completo del artículo está disponible para esta región:"
+
+msgid "plugins.generic.jatsParser.article.fulltext.availableLocales"
+msgstr "El texto completo del artículo está disponible para estas regiones:"
+
+msgid "plugins.generic.jatsParser.workflow.settings"
+msgstr "Configuración de JATS Parser"
+
+msgid "plugins.generic.jatsParser.settings.description"
+msgstr "Menú de configuración del plugin JATSParser"
+
+msgid "plugins.generic.jatsParser.settings.covert.pdf"
+msgstr "Activar la conversión de JATS XML a PDF"
+
+msgid "plugins.generic.jatsParser.galley.import.description"
+msgstr "Esta opción permite guardar las galeradas en XML JATS como texto completo en todas las publicaciones de la revista. La importación se omite si una publicación ya tiene texto completo para una galerada dada. La importación comienza inmediatamente después de guardar el formulario."
+
+msgid "plugins.generic.jatsParser.galley.import.title"
+msgstr "Importar texto completo desde galeradas"
+
+msgid "plugins.generic.jatsParser.galley.import"
+msgstr "Importación de galeradas en XML JATS"
+
 msgid "jatsParser.galleys.info"
 msgstr "Ver el artículo en otros formatos"
 
@@ -34,3 +58,78 @@ msgstr "Acceso libre"
 
 msgid "jatsParser.references.link"
 msgstr "Buscar en el texto"
+
+msgid "plugins.generic.jatsParser.publication.galley.pdf.label"
+msgstr "PDF"
+
+msgid "plugins.generic.jatsParser.publication.jats.fulltext"
+msgstr "JATSParser"
+
+msgid "plugins.generic.jatsParser.publication.jats.fulltext.success"
+msgstr "Texto completo subido correctamente"
+
+msgid "plugins.generic.jatsParser.publication.jats.label"
+msgstr "Seleccionar archivo"
+
+msgid "plugins.generic.jatsParser.publication.jats.description"
+msgstr "Seleccionar un archivo en formato JATS XML de la etapa de producción para procesarlo en el sistema."
+
+msgid "plugins.generic.jatsParser.publication.jats.descriptionEmpty"
+msgstr "La lista de archivos JATS XML está vacía. Por favor, suba el archivo a la etapa de producción y el mismo aparecerá disponible para su generación."
+
+msgid "plugins.generic.jatsParser.publication.jats.references.label"
+msgstr "¿Extraer referencias del JATS XML?"
+
+msgid "plugins.generic.jatsParser.publication.jats.references.description"
+msgstr "La lista de referencias se recuperará del XML JATS y se guardará como parte de la publicación. Si las referencias ya están incluidas en la publicación, se sobrescribirán."
+
+msgid "plugins.generic.jatsParser.publication.jats.pdf.label"
+msgstr "¿Crear PDF en la galerada?"
+
+msgid "plugins.generic.jatsParser.style.acm-sig-proceedings"
+msgstr "ACM"
+
+msgid "plugins.generic.jatsParser.style.acs-nano"
+msgstr "ACS"
+
+msgid "plugins.generic.jatsParser.style.apa"
+msgstr "APA"
+
+msgid "plugins.generic.jatsParser.style.associacao-brasileira-de-normas-tecnicas"
+msgstr "ABNT"
+
+msgid "plugins.generic.jatsParser.style.chicago-author-date"
+msgstr "Chicago"
+
+msgid "plugins.generic.jatsParser.style.harvard-cite-them-right"
+msgstr "Harvard"
+
+msgid "plugins.generic.jatsParser.style.ieee"
+msgstr "IEEE"
+
+msgid "plugins.generic.jatsParser.style.modern-language-association"
+msgstr "MLA"
+
+msgid "plugins.generic.jatsParser.style.turabian-fullnote-bibliography"
+msgstr "Turabian"
+
+msgid "plugins.generic.jatsParser.style.vancouver"
+msgstr "Vancouver"
+
+msgid "plugins.generic.jatsParser.style.custom"
+msgstr "Otros formatos de estilo de citación"
+
+msgid "plugins.generic.jatsParser.style.description"
+msgstr "El formato de estilo para las referencias procesadas por el plugin. Para otros estilos, visita <a target="_blank" href="https://github.com/citation-style-language/styles\">el repositorio CSL</a> para ver si está soportado."
+
+msgid "plugins.generic.jatsParser.style.label"
+msgstr "Por ejemplo: american-medical-association"
+
+msgid "plugins.generic.jatsParser.publication.jats.links.label"
+msgstr "¿Formatear los enlaces en el texto a las referencias?"
+
+msgid "plugins.generic.jatsParser.settings.convert.pdf"
+msgstr "Habilitar la conversión a PDF"
+
+msgid "plugins.generic.jatsParser.pdf.abstract"
+msgstr "Resumen"
