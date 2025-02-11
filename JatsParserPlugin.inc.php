@@ -13,6 +13,7 @@
 require_once __DIR__ . '/JATSParser/vendor/autoload.php';
 require_once __DIR__ . '/JATSParser/src/JATSParser/PDF/PDFConfig/Configuration.php';
 require_once __DIR__ . '/JATSParser/src/JATSParser/PDF/PDFConfig/Translations.php';
+require_once __DIR__ . '/JATSParser/src/JATSParser/PDF/TemplateStrategy.php';
 
 import('lib.pkp.classes.plugins.GenericPlugin');
 import('plugins.generic.jatsParser.classes.JATSParserDocument');
@@ -20,7 +21,8 @@ import('plugins.generic.jatsParser.classes.components.forms.PublicationJATSUploa
 import('lib.pkp.classes.citation.Citation');
 import('lib.pkp.classes.file.PrivateFileManager');
 
-use JATSParser\PDF\TCPDFDocument;
+use JATSParser\PDF\PDFConfig\Translations;
+use JATSParser\PDF\PDFConfig\Configuration;
 use JATSParser\Body\Document;
 use JATSParser\HTML\Document as HTMLDocument;
 use \PKP\components\forms\FormComponent;
@@ -120,6 +122,16 @@ class JatsParserPlugin extends GenericPlugin {
 		$userGroupDao = DAORegistry::getDAO('UserGroupDAO');
 		$userGroups = $userGroupDao->getByContextId($journal->getId())->toArray();
 
+		$editDecisionDao = DAORegistry::getDAO('EditDecisionDAO');
+		$decisions = $editDecisionDao->getEditorDecisions($submission->getId());
+	
+		$acceptedDate = null;
+		foreach ($decisions as $decision) {
+			if ($decision['stageId'] == 3 && $decision['decision'] == 1) {
+				$acceptedDate = $decision['dateDecided'];
+			}
+		}
+	
 		$metadata = [
 			'doi' => $publication->getData('pub-id::doi'),
 			'journal_id' => $journal->getId(),
@@ -133,23 +145,27 @@ class JatsParserPlugin extends GenericPlugin {
 			'license_url' => $publication->getData('licenseUrl'),
 			'article_title' => $publication->getLocalizedData('title'),
 			'submission' => $submission,
-			'date_submitted' => $submission->getData('dateSubmitted'),
-			'date_accepted' => $submission->getData('dateAccepted'),
-			'date_published' => DAORegistry::getDAO('IssueDAO')->getById($submission->getCurrentPublication()->getData('issueId'))->getDatePublished(),
-			'journal_data' => $issue->getIssueIdentification(), //Includes volume, number, year of a journal.
+			'date_submitted' => date('d/m/Y', strtotime($submission->getDateSubmitted())),
+			'date_accepted' => date('d/m/Y', strtotime($acceptedDate)),
+			'date_published' => str_replace('-', '/', $submission->getDatePublished()),
+			'journal_data' => $issue->getIssueIdentification(), // Includes volume, number, year of a journal.
 			'user_groups' => $userGroups,
 			'contributors' => $publication->getAuthorString($userGroups),
 			'subject' => $publication->getLocalizedData('subject', $localeKey),
-			'abstract_texts' => $publication->getData('abstract'), //RETURNS AN ARRAY LIKE THIS: ['es_ES' => 'Resumen', 'en_US' => 'Abstract']
+			'abstract_texts' => $publication->getData('abstract'), // Returns an array like this: ['es_ES' => 'Resumen', 'en_US' => 'Abstract']
 			'translations_config' => Translations::getTranslations(),
 			'keywords_texts' => $publication->getData('keywords'),
 			'plugin_path' => $this->getPluginPath(),
-			'html_string' => $htmlString
+			'html_string' => $htmlString,
+			'journal_url' => $request->getBaseUrl() . '/' . $journal->getPath(),
+			'titles' => $publication->getData('title'),
+			'subtitles' => $publication->getData('subtitle'),
+			'editorial' => $context->getLocalizedData('institution')
 		];
-		
+	
 		return $metadata;
-
 	}
+	
 
 	/**
 	 * @param $article Submission
@@ -160,19 +176,14 @@ class JatsParserPlugin extends GenericPlugin {
 	 */
 	private function pdfCreation(string $htmlString, Publication $publication, Request $request, string $localeKey): string {
 
-		//$this->imageUrlReplacement($xmlGalley, $xpath);
-		//$this->ojsCitationsExtraction($article, $templateMgr, $htmlDocument, $request);
-
-		// extends TCPDF object
-		//maing an array with metadata for the header
-
 		$journal = $request->getContext();
 		$metadata = $this->getMetadata($journal, $publication, $localeKey, $request, $htmlString);
 		$configuration = new Configuration($metadata);
 
-		$pdfDocument = new TCPDFDocument($configuration);
+		$templateName = 'JATSParser\PDF\TemplateOne';
+		$templateStrategy = new TemplateStrategy($templateName, $configuration);
 
-		return $pdfDocument->Output('article.pdf', 'S');
+		return $templateStrategy->OutputPdf();
 	}
 
 	/**
@@ -475,7 +486,7 @@ class JatsParserPlugin extends GenericPlugin {
 	 * @brief set references for PDF galley
 	 */
 	private function _setReferences(Publication $publication, string $locale, string $htmlString): string {
-		$rawCitations = $publication->getData('citationsRaw');
+		$rawCitations = $publication->getData('citationsRaw'); //References
 		if (empty($rawCitations)) return $htmlString;
 
 		// Use OJS raw citations tokenizer
