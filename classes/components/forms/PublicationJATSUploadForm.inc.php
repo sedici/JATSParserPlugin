@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . "/TableHTML.php";
+use PKP\components\forms\TableHTML;
 use PKP\components\forms\FieldHTML;
 use \PKP\components\forms\FormComponent;
 use \PKP\components\forms\FieldOptions;
@@ -89,6 +91,19 @@ class PublicationJATSUploadForm extends FormComponent {
 					'options' => $pdfOptions,
 				]));
 			}
+		
+			$absoluteXmlPath = '/var/www/html/files/journals/1/articles/1/67bdf5530bd96.xml';
+
+			$tableHTML = new TableHTML('apa', $absoluteXmlPath);
+			
+			$html = $tableHTML->getHtml();
+			
+			$this->addField(new FieldHTML("citationTable", array(
+				'label' => 'plugins.generic.jatsParser.publication.jats.citationStyle.label',
+				'description' => $html, 
+			)));
+			
+
 		} else {
 			$this->addField(new FieldHTML("addProductionReadyFiles", array(
 				'description' => $msg
