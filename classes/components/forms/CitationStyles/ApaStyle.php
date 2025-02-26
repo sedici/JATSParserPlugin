@@ -54,7 +54,7 @@ $arrayData = [
 */
 
     public static function makeHtml(array $arrayData){
-        $tableHTML = '<form method="POST" action="process_cites.php" target="_self">
+        $tableHTML = '<form method="POST" action="process_citations.php" target="_self">
                         <table class="citation-table">
                             <tr class="citation-header">
                                 <th class="citation-th">Contexto</th>
@@ -146,6 +146,7 @@ $arrayData = [
                             transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
                             font-family: "Arial", sans-serif;
                             border-radius: 5px;
+                            animation: fadeIn 1s ease-in-out;
                         }
 
                         .save-btn:hover {
@@ -160,6 +161,7 @@ $arrayData = [
                             width: 100%;
                             border-collapse: collapse;
                             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                            animation: fadeIn 1s ease-in-out;
                         }
 
                         .citation-th {
@@ -168,12 +170,14 @@ $arrayData = [
                             padding: 12px;
                             border: 1px solid #ddd;
                             text-align: left;
+                            animation: fadeIn 1s ease-in-out;
                         }
 
                         .citation-td {
                             padding: 12px;
                             border: 1px solid #ddd;
                             text-align: left;
+                            animation: fadeIn 1s ease-in-out;
                         }
 
                         .citation-select {
@@ -183,6 +187,7 @@ $arrayData = [
                             border: 1px solid #ccc;
                             border-radius: 4px;
                             font-size: 14px;
+                            animation: fadeIn 1s ease-in-out;
                         }
 
                         .custom-input {
@@ -194,6 +199,16 @@ $arrayData = [
                             border: 1px solid #ccc;
                             border-radius: 4px;
                             font-size: 14px;
+                            animation: fadeIn 1s ease-in-out;
+                        }
+
+                        @keyframes fadeIn {
+                            from {
+                                opacity: 0;
+                            }
+                            to {
+                                opacity: 1;
+                            }
                         }
                     </style>';
         
