@@ -2,16 +2,35 @@
 
 class ApaStyle{
 
-/* ArrayData = [
+/* Example of expected array structure:
+$arrayData = [
     'ref_0' => [
         'context' => 'Context 1',
         'rid' => 'parser_0 parser_1',
         'references' => [
             [
                 'id' => 'parser_0',
-                'reference' => 'Reference 1'
+                'reference' => 'Reference 1',
+                'authors' => [
+                    'data_1' => [
+                        'surname' => 'Smith',
+                        'year' => '2020'
+                    ],
+                    'data_2' => [
+                        'surname' => 'Johnson',
+                        'year' => '2020'
+                    ]
+                ]
+            ],
+            [
                 'id' => 'parser_1',
-                'reference' => 'Reference 2'
+                'reference' => 'Reference 2',
+                'authors' => [
+                    'data_1' => [
+                        'surname' => 'Doe',
+                        'year' => '2019'
+                    ]
+                ]
             ]
         ]
     ],
@@ -21,15 +40,20 @@ class ApaStyle{
         'references' => [
             [
                 'id' => 'parser_1',
-                'reference' => 'Reference 1'
+                'reference' => 'Reference 1',
+                'authors' => [
+                    'data_1' => [
+                        'surname' => 'Doe',
+                        'year' => '2019'
+                    ]
+                ]
             ]
         ]
-    ], 
-    ...
-] */
+    ]
+];
+*/
 
     public static function makeHtml(array $arrayData){
-
         $tableHTML = '<form method="POST" action="process_cites.php" target="_self">
                         <table class="citation-table">
                             <tr class="citation-header">

@@ -133,3 +133,6 @@ msgstr "Habilitar la conversión a PDF"
 
 msgid "plugins.generic.jatsParser.pdf.abstract"
 msgstr "Resumen"
+
+msgid "plugins.generic.jatsParser.publication.jats.citationStyle.label"
+msgstr "Se han detectado las siguientes referencias"
