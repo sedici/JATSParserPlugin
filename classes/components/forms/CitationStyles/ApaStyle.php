@@ -115,7 +115,7 @@ class ApaStyle{
                         .save-btn {
                             margin-top: 10px;
                             padding: 8px 12px;
-                            background-color: rgb(0, 38, 78);
+                            background-color: #004e92;
                             color: white;
                             border: none;
                             cursor: pointer;
@@ -126,40 +126,50 @@ class ApaStyle{
 
                         .save-btn:hover {
                             transform: scale(1.08); 
-                            background-color: rgb(0, 81, 187);
-                            color: rgb(0, 0, 0);
+                            background-color: #0073e6;
+                            color: #000;
                         }
 
                         .citation-table {
                             font-family: "Arial", sans-serif;
-                            border: 3px solid #bbb;
+                            border: 1px solid #ddd;
                             width: 100%;
                             border-collapse: collapse;
+                            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
                         }
 
                         .citation-th {
-                            background-color: rgb(90, 90, 90);
+                            background-color: #f4f4f4;
                             font-weight: bold;
-                            padding: 15px;
-                            border: 3px solid #bbb;
+                            padding: 12px;
+                            border: 1px solid #ddd;
+                            text-align: left;
                         }
 
                         .citation-td {
-                            padding: 15px;
-                            border: 3px solid #bbb;
+                            padding: 12px;
+                            border: 1px solid #ddd;
+                            text-align: left;
                         }
 
                         .citation-select {
                             width: 100%;
-                            padding: 10px;
+                            padding: 8px;
+                            min-width: 200px;
+                            border: 1px solid #ccc;
+                            border-radius: 4px;
+                            font-size: 14px;
                         }
 
                         .custom-input {
                             display: block;
                             margin-top: 10px;
                             width: 100%;
-                            padding: 10px;
-                            font-size: 11.5px;
+                            padding: 8px;
+                            min-width: 200px;
+                            border: 1px solid #ccc;
+                            border-radius: 4px;
+                            font-size: 14px;
                         }
                     </style>';
         
