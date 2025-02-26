@@ -1,6 +1,9 @@
 <?php
 
 require_once __DIR__ . "/TableHTML.php";
+
+import('lib.pkp.classes.file.PrivateFileManager');
+
 use PKP\components\forms\TableHTML;
 use PKP\components\forms\FieldHTML;
 use \PKP\components\forms\FormComponent;
@@ -50,6 +53,8 @@ class PublicationJATSUploadForm extends FormComponent {
 					'label' => $subName
 				);
 
+				$relativeFilePath = $submissionFile->getData('path');
+
 			}
 
 			$lang[] = array(
@@ -73,6 +78,7 @@ class PublicationJATSUploadForm extends FormComponent {
 		$plugin = PluginRegistry::getPlugin('generic', 'jatsparserplugin'); /* @var $plugin JATSParserPlugin */
 		$context = Application::get()->getRequest()->getContext();
 		$convertToPdf = $plugin->getSetting($context->getId(), 'convertToPdf');
+		$citationStyle = $plugin->getSetting($context->getId(), 'citationStyle');
 
 		if (!empty($options)) {
 			$this->addField(new FieldOptions('jatsParser::fullTextFileId', [
@@ -92,17 +98,19 @@ class PublicationJATSUploadForm extends FormComponent {
 				]));
 			}
 		
-			$absoluteXmlPath = '/var/www/html/files/journals/1/articles/1/67bdf5530bd96.xml';
+			if ($citationStyle === 'apa') {
+				$fileMgr = new PrivateFileManager();
+				$absolutePath = $fileMgr->getBasePath() . DIRECTORY_SEPARATOR . $relativeFilePath;
 
-			$tableHTML = new TableHTML('apa', $absoluteXmlPath);
-			
-			$html = $tableHTML->getHtml();
-			
-			$this->addField(new FieldHTML("citationTable", array(
-				'label' => 'plugins.generic.jatsParser.publication.jats.citationStyle.label',
-				'description' => $html, 
-			)));
-			
+				$tableHTML = new TableHTML($citationStyle, $absolutePath);
+				
+				$html = $tableHTML->getHtml();
+				
+				$this->addField(new FieldHTML("citationTable", array(
+					'label' => 'plugins.generic.jatsParser.publication.jats.citationStyle.label',
+					'description' => $html, 
+				)));
+			}
 
 		} else {
 			$this->addField(new FieldHTML("addProductionReadyFiles", array(

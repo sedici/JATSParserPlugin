@@ -31,25 +31,25 @@ class ApaStyle{
     public static function makeHtml(array $arrayData){
 
         $tableHTML = '<form method="POST" action="process_cites.php" target="_self">
-                        <table border="1" cellpadding="5" cellspacing="0" style="width:100%; border-collapse: collapse;">
-                            <tr style="background-color: #f2f2f2;">
-                                <th style="padding: 15px; border: 3px solid #bbb;">Contexto</th>
-                                <th style="padding: 15px; border: 3px solid #bbb;">Referencias</th>
-                                <th style="padding: 15px; border: 3px solid #bbb;">Estilo de Cita</th>
+                        <table class="citation-table">
+                            <tr class="citation-header">
+                                <th class="citation-th">Contexto</th>
+                                <th class="citation-th">Referencias</th>
+                                <th class="citation-th">Estilo de Cita</th>
                             </tr>';
-        
+
         foreach ($arrayData as $xrefId => $data) {
             $numRows = count($data['references']);
             $firstRow = true;
             
             foreach ($data['references'] as $referenceData) {
-                $tableHTML .= "<tr>";
+                $tableHTML .= "<tr class='citation-row'>";
                 
                 if ($firstRow) {
-                    $tableHTML .= '<td rowspan="' . $numRows . '" style="padding: 15px; border: 3px solid #bbb;">' . $data['context'] . '</td>';
+                    $tableHTML .= '<td rowspan="' . $numRows . '" class="citation-td">' . $data['context'] . '</td>';
                 }
 
-                $tableHTML .= "<td style='padding: 15px; border: 3px solid #bbb;'>" . $referenceData['reference'] . "</td>";
+                $tableHTML .= "<td class='citation-td'>" . $referenceData['reference'] . "</td>";
                 
                 if ($firstRow) {
                     $citationOptions = [];
@@ -71,9 +71,9 @@ class ApaStyle{
                     $citationText = implode('; ', $citationOptions);
                     $yearsText = implode('; ', array_unique($years));
 
-                    $tableHTML .= "<td rowspan='" . $numRows . "' style='padding: 15px; border: 3px solid #bbb;'>
+                    $tableHTML .= "<td rowspan='" . $numRows . "' class='citation-td'>
                                     <select name='citationStyle[{$xrefId}]' id='citationStyle_{$xrefId}' 
-                                        style='width: 100%; padding: 10px;'
+                                        class='citation-select'
                                         onchange='
                                             let inputField = document.getElementById(\"customInput_{$xrefId}\");
                                             if(this.value == \"custom\"){
@@ -83,10 +83,7 @@ class ApaStyle{
                                                     inputField.name = \"customCitation[{$xrefId}]\";
                                                     inputField.id = \"customInput_{$xrefId}\";
                                                     inputField.placeholder = \"ej: (González, 2011, p. 34)\";
-                                                    inputField.style.display = \"block\";
-                                                    inputField.style.marginTop = \"10px\";
-                                                    inputField.style.width = \"100%\";
-                                                    inputField.style.padding = \"10px\";
+                                                    inputField.className = \"custom-input\";
                                                     this.parentNode.appendChild(inputField);
                                                 }
                                             } else {
@@ -99,7 +96,7 @@ class ApaStyle{
                                         <option value='ano'>($yearsText)</option>
                                         <option value='custom'>Otro</option>
                                     </select>
-                                   </td>";
+                                </td>";
                     $firstRow = false;
                 }
                 
@@ -112,9 +109,9 @@ class ApaStyle{
                         <button type="submit" class="save-btn">
                             Guardar citas
                         </button>
-                      </form>
-    
-                      <style>
+                    </form>
+
+                    <style>
                         .save-btn {
                             margin-top: 10px;
                             padding: 8px 12px;
@@ -126,28 +123,45 @@ class ApaStyle{
                             font-family: "Arial", sans-serif;
                             border-radius: 5px;
                         }
-    
+
                         .save-btn:hover {
                             transform: scale(1.08); 
                             background-color: rgb(0, 81, 187);
                             color: rgb(0, 0, 0);
                         }
 
-                        table {
+                        .citation-table {
                             font-family: "Arial", sans-serif;
                             border: 3px solid #bbb;
+                            width: 100%;
+                            border-collapse: collapse;
                         }
 
-                        th {
-                            background-color:rgb(90, 90, 90);
+                        .citation-th {
+                            background-color: rgb(90, 90, 90);
                             font-weight: bold;
-                        }
-
-                        td {
                             padding: 15px;
                             border: 3px solid #bbb;
                         }
-                      </style>';
+
+                        .citation-td {
+                            padding: 15px;
+                            border: 3px solid #bbb;
+                        }
+
+                        .citation-select {
+                            width: 100%;
+                            padding: 10px;
+                        }
+
+                        .custom-input {
+                            display: block;
+                            margin-top: 10px;
+                            width: 100%;
+                            padding: 10px;
+                            font-size: 11.5px;
+                        }
+                    </style>';
         
         return $tableHTML;
     }

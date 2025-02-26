@@ -100,7 +100,7 @@ class TableHTML {
         $this->xrefsArray = $xrefsArray;
     }
 
-    public function extractReferences(): void{
+    public function extractReferences(): void {
         $referencesArray = array();
 
         $nodes = self::$xpath->query("/article/back/ref-list/ref");
@@ -116,24 +116,22 @@ class TableHTML {
                 if ($surnameNode) {
                     $surname = $surnameNode->nodeValue;
                     if ($surname) {
-                        $data['data_' . $authorsCont] = $surname;
+                        $data['data_' . $authorsCont]['surname'] = $surname;
                     }
                 }
                 
                 $yearNode = self::$xpath->query(".//element-citation//year", $reference)->item(0);
                 $year = $yearNode ? $yearNode->nodeValue : "s.f.";
                 
-                $data['data_' . $authorsCont] = $year;
+                $data['data_' . $authorsCont]['year'] = $year;
                 $authorsCont++;
-
             }
 
             $referencesArray[$id] = [
                 'reference' => $reference->textContent,
                 'authors' => $data
             ];
-
-        }   
+        }
 
         $this->referencesArray = $referencesArray;
     }
