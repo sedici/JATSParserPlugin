@@ -1,5 +1,7 @@
 <?php namespace PKP\components\forms\CitationStyles;
 
+require_once __DIR__ . '/process_citations.php';
+
 class ApaStyle{
 
 /* Example of expected array structure:
@@ -53,8 +55,22 @@ $arrayData = [
 ];
 */
 
-    public static function makeHtml(array $arrayData){
-        $tableHTML = '<form method="POST" action="process_citations.php" target="_self">
+    CONST DELAY_TIME = 0.5;
+
+    public static function makeHtml(Array $arrayData, String $absoluteXmlPath){
+        $tableHTML = '<div class="citation-form-container">
+                        <form method="POST" target="_self" onsubmit="
+                            window.location.reload(true);
+                            let form = this;
+                            let formData = new FormData(form);
+
+                            fetch("./process_citations.php", {
+                                method: "POST",
+                                body: formData
+                            })
+                        ">
+
+                        <input type="hidden" name="xmlFilePath" value="' . htmlspecialchars($absoluteXmlPath) . '">
                         <table class="citation-table">
                             <tr class="citation-header">
                                 <th class="citation-th">Contexto</th>
@@ -116,8 +132,8 @@ $arrayData = [
                                                 }
                                             }
                                         '>
-                                        <option value='apellidoAno'>($citationText)</option>
-                                        <option value='ano'>($yearsText)</option>
+                                        <option value='($citationText)'>($citationText)</option>
+                                        <option value='($yearsText)'>($yearsText)</option>
                                         <option value='custom'>Otro</option>
                                     </select>
                                 </td>";
@@ -130,13 +146,14 @@ $arrayData = [
         }
         
         $tableHTML .= '</table>
-                        <button type="submit" class="save-btn">
+                        <button type="submit" class="save-btn-citations">
                             Guardar citas
                         </button>
                     </form>
+                    </div>
 
                     <style>
-                        .save-btn {
+                        .citation-form-container .save-btn-citations {
                             margin-top: 10px;
                             padding: 8px 12px;
                             background-color: #004e92;
@@ -144,53 +161,49 @@ $arrayData = [
                             border: none;
                             cursor: pointer;
                             transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
-                            font-family: "Arial", sans-serif;
                             border-radius: 5px;
-                            animation: fadeIn 1s ease-in-out;
+                            animation: fadeIn ' . self::DELAY_TIME . 's ease-in-out;
                         }
 
-                        .save-btn:hover {
+                        .citation-form-container .save-btn-citations:hover {
                             transform: scale(1.08); 
                             background-color: #0073e6;
                             color: #000;
                         }
 
-                        .citation-table {
-                            font-family: "Arial", sans-serif;
+                        .citation-form-container .citation-table {
                             border: 1px solid #ddd;
                             width: 100%;
                             border-collapse: collapse;
                             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-                            animation: fadeIn 1s ease-in-out;
+                            animation: fadeIn ' . self::DELAY_TIME . 's ease-in-out;
                         }
 
-                        .citation-th {
+                        .citation-form-container .citation-th {
                             background-color: #f4f4f4;
-                            font-weight: bold;
                             padding: 12px;
                             border: 1px solid #ddd;
                             text-align: left;
-                            animation: fadeIn 1s ease-in-out;
+                            animation: fadeIn ' . self::DELAY_TIME . 's ease-in-out;
                         }
 
-                        .citation-td {
+                        .citation-form-container .citation-td {
                             padding: 12px;
                             border: 1px solid #ddd;
                             text-align: left;
-                            animation: fadeIn 1s ease-in-out;
+                            animation: fadeIn ' . self::DELAY_TIME . 's ease-in-out;
                         }
 
-                        .citation-select {
+                        .citation-form-container .citation-select {
                             width: 100%;
                             padding: 8px;
                             min-width: 200px;
                             border: 1px solid #ccc;
                             border-radius: 4px;
-                            font-size: 14px;
-                            animation: fadeIn 1s ease-in-out;
+                            animation: fadeIn ' . self::DELAY_TIME . 's ease-in-out;
                         }
 
-                        .custom-input {
+                        .citation-form-container .custom-input {
                             display: block;
                             margin-top: 10px;
                             width: 100%;
@@ -198,8 +211,7 @@ $arrayData = [
                             min-width: 200px;
                             border: 1px solid #ccc;
                             border-radius: 4px;
-                            font-size: 14px;
-                            animation: fadeIn 1s ease-in-out;
+                            animation: fadeIn '. self::DELAY_TIME .'s ease-in-out;
                         }
 
                         @keyframes fadeIn {

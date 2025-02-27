@@ -117,4 +117,4 @@ msgid "plugins.generic.jatsParser.pdf.abstract"
 msgstr "Abstract"
 
 msgid "plugins.generic.jatsParser.publication.jats.citationStyle.label"
-msgstr "The following references have been detected"
+msgstr "The following citations ences have been detected"

@@ -138,7 +138,7 @@ class TableHTML {
 
     public function makeHtml(): void {
         $className = "PKP\\components\\forms\\CitationStyles\\" . ucfirst($this->citationStyle) . 'Style';
-        $this->html = $className::makeHtml($this->arrayData);
+        $this->html = $className::makeHtml($this->arrayData, $this->absoluteXmlPath);
     }   
     
     public function getHtml(){
