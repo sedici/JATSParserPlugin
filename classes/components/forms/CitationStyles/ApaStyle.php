@@ -1,17 +1,40 @@
 <?php namespace PKP\components\forms\CitationStyles;
 
+require_once __DIR__ . '/../Helpers/process_citations.php';
+require_once __DIR__ . '/../Helpers/getPublicationId.php';
+require_once __DIR__ . '/../Helpers/loadCitationTableConfig.php';
+
 class ApaStyle{
 
-/* ArrayData = [
+/* Example of expected array structure:
+$arrayData = [
     'ref_0' => [
         'context' => 'Context 1',
         'rid' => 'parser_0 parser_1',
         'references' => [
             [
                 'id' => 'parser_0',
-                'reference' => 'Reference 1'
+                'reference' => 'Reference 1',
+                'authors' => [
+                    'data_1' => [
+                        'surname' => 'Smith',
+                        'year' => '2020'
+                    ],
+                    'data_2' => [
+                        'surname' => 'Johnson',
+                        'year' => '2020'
+                    ]
+                ]
+            ],
+            [
                 'id' => 'parser_1',
-                'reference' => 'Reference 2'
+                'reference' => 'Reference 2',
+                'authors' => [
+                    'data_1' => [
+                        'surname' => 'Doe',
+                        'year' => '2019'
+                    ]
+                ]
             ]
         ]
     ],
@@ -21,16 +44,42 @@ class ApaStyle{
         'references' => [
             [
                 'id' => 'parser_1',
-                'reference' => 'Reference 1'
+                'reference' => 'Reference 1',
+                'authors' => [
+                    'data_1' => [
+                        'surname' => 'Doe',
+                        'year' => '2019'
+                    ]
+                ]
             ]
         ]
-    ], 
-    ...
-] */
+    ]
+];
+*/
 
-    public static function makeHtml(array $arrayData){
+    CONST DELAY_TIME = 0.5;
 
-        $tableHTML = '<form method="POST" action="process_cites.php" target="_self">
+    public static function makeHtml(Array $arrayData, String $absoluteXmlPath, String $citationStyle){
+        
+        $publicationId = getPublicationId(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+        $jsonCitationTableConfig = loadCitationTableConfig($publicationId); //this config could be an empty array if there is no data saved or an array with the saved data ['xrefId' => 'citationText'];
+        $arrayCitationConfig = json_decode($jsonCitationTableConfig, true);
+        print_r($arrayCitationConfig);
+
+        $tableHTML = '<div class="citation-form-container">
+                        <form method="POST" target="_self" onsubmit="
+                            window.location.reload(true);
+                            let form = this;
+                            let formData = new FormData(form);
+
+                            fetch("./process_citations.php", {
+                                method: "POST",
+                                body: formData
+                            })
+                        ">
+
+                        <input type="hidden" name="xmlFilePath" value="' . htmlspecialchars($absoluteXmlPath) . '">
+                        <input type="hidden" name="citationStyleName" value="' . htmlspecialchars($citationStyle) . '">
                         <table class="citation-table">
                             <tr class="citation-header">
                                 <th class="citation-th">Contexto</th>
@@ -92,27 +141,35 @@ class ApaStyle{
                                                 }
                                             }
                                         '>
-                                        <option value='apellidoAno'>($citationText)</option>
-                                        <option value='ano'>($yearsText)</option>
+                                        <option value='($citationText)'>($citationText)</option>
+                                        <option value='($yearsText)'>($yearsText)</option>
                                         <option value='custom'>Otro</option>
                                     </select>
                                 </td>";
                     $firstRow = false;
                 }
-                
-                $tableHTML .= "</tr>";
             }
-            
         }
         
-        $tableHTML .= '</table>
-                        <button type="submit" class="save-btn">
-                            Guardar citas
-                        </button>
-                    </form>
+        $tableHTML .= '</tr>
+                        </table>
+                            <button type="submit" class="save-btn-citations">
+                                Guardar citas
+                            </button>
+                        </form>
+                        </div>';
 
-                    <style>
-                        .save-btn {
+        $tableHTML .= self::getStyles();
+
+        
+        
+        return $tableHTML;
+    }
+
+    //GET STYLES FOR THE HTML
+    public static function getStyles() {
+        return '<style>
+                        .citation-form-container .save-btn-citations {
                             margin-top: 10px;
                             padding: 8px 12px;
                             background-color: #004e92;
@@ -120,48 +177,49 @@ class ApaStyle{
                             border: none;
                             cursor: pointer;
                             transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
-                            font-family: "Arial", sans-serif;
                             border-radius: 5px;
+                            animation: fadeIn ' . self::DELAY_TIME . 's ease-in-out;
                         }
 
-                        .save-btn:hover {
+                        .citation-form-container .save-btn-citations:hover {
                             transform: scale(1.08); 
                             background-color: #0073e6;
                             color: #000;
                         }
 
-                        .citation-table {
-                            font-family: "Arial", sans-serif;
+                        .citation-form-container .citation-table {
                             border: 1px solid #ddd;
                             width: 100%;
                             border-collapse: collapse;
                             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                            animation: fadeIn ' . self::DELAY_TIME . 's ease-in-out;
                         }
 
-                        .citation-th {
+                        .citation-form-container .citation-th {
                             background-color: #f4f4f4;
-                            font-weight: bold;
                             padding: 12px;
                             border: 1px solid #ddd;
                             text-align: left;
+                            animation: fadeIn ' . self::DELAY_TIME . 's ease-in-out;
                         }
 
-                        .citation-td {
+                        .citation-form-container .citation-td {
                             padding: 12px;
                             border: 1px solid #ddd;
                             text-align: left;
+                            animation: fadeIn ' . self::DELAY_TIME . 's ease-in-out;
                         }
 
-                        .citation-select {
+                        .citation-form-container .citation-select {
                             width: 100%;
                             padding: 8px;
                             min-width: 200px;
                             border: 1px solid #ccc;
                             border-radius: 4px;
-                            font-size: 14px;
+                            animation: fadeIn ' . self::DELAY_TIME . 's ease-in-out;
                         }
 
-                        .custom-input {
+                        .citation-form-container .custom-input {
                             display: block;
                             margin-top: 10px;
                             width: 100%;
@@ -169,11 +227,18 @@ class ApaStyle{
                             min-width: 200px;
                             border: 1px solid #ccc;
                             border-radius: 4px;
-                            font-size: 14px;
+                            animation: fadeIn '. self::DELAY_TIME .'s ease-in-out;
+                        }
+
+                        @keyframes fadeIn {
+                            from {
+                                opacity: 0;
+                            }
+                            to {
+                                opacity: 1;
+                            }
                         }
                     </style>';
-        
-        return $tableHTML;
     }
 
 }

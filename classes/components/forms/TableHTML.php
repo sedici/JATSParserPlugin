@@ -1,12 +1,14 @@
 <?php namespace PKP\components\forms;
 
 require_once __dir__ . '/CitationStyles/ApaStyle.php';
+require_once __dir__ . '/Helpers/getPublicationId.php';
 
 use PKP\components\forms\CitationStyles\ApaStyle;
 
 class TableHTML {
 
     private const WORDS_BEFORE = 30;
+    
     private $html = "";
     private $dom;
     private static $xpath;
@@ -29,9 +31,12 @@ class TableHTML {
 
         $this->citationStyle = $citationStyle;
 
+
         $this->extractReferences();
         $this->extractXRefs();
         $this->mergeArrays();
+
+
         $this->makeHtml();
     }
 
@@ -137,8 +142,9 @@ class TableHTML {
     }
 
     public function makeHtml(): void {
+
         $className = "PKP\\components\\forms\\CitationStyles\\" . ucfirst($this->citationStyle) . 'Style';
-        $this->html = $className::makeHtml($this->arrayData);
+        $this->html = $className::makeHtml($this->arrayData, $this->absoluteXmlPath, $this->citationStyle);
     }   
     
     public function getHtml(){
