@@ -1,6 +1,8 @@
 <?php namespace PKP\components\forms\CitationStyles;
 
-require_once __DIR__ . '/process_citations.php';
+require_once __DIR__ . '/../Helpers/process_citations.php';
+require_once __DIR__ . '/../Helpers/getPublicationId.php';
+require_once __DIR__ . '/../Helpers/loadCitationTableConfig.php';
 
 class ApaStyle{
 
@@ -57,7 +59,13 @@ $arrayData = [
 
     CONST DELAY_TIME = 0.5;
 
-    public static function makeHtml(Array $arrayData, String $absoluteXmlPath){
+    public static function makeHtml(Array $arrayData, String $absoluteXmlPath, String $citationStyle){
+        
+        $publicationId = getPublicationId(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+        $jsonCitationTableConfig = loadCitationTableConfig($publicationId); //this config could be an empty array if there is no data saved or an array with the saved data ['xrefId' => 'citationText'];
+        $arrayCitationConfig = json_decode($jsonCitationTableConfig, true);
+        print_r($arrayCitationConfig);
+
         $tableHTML = '<div class="citation-form-container">
                         <form method="POST" target="_self" onsubmit="
                             window.location.reload(true);
@@ -71,6 +79,7 @@ $arrayData = [
                         ">
 
                         <input type="hidden" name="xmlFilePath" value="' . htmlspecialchars($absoluteXmlPath) . '">
+                        <input type="hidden" name="citationStyleName" value="' . htmlspecialchars($citationStyle) . '">
                         <table class="citation-table">
                             <tr class="citation-header">
                                 <th class="citation-th">Contexto</th>
@@ -139,20 +148,27 @@ $arrayData = [
                                 </td>";
                     $firstRow = false;
                 }
-                
-                $tableHTML .= "</tr>";
             }
-            
         }
         
-        $tableHTML .= '</table>
-                        <button type="submit" class="save-btn-citations">
-                            Guardar citas
-                        </button>
-                    </form>
-                    </div>
+        $tableHTML .= '</tr>
+                        </table>
+                            <button type="submit" class="save-btn-citations">
+                                Guardar citas
+                            </button>
+                        </form>
+                        </div>';
 
-                    <style>
+        $tableHTML .= self::getStyles();
+
+        
+        
+        return $tableHTML;
+    }
+
+    //GET STYLES FOR THE HTML
+    public static function getStyles() {
+        return '<style>
                         .citation-form-container .save-btn-citations {
                             margin-top: 10px;
                             padding: 8px 12px;
@@ -223,8 +239,6 @@ $arrayData = [
                             }
                         }
                     </style>';
-        
-        return $tableHTML;
     }
 
 }
