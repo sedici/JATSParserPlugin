@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . "/TableHTML.php";
+require_once __dir__ . '/../../daos/CustomPublicationSettingsDAO.inc.php';
 
 import('lib.pkp.classes.file.PrivateFileManager');
 
@@ -101,8 +102,12 @@ class PublicationJATSUploadForm extends FormComponent {
 			if ($citationStyle === 'apa') {
 				$fileMgr = new PrivateFileManager();
 				$absolutePath = $fileMgr->getBasePath() . DIRECTORY_SEPARATOR . $relativeFilePath;
+				
+				$customPublicationSettingsDao = new CustomPublicationSettingsDAO();
+				$publicationId = $publication->getId();
+				$customCitationData = $customPublicationSettingsDao->getSetting($publicationId, 'jatsParser::citationTableData'); //get jatsParser::citationTableData from database from "publication_settings" table
 
-				$tableHTML = new TableHTML($citationStyle, $absolutePath);
+				$tableHTML = new TableHTML($citationStyle, $absolutePath, $customCitationData, $publicationId);
 				
 				$html = $tableHTML->getHtml();
 				

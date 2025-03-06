@@ -10,27 +10,28 @@ class TableHTML {
     private const WORDS_BEFORE = 30;
     
     private $html = "";
-    private $dom;
     private static $xpath;
     private $citationStyle;
     private $arrayData = array();
     private $absoluteXmlPath;
+    private $publicationId;
 
+    private $citationsArray;
     private $referencesArray = array();
     private $xrefsArray = array();
 
-    public function __construct($citationStyle, ?String $absoluteXmlPath)
+    public function __construct($citationStyle, ?String $absoluteXmlPath, $customCitationData, int $publicationId)
     {
+        $this->publicationId = $publicationId;
+        $this->citationsArray = $customCitationData;
         $this->absoluteXmlPath = $absoluteXmlPath;
 
         $dom = new \DOMDocument;
         $dom->load($absoluteXmlPath);
 		$xpath = new \DOMXPath($dom);
         self::$xpath = $xpath;
-        $this->dom = $dom;
 
         $this->citationStyle = $citationStyle;
-
 
         $this->extractReferences();
         $this->extractXRefs();
@@ -50,8 +51,11 @@ class TableHTML {
                         'xrefId' => $xrefId,
                         'rid' => $data['rid'],
                         'context' => $data['context'],
-                        'references' => []
+                        'references' => [],
+                        'status' => 'default',
+                        'citationText' => ''
                     ];
+
                 }
 
                 foreach ($this->referencesArray as $id => $reference) {
@@ -62,6 +66,11 @@ class TableHTML {
                             'authors' => $reference['authors']
                         ];
                     }
+                }
+
+                if (isset($this->citationsArray[$xrefId])) {
+                    $this->arrayData[$xrefId]['status'] = 'not-default';
+                    $this->arrayData[$xrefId]['citationText'] = $this->citationsArray[$xrefId];
                 }
             }
         }
@@ -144,7 +153,7 @@ class TableHTML {
     public function makeHtml(): void {
 
         $className = "PKP\\components\\forms\\CitationStyles\\" . ucfirst($this->citationStyle) . 'Style';
-        $this->html = $className::makeHtml($this->arrayData, $this->absoluteXmlPath, $this->citationStyle);
+        $this->html = $className::makeHtml($this->arrayData, $this->absoluteXmlPath, $this->citationStyle, $this->publicationId);
     }   
     
     public function getHtml(){

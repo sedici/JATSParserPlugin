@@ -214,16 +214,9 @@ class JatsParserPlugin extends GenericPlugin {
 				"nullable"
 			]
 		}';
-		 $propSimpleText = '{
-			"type": "string",
-			"apiSummary": true,
-			"validation": [
-				"nullable"
-			]
-		}';
 		$schema->properties->{'jatsParser::fullTextFileId'} = json_decode($propId);
 		$schema->properties->{'jatsParser::fullText'} = json_decode($propText);
-		$schema->properties->{'jatsParser::citationTableData'} = json_decode($propSimpleText);
+		$schema->properties->{'jatsParser::citationTableData'} = json_decode($propText);
 	}
 
 	/**

@@ -42,14 +42,9 @@ class CustomPublicationSettingsDAO extends DAO {
                 [$publicationId, $settingName]
             );
 
-            echo "<pre>";
-            echo "Consultando: publicationId=$publicationId, settingName=$settingName\n";
-
             $results = iterator_to_array($resultGenerator);
 
             if (!empty($results)) {
-                echo "Datos encontrados. Contenido:\n";
-                print_r($results);
 
                 $firstRow = reset($results);
                 $settingValue = $firstRow->setting_value;
