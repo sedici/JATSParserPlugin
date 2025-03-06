@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../Helpers/getPublicationId.php';
+require_once __DIR__ . '/../../../daos/CustomPublicationSettingsDAO.inc.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['citationStyleName'])) {
 
@@ -37,17 +38,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['citationStyleName'])) {
         $publicationId = getPublicationId($path);
 
         if ($publicationId) {
-            $publicationDao = DAORegistry::getDAO('PublicationDAO');
-            $publicationService = Services::get('publication');
-            $publication = $publicationService->get($publicationId); // Get publication using publicationId
-            
             $citationJsonData = json_encode($unifiedArray);
-            $publication->setData('jatsParser::citationTableData', $citationJsonData); // Save JSON data to publication
-            $json = $publication->getData('jatsParser::citationTableData');
-            $publicationDao->updateObject($publication);
 
-            print_r($unifiedArray);
-
+            // Usar la clase DAO personalizada para actualizar el campo
+            $customPublicationSettingsDao = new CustomPublicationSettingsDAO();
+            $customPublicationSettingsDao->updateSetting($publicationId, 'jatsParser::citationTableData', $citationJsonData);
+            
+            // Obtener los datos actualizados
+            $data = $customPublicationSettingsDao->getSetting($publicationId, 'jatsParser::citationTableData');
+            print_r($data);
         }
     
         header("Location: " . $_SERVER['REQUEST_URI']);
