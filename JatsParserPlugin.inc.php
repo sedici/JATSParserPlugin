@@ -45,6 +45,8 @@ class JatsParserPlugin extends GenericPlugin {
 				HookRegistry::register('Form::config::before', array($this, 'addCitationsFormFields'));
 				HookRegistry::register('Publication::edit', array($this, 'editPublicationReferences'));
 				HookRegistry::register('Publication::edit', array($this, 'createPdfGalley'), HOOK_SEQUENCE_LAST);
+				// Add this hook to initialize citationTableData for new publications
+				HookRegistry::register('Publication::add', array($this, 'initPublicationCitationTable'));
 			}
 
 			return true;
@@ -214,6 +216,30 @@ class JatsParserPlugin extends GenericPlugin {
 		}';
 		$schema->properties->{'jatsParser::fullTextFileId'} = json_decode($propId);
 		$schema->properties->{'jatsParser::fullText'} = json_decode($propText);
+		$schema->properties->{'jatsParser::citationTableData'} = json_decode($propText);
+	}
+
+	/**
+	 * Initialize citationTableData for new publications
+	 * 
+	 * @param $hookName string
+	 * @param $args array [
+	 *   Publication - the new publication
+	 *   Request
+	 * ]
+	 * @return boolean
+	 */
+	public function initPublicationCitationTable($hookName, $args) {
+		$publication = $args[0]; /* @var $publication Publication */
+		
+		// Add an empty value to ensure the field is created
+		$publication->setData('jatsParser::citationTableData', '');
+		
+		// Update the publication
+		$publicationDao = DAORegistry::getDAO('PublicationDAO');
+		$publicationDao->updateObject($publication);
+		
+		return false;
 	}
 
 	/**
@@ -507,38 +533,6 @@ class JatsParserPlugin extends GenericPlugin {
 		$htmlString .= '</ol>';
 
 		return $htmlString;
-	}
-
-	/**
-	 * @param Journal $context Journal
-	 * @return string
-	 * @brief Retrieve citation style format that should be supported by citeproc-php
-	 * use own format defined in settings if set
-	 * use CitationStyleLanguagePlugin if set
-	 * use vancouver style otherwise
-	 */
-	function getCitationStyle(Journal $context): string {
-
-		$contextId = $context->getId();
-
-		$citationStyle = $this->getSetting($contextId, 'citationStyle');
-
-		if ($citationStyle) return $citationStyle;
-
-		$pluginSettingsDAO = DAORegistry::getDAO('PluginSettingsDAO');
-		$cslPluginSettings = $pluginSettingsDAO->getPluginSettings($contextId, 'CitationStyleLanguagePlugin');
-
-		if ($cslPluginSettings &&
-			array_key_exists('enabled', $cslPluginSettings) &&
-			$cslPluginSettings['enabled'] &&
-			array_key_exists('primaryCitationStyle', $cslPluginSettings) &&
-			$cslPrimaryCitStyle = $cslPluginSettings['primaryCitationStyle']
-		) $citationStyle = $cslPrimaryCitStyle;
-
-		if ($citationStyle) return $citationStyle;
-
-		$lastCslKey = array_key_last(self::getSupportedCitationStyles());
-		return self::getSupportedCitationStyles()[$lastCslKey]['id']; // vancouver
 	}
 
 	/**
@@ -939,4 +933,5 @@ class JatsParserPlugin extends GenericPlugin {
 		]));
 
 	}
+
 }

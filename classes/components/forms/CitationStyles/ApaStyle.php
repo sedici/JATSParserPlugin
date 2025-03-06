@@ -1,14 +1,14 @@
 <?php namespace PKP\components\forms\CitationStyles;
 
 require_once __DIR__ . '/../Helpers/process_citations.php';
-require_once __DIR__ . '/../Helpers/getPublicationId.php';
-require_once __DIR__ . '/../Helpers/loadCitationTableConfig.php';
 
 class ApaStyle{
 
 /* Example of expected array structure:
 $arrayData = [
-    'ref_0' => [
+    'xref_id1' => [
+        'status' => 'default',
+        citationText => '',
         'context' => 'Context 1',
         'rid' => 'parser_0 parser_1',
         'references' => [
@@ -38,7 +38,9 @@ $arrayData = [
             ]
         ]
     ],
-    'ref_1' => [
+    'xref_id2' => [
+        'status' => 'not-default',
+        'citationText' => '(Smith y Johnson, 2020; Doe et al, 2019)',
         'context' => 'Context 2',
         'rid' => 'parser_1',
         'references' => [
@@ -59,27 +61,45 @@ $arrayData = [
 
     CONST DELAY_TIME = 0.5;
 
-    public static function makeHtml(Array $arrayData, String $absoluteXmlPath, String $citationStyle){
+    public static function makeHtml(Array $arrayData, String $absoluteXmlPath, String $citationStyle, int $publicationId) {
         
-        $publicationId = getPublicationId(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
-        $jsonCitationTableConfig = loadCitationTableConfig($publicationId); //this config could be an empty array if there is no data saved or an array with the saved data ['xrefId' => 'citationText'];
-        $arrayCitationConfig = json_decode($jsonCitationTableConfig, true);
-        print_r($arrayCitationConfig);
-
         $tableHTML = '<div class="citation-form-container">
-                        <form method="POST" target="_self" onsubmit="
-                            window.location.reload(true);
-                            let form = this;
-                            let formData = new FormData(form);
+                        <div id="citationErrorMessage" class="citation-error-message" style="display:none;">
+                            <span class="error-icon">⚠️</span> Error: No puedes guardar una cita vacía.
+                        </div>
+                        <form method="POST" target="_self" id="citationForm" onsubmit="
+                            // Verificar campos personalizados vacíos
+                            let customInputs = document.querySelectorAll(\'.custom-input\');
+                            let hasEmptyCustomFields = false;
+                            
+                            customInputs.forEach(function(input) {
+                                if(input.value.trim() === \'\') {
+                                    hasEmptyCustomFields = true;
+                                    input.classList.add(\'citation-select-error\');
+                                } else {
+                                    input.classList.remove(\'citation-select-error\');
+                                }
+                            });
+                            
+                            if(hasEmptyCustomFields) {
+                                document.getElementById(\'citationErrorMessage\').style.display = \'block\';
+                                return false;
+                            } else {
+                                document.getElementById(\'citationErrorMessage\').style.display = \'none\';
+                                window.location.reload(true);
+                                let form = this;
+                                let formData = new FormData(form);
 
-                            fetch("./process_citations.php", {
-                                method: "POST",
-                                body: formData
-                            })
+                                fetch(\'./process_citations.php\', {
+                                    method: \'POST\',
+                                    body: formData
+                                });
+                            }
                         ">
 
                         <input type="hidden" name="xmlFilePath" value="' . htmlspecialchars($absoluteXmlPath) . '">
                         <input type="hidden" name="citationStyleName" value="' . htmlspecialchars($citationStyle) . '">
+                        <input type="hidden" name="publicationId" value="' . htmlspecialchars($publicationId) . '">
                         <table class="citation-table">
                             <tr class="citation-header">
                                 <th class="citation-th">Contexto</th>
@@ -119,6 +139,17 @@ $arrayData = [
                     }
                     $citationText = implode('; ', $citationOptions);
                     $yearsText = implode('; ', array_unique($years));
+                    
+                    // Determinar qué opción mostrar como seleccionada
+                    $isDefault = $data['status'] === 'default';
+                    $customValue = isset($data['citationText']) ? $data['citationText'] : '';
+                    $isCustom = !$isDefault && $customValue && $customValue !== "($citationText)" && $customValue !== "($yearsText)";
+                    
+                    // Construir las opciones para el elemento select
+                    // Si es default, seleccionar la opción de citationText en lugar de la opción vacía
+                    $citationTextOption = "<option value='($citationText)' " . ($isDefault || (!$isDefault && $customValue === "($citationText)") ? "selected" : "") . ">($citationText)</option>";
+                    $yearsTextOption = "<option value='($yearsText)' " . (!$isDefault && $customValue === "($yearsText)" ? "selected" : "") . ">($yearsText)</option>";
+                    $customOption = "<option value='custom' " . ($isCustom ? "selected" : "") . ">Otro</option>";
 
                     $tableHTML .= "<td rowspan='" . $numRows . "' class='citation-td'>
                                     <select name='citationStyle[{$xrefId}]' id='citationStyle_{$xrefId}' 
@@ -141,11 +172,19 @@ $arrayData = [
                                                 }
                                             }
                                         '>
-                                        <option value='($citationText)'>($citationText)</option>
-                                        <option value='($yearsText)'>($yearsText)</option>
-                                        <option value='custom'>Otro</option>
-                                    </select>
-                                </td>";
+                                        {$citationTextOption}
+                                        {$yearsTextOption}
+                                        {$customOption}
+                                    </select>";
+                    
+                    // Si es una opción personalizada, mostrar el campo de entrada con el valor
+                    if ($isCustom) {
+                        $tableHTML .= "<input type='text' name='customCitation[{$xrefId}]' id='customInput_{$xrefId}' 
+                                      value='" . htmlspecialchars($customValue) . "' 
+                                      placeholder='ej: (González, 2011, p. 34)' class='custom-input'>";
+                    }
+                    
+                    $tableHTML .= "</td>";
                     $firstRow = false;
                 }
             }
@@ -160,8 +199,6 @@ $arrayData = [
                         </div>';
 
         $tableHTML .= self::getStyles();
-
-        
         
         return $tableHTML;
     }
@@ -185,6 +222,27 @@ $arrayData = [
                             transform: scale(1.08); 
                             background-color: #0073e6;
                             color: #000;
+                        }
+
+                        .citation-form-container .citation-error-message {
+                            background-color: #ffebee;
+                            color: #c62828;
+                            padding: 10px;
+                            margin-bottom: 15px;
+                            border-left: 5px solid #c62828;
+                            border-radius: 3px;
+                            animation: fadeIn ' . self::DELAY_TIME . 's ease-in-out;
+                            font-weight: 500;
+                        }
+                        
+                        .citation-form-container .error-icon {
+                            margin-right: 6px;
+                            font-size: 18px;
+                        }
+                        
+                        .citation-form-container .citation-select-error {
+                            border: 2px solid #c62828 !important;
+                            background-color: #ffebee;
                         }
 
                         .citation-form-container .citation-table {
