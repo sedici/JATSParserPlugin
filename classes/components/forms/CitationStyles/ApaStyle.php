@@ -8,7 +8,7 @@ class ApaStyle{
 $arrayData = [
     'xref_id1' => [
         'status' => 'default',
-        citationText => '',
+        'citationText' => '',
         'context' => 'Context 1',
         'rid' => 'parser_0 parser_1',
         'references' => [
@@ -61,45 +61,18 @@ $arrayData = [
 
     CONST DELAY_TIME = 0.5;
 
-    public static function makeHtml(Array $arrayData, String $absoluteXmlPath, String $citationStyle, int $publicationId) {
+    public static function makeHtml(Array $arrayData, String $absoluteXmlPath, String $citationStyle, int $publicationId, String $locale_key) {
         
-        $tableHTML = '<div class="citation-form-container">
-                        <div id="citationErrorMessage" class="citation-error-message" style="display:none;">
-                            <span class="error-icon">⚠️</span> Error: No puedes guardar una cita vacía.
+        $html = '<div class="citation-form-container">';
+        $html .= '<div id="citationErrorMessage" class="citation-error-message" style="display:none;">
+                            <span class="error-icon">⚠️</span> ' . __('plugins.generic.jatsParser.citationtable.error.nulloption') .'.
                         </div>
-                        <form method="POST" target="_self" id="citationForm" onsubmit="
-                            // Verificar campos personalizados vacíos
-                            let customInputs = document.querySelectorAll(\'.custom-input\');
-                            let hasEmptyCustomFields = false;
-                            
-                            customInputs.forEach(function(input) {
-                                if(input.value.trim() === \'\') {
-                                    hasEmptyCustomFields = true;
-                                    input.classList.add(\'citation-select-error\');
-                                } else {
-                                    input.classList.remove(\'citation-select-error\');
-                                }
-                            });
-                            
-                            if(hasEmptyCustomFields) {
-                                document.getElementById(\'citationErrorMessage\').style.display = \'block\';
-                                return false;
-                            } else {
-                                document.getElementById(\'citationErrorMessage\').style.display = \'none\';
-                                window.location.reload(true);
-                                let form = this;
-                                let formData = new FormData(form);
-
-                                fetch(\'./process_citations.php\', {
-                                    method: \'POST\',
-                                    body: formData
-                                });
-                            }
-                        ">
+                        <form method="POST" target="_self" id="citationForm" onsubmit="' . self::onSubmitFunctions() . '">
 
                         <input type="hidden" name="xmlFilePath" value="' . htmlspecialchars($absoluteXmlPath) . '">
                         <input type="hidden" name="citationStyleName" value="' . htmlspecialchars($citationStyle) . '">
                         <input type="hidden" name="publicationId" value="' . htmlspecialchars($publicationId) . '">
+                        <input type="hidden" name="locale_key" value="' . htmlspecialchars($locale_key) . '">
                         <table class="citation-table">
                             <tr class="citation-header">
                                 <th class="citation-th">Contexto</th>
@@ -112,13 +85,13 @@ $arrayData = [
             $firstRow = true;
             
             foreach ($data['references'] as $referenceData) {
-                $tableHTML .= "<tr class='citation-row'>";
+                $html .= "<tr class='citation-row'>";
                 
                 if ($firstRow) {
-                    $tableHTML .= '<td rowspan="' . $numRows . '" class="citation-td">' . $data['context'] . '</td>';
+                    $html .= '<td rowspan="' . $numRows . '" class="citation-td">' . $data['context'] . '</td>';
                 }
 
-                $tableHTML .= "<td class='citation-td'>" . $referenceData['reference'] . "</td>";
+                $html .= "<td class='citation-td'>" . $referenceData['reference'] . "</td>";
                 
                 if ($firstRow) {
                     $citationOptions = [];
@@ -140,23 +113,39 @@ $arrayData = [
                     $citationText = implode('; ', $citationOptions);
                     $yearsText = implode('; ', array_unique($years));
                     
-                    // Determinar qué opción mostrar como seleccionada
+                    // Determine if the citation style is default, custom or years
                     $isDefault = $data['status'] === 'default';
                     $customValue = isset($data['citationText']) ? $data['citationText'] : '';
                     $isCustom = !$isDefault && $customValue && $customValue !== "($citationText)" && $customValue !== "($yearsText)";
                     
-                    // Construir las opciones para el elemento select
-                    // Si es default, seleccionar la opción de citationText en lugar de la opción vacía
+                    // Construct the options for the select element
+                    // If the custom value is the same as the default citation text, select the default option
+                    // If the custom value is the same as the years text, select the years option
                     $citationTextOption = "<option value='($citationText)' " . ($isDefault || (!$isDefault && $customValue === "($citationText)") ? "selected" : "") . ">($citationText)</option>";
                     $yearsTextOption = "<option value='($yearsText)' " . (!$isDefault && $customValue === "($yearsText)" ? "selected" : "") . ">($yearsText)</option>";
                     $customOption = "<option value='custom' " . ($isCustom ? "selected" : "") . ">Otro</option>";
 
-                    $tableHTML .= "<td rowspan='" . $numRows . "' class='citation-td'>
+                    // Apply styles to the select element based on the selected option
+                    $selectClass = 'citation-select citation-original';
+                    
+                    $html .= "<td rowspan='" . $numRows . "' class='citation-td'>
                                     <select name='citationStyle[{$xrefId}]' id='citationStyle_{$xrefId}' 
-                                        class='citation-select'
+                                        class='{$selectClass}'
+                                        data-original-value='" . ($isCustom ? "custom" : ($isDefault || (!$isDefault && $customValue === "($citationText)") ? "($citationText)" : "($yearsText)")) . "'
                                         onchange='
+                                            let selectElem = this;
                                             let inputField = document.getElementById(\"customInput_{$xrefId}\");
-                                            if(this.value == \"custom\"){
+                                            
+                                            // Aplicar estilos según el cambio
+                                            if(selectElem.value !== selectElem.getAttribute(\"data-original-value\")) {
+                                                selectElem.classList.remove(\"citation-original\");
+                                                selectElem.classList.add(\"citation-modified\");
+                                            } else {
+                                                selectElem.classList.remove(\"citation-modified\");
+                                                selectElem.classList.add(\"citation-original\");
+                                            }
+                                            
+                                            if(selectElem.value == \"custom\"){
                                                 if(!inputField){
                                                     inputField = document.createElement(\"input\");
                                                     inputField.type = \"text\";
@@ -164,7 +153,14 @@ $arrayData = [
                                                     inputField.id = \"customInput_{$xrefId}\";
                                                     inputField.placeholder = \"ej: (González, 2011, p. 34)\";
                                                     inputField.className = \"custom-input\";
-                                                    this.parentNode.appendChild(inputField);
+                                                    inputField.onchange = function() {
+                                                        if(this.value.trim() === \"\") {
+                                                            this.classList.add(\"citation-select-error\");
+                                                        } else {
+                                                            this.classList.remove(\"citation-select-error\");
+                                                        }
+                                                    };
+                                                    selectElem.parentNode.appendChild(inputField);
                                                 }
                                             } else {
                                                 if(inputField){
@@ -177,20 +173,37 @@ $arrayData = [
                                         {$customOption}
                                     </select>";
                     
-                    // Si es una opción personalizada, mostrar el campo de entrada con el valor
+                    // If the option is custom, show the input field and  apply styles based on the value
                     if ($isCustom) {
-                        $tableHTML .= "<input type='text' name='customCitation[{$xrefId}]' id='customInput_{$xrefId}' 
+                        $customInputClass = "custom-input" . ($customValue ? " citation-original" : "");
+                        $html .= "<input type='text' name='customCitation[{$xrefId}]' id='customInput_{$xrefId}' 
                                       value='" . htmlspecialchars($customValue) . "' 
-                                      placeholder='ej: (González, 2011, p. 34)' class='custom-input'>";
+                                      placeholder='ej: (González, 2011, p. 34)' 
+                                      class='{$customInputClass}'
+                                      data-original-value='" . htmlspecialchars($customValue) . "'
+                                      onchange=\"
+                                        if(this.value.trim() === '') {
+                                            this.classList.add('citation-select-error');
+                                        } else {
+                                            this.classList.remove('citation-select-error');
+                                            if(this.value !== this.getAttribute('data-original-value')) {
+                                                this.classList.remove('citation-original');
+                                                this.classList.add('citation-modified');
+                                            } else {
+                                                this.classList.remove('citation-modified');
+                                                this.classList.add('citation-original');
+                                            }
+                                        }
+                                      \">";
                     }
                     
-                    $tableHTML .= "</td>";
+                    $html .= "</td>";
                     $firstRow = false;
                 }
             }
         }
         
-        $tableHTML .= '</tr>
+        $html .= '</tr>
                         </table>
                             <button type="submit" class="save-btn-citations">
                                 Guardar citas
@@ -198,14 +211,55 @@ $arrayData = [
                         </form>
                         </div>';
 
-        $tableHTML .= self::getStyles();
+        $html .= self::getStyles();
         
-        return $tableHTML;
+        return $html;
+    }
+
+    public static function onSubmitFunctions() {
+        return 'let customInputs = document.querySelectorAll(\'.custom-input\');
+                let hasEmptyCustomFields = false;
+                            
+                customInputs.forEach(function(input) {
+                    if(input.value.trim() === \'\') {
+                        hasEmptyCustomFields = true;
+                        input.classList.add(\'citation-select-error\');
+                    } else {
+                        input.classList.remove(\'citation-select-error\');
+                    }
+                });
+                            
+                if(hasEmptyCustomFields) {
+                    document.getElementById(\'citationErrorMessage\').style.display = \'block\';
+                    return false;
+                } else {
+                    document.getElementById(\'citationErrorMessage\').style.display = \'none\';
+                    window.location.reload(true);
+                    let form = this;
+                    let formData = new FormData(form);
+
+                    fetch(\'./process_citations.php\', {
+                        method: \'POST\',
+                        body: formData
+                    });
+                }';
     }
 
     //GET STYLES FOR THE HTML
     public static function getStyles() {
         return '<style>
+                        .citation-text {
+                            color: #0066cc;
+                            font-weight: bold;
+                            background-color: #f0f8ff;
+                            padding: 0 3px;
+                            border-radius: 3px;
+                            transition: background-color 0.2s;
+                        }
+                        .citation-text:hover {
+                            background-color: #e1f0ff;
+                        }
+                        
                         .citation-form-container .save-btn-citations {
                             margin-top: 10px;
                             padding: 8px 12px;
@@ -243,6 +297,19 @@ $arrayData = [
                         .citation-form-container .citation-select-error {
                             border: 2px solid #c62828 !important;
                             background-color: #ffebee;
+                        }
+
+                        /* Estilos para marcar opciones originales y modificadas */
+                        .citation-form-container .citation-original {
+                            border: 2px solid #4CAF50 !important;
+                            background-color: rgba(76, 175, 80, 0.05);
+                            transition: all 0.3s ease;
+                        }
+
+                        .citation-form-container .citation-modified {
+                            border: 2px solid #FFC107 !important;
+                            background-color: rgba(255, 193, 7, 0.05);
+                            transition: all 0.3s ease;
                         }
 
                         .citation-form-container .citation-table {
