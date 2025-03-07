@@ -118,3 +118,6 @@ msgstr "Abstract"
 
 msgid "plugins.generic.jatsParser.publication.jats.citationStyle.label"
 msgstr "The following citations ences have been detected"
+
+msgid "plugins.generic.jatsParser.citationtable.error.nulloption"
+msgstr "Error: You can't save an empty citation value"

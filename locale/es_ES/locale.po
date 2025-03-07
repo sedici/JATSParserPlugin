@@ -136,3 +136,6 @@ msgstr "Resumen"
 
 msgid "plugins.generic.jatsParser.publication.jats.citationStyle.label"
 msgstr "Se han detectado las siguientes citas"
+
+msgid "plugins.generic.jatsParser.citationtable.error.nulloption"
+msgstr "Error: No puedes guardar una cita vacía"

@@ -26,6 +26,7 @@ use JATSParser\PDF\PDFConfig\Configuration;
 use JATSParser\Body\Document;
 use JATSParser\HTML\Document as HTMLDocument;
 use \PKP\components\forms\FormComponent;
+use JATSParser\PDF\TemplateStrategy;
 
 define("CREATE_PDF_QUERY", "download=pdf");
 
@@ -182,7 +183,7 @@ class JatsParserPlugin extends GenericPlugin {
 		$metadata = $this->getMetadata($journal, $publication, $localeKey, $request, $htmlString);
 		$configuration = new Configuration($metadata);
 
-		$templateName = 'JATSParser\PDF\TemplateOne';
+		$templateName = 'TemplateOne';
 		$templateStrategy = new TemplateStrategy($templateName, $configuration);
 
 		return $templateStrategy->OutputPdf();
