@@ -5,6 +5,7 @@ require_once __dir__ . '/../../daos/CustomPublicationSettingsDAO.inc.php';
 
 import('lib.pkp.classes.file.PrivateFileManager');
 
+use JATSParser\PDF\PDFConfig\Configuration;
 use PKP\components\forms\TableHTML;
 use PKP\components\forms\FieldHTML;
 use \PKP\components\forms\FormComponent;
@@ -99,7 +100,10 @@ class PublicationJATSUploadForm extends FormComponent {
 				]));
 			}
 		
-			if ($citationStyle === 'apa') {
+			$supportedCitationStyles = Configuration::getSupportedCustomCitationStyles();
+
+			//checking if the citation style is supported (array of supported citation styles is not empty and the citation style is in the array)
+			if ($supportedCitationStyles && in_array(strtolower($citationStyle), $supportedCitationStyles)) {
 				$fileMgr = new PrivateFileManager();
 				$absolutePath = $fileMgr->getBasePath() . DIRECTORY_SEPARATOR . $relativeFilePath;
 				

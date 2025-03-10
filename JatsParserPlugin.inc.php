@@ -46,7 +46,6 @@ class JatsParserPlugin extends GenericPlugin {
 				HookRegistry::register('Form::config::before', array($this, 'addCitationsFormFields'));
 				HookRegistry::register('Publication::edit', array($this, 'editPublicationReferences'));
 				HookRegistry::register('Publication::edit', array($this, 'createPdfGalley'), HOOK_SEQUENCE_LAST);
-				// Add this hook to initialize citationTableData for new publications
 				HookRegistry::register('Publication::add', array($this, 'initPublicationCitationTable'));
 			}
 
@@ -124,6 +123,7 @@ class JatsParserPlugin extends GenericPlugin {
 		$issue = $issueDao->getById($publication->getData('issueId'), $context->getId());
 		$userGroupDao = DAORegistry::getDAO('UserGroupDAO');
 		$userGroups = $userGroupDao->getByContextId($journal->getId())->toArray();
+		$plugin = PluginRegistry::getPlugin('generic', 'jatsparserplugin');
 
 		$editDecisionDao = DAORegistry::getDAO('EditDecisionDAO');
 		$decisions = $editDecisionDao->getEditorDecisions($submission->getId());
@@ -136,6 +136,7 @@ class JatsParserPlugin extends GenericPlugin {
 		}
 	
 		$metadata = [
+			'citation_style' => $plugin->getSetting($context->getId(), 'citationStyle'),
 			'publication_id' => $publication->getId(),
 			'doi' => $publication->getData('pub-id::doi'),
 			'journal_id' => $journal->getId(),
