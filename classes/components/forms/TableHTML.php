@@ -80,7 +80,7 @@ class TableHTML {
                 }
 
                 // Try to find by just matching the xrefId across any XML path
-                foreach ($this->citationsArray as $xmlPath => $citations) {
+                foreach ($this->citationsArray['fileId'] as $xmlPath => $citations) {
                     if (isset($citations[$xrefId])) {
                         $this->arrayData[$xrefId]['status'] = 'not-default';
                         $this->arrayData[$xrefId]['citationText'] = $citations[$xrefId];

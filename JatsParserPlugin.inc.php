@@ -136,6 +136,7 @@ class JatsParserPlugin extends GenericPlugin {
 		}
 	
 		$metadata = [
+			'publication_id' => $publication->getId(),
 			'doi' => $publication->getData('pub-id::doi'),
 			'journal_id' => $journal->getId(),
 			'authors' => $publication->getData('authors'),
@@ -347,6 +348,38 @@ class JatsParserPlugin extends GenericPlugin {
 		}
 
 		return false;
+	}
+
+	/**
+	 * @param Journal $context Journal
+	 * @return string
+	 * @brief Retrieve citation style format that should be supported by citeproc-php
+	 * use own format defined in settings if set
+	 * use CitationStyleLanguagePlugin if set
+	 * use vancouver style otherwise
+	 */
+	function getCitationStyle(Journal $context): string {
+
+		$contextId = $context->getId();
+
+		$citationStyle = $this->getSetting($contextId, 'citationStyle');
+
+		if ($citationStyle) return $citationStyle;
+
+		$pluginSettingsDAO = DAORegistry::getDAO('PluginSettingsDAO');
+		$cslPluginSettings = $pluginSettingsDAO->getPluginSettings($contextId, 'CitationStyleLanguagePlugin');
+
+		if ($cslPluginSettings &&
+			array_key_exists('enabled', $cslPluginSettings) &&
+			$cslPluginSettings['enabled'] &&
+			array_key_exists('primaryCitationStyle', $cslPluginSettings) &&
+			$cslPrimaryCitStyle = $cslPluginSettings['primaryCitationStyle']
+		) $citationStyle = $cslPrimaryCitStyle;
+
+		if ($citationStyle) return $citationStyle;
+
+		$lastCslKey = array_key_last(self::getSupportedCitationStyles());
+		return self::getSupportedCitationStyles()[$lastCslKey]['id']; // vancouver
 	}
 
 	/**
