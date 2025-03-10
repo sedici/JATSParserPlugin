@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['citationStyleName'])) {
             $citationsArray[$rid] = $customCitation;
         }
 
-        $unifiedArray[$_POST['xmlFilePath']] = $citationsArray;
+        $unifiedArray['fileId'][$_POST['xmlFilePath']] = $citationsArray;
 
         if ($_POST['publicationId']) {
             $citationJsonData = json_encode($unifiedArray);
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['citationStyleName'])) {
             // Using DAO to update the setting
             $customPublicationSettingsDao = new CustomPublicationSettingsDAO();
             $customPublicationSettingsDao->updateSetting($_POST['publicationId'], 'jatsParser::citationTableData', $citationJsonData, $_POST['locale_key']);
-            // echo '<pre>' . json_encode($unifiedArray, JSON_PRETTY_PRINT) . '</pre>';
+            //echo '<pre>' . json_encode($unifiedArray, JSON_PRETTY_PRINT) . '</pre>';
         }
     
         header("Location: " . $_SERVER['REQUEST_URI']);

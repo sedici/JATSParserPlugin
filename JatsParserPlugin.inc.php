@@ -46,7 +46,6 @@ class JatsParserPlugin extends GenericPlugin {
 				HookRegistry::register('Form::config::before', array($this, 'addCitationsFormFields'));
 				HookRegistry::register('Publication::edit', array($this, 'editPublicationReferences'));
 				HookRegistry::register('Publication::edit', array($this, 'createPdfGalley'), HOOK_SEQUENCE_LAST);
-				// Add this hook to initialize citationTableData for new publications
 				HookRegistry::register('Publication::add', array($this, 'initPublicationCitationTable'));
 			}
 
@@ -124,6 +123,7 @@ class JatsParserPlugin extends GenericPlugin {
 		$issue = $issueDao->getById($publication->getData('issueId'), $context->getId());
 		$userGroupDao = DAORegistry::getDAO('UserGroupDAO');
 		$userGroups = $userGroupDao->getByContextId($journal->getId())->toArray();
+		$plugin = PluginRegistry::getPlugin('generic', 'jatsparserplugin');
 
 		$editDecisionDao = DAORegistry::getDAO('EditDecisionDAO');
 		$decisions = $editDecisionDao->getEditorDecisions($submission->getId());
@@ -136,6 +136,8 @@ class JatsParserPlugin extends GenericPlugin {
 		}
 	
 		$metadata = [
+			'citation_style' => $plugin->getSetting($context->getId(), 'citationStyle'),
+			'publication_id' => $publication->getId(),
 			'doi' => $publication->getData('pub-id::doi'),
 			'journal_id' => $journal->getId(),
 			'authors' => $publication->getData('authors'),
@@ -347,6 +349,38 @@ class JatsParserPlugin extends GenericPlugin {
 		}
 
 		return false;
+	}
+
+	/**
+	 * @param Journal $context Journal
+	 * @return string
+	 * @brief Retrieve citation style format that should be supported by citeproc-php
+	 * use own format defined in settings if set
+	 * use CitationStyleLanguagePlugin if set
+	 * use vancouver style otherwise
+	 */
+	function getCitationStyle(Journal $context): string {
+
+		$contextId = $context->getId();
+
+		$citationStyle = $this->getSetting($contextId, 'citationStyle');
+
+		if ($citationStyle) return $citationStyle;
+
+		$pluginSettingsDAO = DAORegistry::getDAO('PluginSettingsDAO');
+		$cslPluginSettings = $pluginSettingsDAO->getPluginSettings($contextId, 'CitationStyleLanguagePlugin');
+
+		if ($cslPluginSettings &&
+			array_key_exists('enabled', $cslPluginSettings) &&
+			$cslPluginSettings['enabled'] &&
+			array_key_exists('primaryCitationStyle', $cslPluginSettings) &&
+			$cslPrimaryCitStyle = $cslPluginSettings['primaryCitationStyle']
+		) $citationStyle = $cslPrimaryCitStyle;
+
+		if ($citationStyle) return $citationStyle;
+
+		$lastCslKey = array_key_last(self::getSupportedCitationStyles());
+		return self::getSupportedCitationStyles()[$lastCslKey]['id']; // vancouver
 	}
 
 	/**
