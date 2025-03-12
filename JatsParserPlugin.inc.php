@@ -20,6 +20,7 @@ import('plugins.generic.jatsParser.classes.JATSParserDocument');
 import('plugins.generic.jatsParser.classes.components.forms.PublicationJATSUploadForm');
 import('lib.pkp.classes.citation.Citation');
 import('lib.pkp.classes.file.PrivateFileManager');
+import('lib.pkp.classes.file.PKPPublicFileManager');
 
 use JATSParser\PDF\PDFConfig\Translations;
 use JATSParser\PDF\PDFConfig\Configuration;
@@ -116,9 +117,10 @@ class JatsParserPlugin extends GenericPlugin {
 	}
 
 	//add metadata to $GLOBAL_CONFIGURATION array
-	private function getMetadata($journal, $publication, $localeKey, $request, $htmlString) {
+	private function getMetadata($publication, $localeKey, $request, $htmlString) {
 		$submission = Services::get('submission')->get($publication->getData('submissionId')); /* @var $submission Submission */
 		$context = $request->getContext(); /* @var $context Journal */
+		$journal = $request->getContext();
 		$issueDao = DAORegistry::getDAO('IssueDAO');
 		$issue = $issueDao->getById($publication->getData('issueId'), $context->getId());
 		$userGroupDao = DAORegistry::getDAO('UserGroupDAO');
@@ -134,7 +136,15 @@ class JatsParserPlugin extends GenericPlugin {
 				$acceptedDate = $decision['dateDecided'];
 			}
 		}
-	
+
+		$publicFileMgr = new PublicFileManager();
+		$privateFileMgr = new PrivateFileManager();
+
+		$journalThumbnail = $journal->getLocalizedData('journalThumbnail');
+		$journalThumbnailName = $journalThumbnail['uploadName'];
+		$journalThumbnailPath = $publicFileMgr->getContextFilesPath($journal->getId()) . '/' . $journalThumbnailName;
+
+
 		$metadata = [
 			'citation_style' => $plugin->getSetting($context->getId(), 'citationStyle'),
 			'publication_id' => $publication->getId(),
@@ -145,6 +155,7 @@ class JatsParserPlugin extends GenericPlugin {
 			'journal_title' => $journal->getLocalizedData('name'),
 			'journal_issue' => $publication->getData('issueId'),
 			'locale_key' => $localeKey,
+			'journal_thumbnail_path' => $journalThumbnailPath,
 			'journal_thumbnail' => $journal->getLocalizedData('journalThumbnail'),
 			'full_title' => $publication->getLocalizedFullTitle($localeKey),
 			'license_url' => $publication->getData('licenseUrl'),
@@ -180,9 +191,7 @@ class JatsParserPlugin extends GenericPlugin {
 	 * @param
 	 */
 	private function pdfCreation(string $htmlString, Publication $publication, Request $request, string $localeKey): string {
-
-		$journal = $request->getContext();
-		$metadata = $this->getMetadata($journal, $publication, $localeKey, $request, $htmlString);
+		$metadata = $this->getMetadata($publication, $localeKey, $request, $htmlString);
 		$configuration = new Configuration($metadata);
 
 		$templateName = 'TemplateOne';
@@ -555,17 +564,22 @@ class JatsParserPlugin extends GenericPlugin {
 		$citationTokenizer = new CitationListTokenizerFilter();
 		$citationStrings = $citationTokenizer->execute($rawCitations);
 
+		$numberedCitations = Configuration::getNumberedReferences();
+		$context = Application::get()->getRequest()->getContext();
+		$plugin = PluginRegistry::getPlugin('generic', 'jatsparserplugin'); /* @var $plugin JATSParserPlugin */
+		$citationStyle = $plugin->getSetting($context->getId(), 'citationStyle');
+
 		if (!is_array($citationStrings) || empty($citationStrings)) return $htmlString;
-		$htmlString .= '<h2 class="article-section-title" id="reference-title">' . __('submission.citations', null, $locale) . '</h2>';
 		$htmlString .= "\n";
-		$htmlString .= '<ol id="references">';
+		//check if the references will be numbered or not (e.g. IEEE style have numbered references, but APA style does not)
+		$htmlString .= in_array($citationStyle, $numberedCitations) ? '<ol id="references">' : '<div id="references">';
 		$htmlString .= "\n";
 		foreach ($citationStrings as $citationString) {
 			$htmlString .= "\t";
 			$htmlString .= '<li>' . $citationString . '</li>';
 			$htmlString .= "\n";
 		}
-		$htmlString .= '</ol>';
+		$htmlString .= in_array($citationStyle, $numberedCitations) ? '</ol>' : '</div>';
 
 		return $htmlString;
 	}
