@@ -4,7 +4,7 @@
 
 El desarrollo que se ha llevado a cabo ha sido sobre un plugin ya existente llamado **jatsParser** creado por https://github.com/Vitaliy-1, el cual es utilizado en **OJS** (Open Journal Systems). En este trabajo se han implementado nuevas herramientas y funcionalidades. Esta documentación aborda aspectos técnicos sobre las modificaciones realizadas en el plugin.
 
-##Instalación
+## Instalación
 
 1. Navega hasta la carpeta plugins/generic comenzando desde la raíz de OJS.
 2. Ejecuta `git clone --recursive https://github.com/sedici/JATSParserPlugin.git jatsParser`.
