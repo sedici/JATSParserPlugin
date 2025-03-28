@@ -138,12 +138,10 @@ class JatsParserPlugin extends GenericPlugin {
 		}
 
 		$publicFileMgr = new PublicFileManager();
-		$privateFileMgr = new PrivateFileManager();
 
 		$journalThumbnail = $journal->getLocalizedData('journalThumbnail');
 		$journalThumbnailName = $journalThumbnail['uploadName'];
 		$journalThumbnailPath = $publicFileMgr->getContextFilesPath($journal->getId()) . '/' . $journalThumbnailName;
-
 
 		$metadata = [
 			'citation_style' => $plugin->getSetting($context->getId(), 'citationStyle'),
@@ -164,7 +162,7 @@ class JatsParserPlugin extends GenericPlugin {
 			'date_submitted' => date('d/m/Y', strtotime($submission->getDateSubmitted())),
 			'date_accepted' => date('d/m/Y', strtotime($acceptedDate)),
 			'date_published' => str_replace('-', '/', $submission->getDatePublished()),
-			'journal_data' => $issue->getIssueIdentification(), // Includes volume, number, year of a journal.
+			'journal_data' => ($issue !== null && $issue->getIdentification()) ? $issue->getIdentification() : "", // Includes volume, number, year of a journal.
 			'user_groups' => $userGroups,
 			'contributors' => $publication->getAuthorString($userGroups),
 			'subject' => $publication->getLocalizedData('subject', $localeKey),
