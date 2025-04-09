@@ -15,10 +15,11 @@ El desarrollo que se ha llevado a cabo ha sido sobre un plugin ya existente llam
 
 El propósito de este plugin es generar un documento **PDF** a partir de un archivo **XML** que sigue el estándar **JATS**.
 
-Inicialmente, el PDF generado tenía una plantilla predefinida, la cual fue modificada para:
+Inicialmente, el PDF generado tenía una plantilla predefinida y  se han realizado modificaciones en la generación de la misma para:
 - Cargar más metadatos desde OJS.
 - Considerar las traducciones de metadatos como el título del artículo, subtítulo, resúmenes y palabras clave.
 - Permitir la citación de referencias de acuerdo con el estilo de citación utilizado.
+- Soporte para la creación de múltiples plantillas.
 - Otras mejoras que se detallarán más adelante.
 
 ## Proceso de Generación del PDF
@@ -34,11 +35,15 @@ La generación del PDF en este plugin se divide en dos partes:
    - Es la primera sección visible del PDF generado antes de mostrar el contenido del artículo.
    - Se utiliza la librería **TCPDF** en PHP para la creación del documento PDF.
 
-### Secciones de la Plantilla
+### Plantillas
 
-La plantilla del PDF se divide en tres secciones principales:
+Por el momento, se ha desarrollado una única plantilla de PDF llamada TemplateOne, pero en el futuro se añadirán más.
 
-#### **Body**
+#### Plantilla TemplateOne 
+
+Se divide en cuatro secciones principales:
+
+#### **TemplateBody**
 
 Contiene los siguientes metadatos:
 - Logo de la revista e institución.
@@ -61,6 +66,11 @@ Se tuvo en cuenta la traducción de metadatos como título, subtítulo, resúmen
 Ejemplo de URL de licencia:
 > https://creativecommons.org/licenses/by/4.0/
 
+#### Body
+- Todo el contenido del artículo subido a OJS.
+
+---
+
 ## Estructura del Código
 
 Para entender cómo se genera el PDF, debemos revisar el archivo `JatsParserPlugin.php`, ubicado en la carpeta raíz `jatsParser` del plugin.
@@ -71,7 +81,7 @@ Este archivo contiene la clase `JatsParserPlugin`, la cual gestiona el flujo del
 
 #### **initPublicationCitation**
 Se aplica al hook `publication::add`, que se ejecuta al aceptar un artículo. Esta función:
-- Agrega una nueva fila en la tabla `publicationsettings` de la base de datos.
+- Agrega una nueva fila en la tabla `publication_settings` de la base de datos.
 - En el campo `setting_name`, se almacena el valor `jatsParser::citationTableData`.
 - La función de esta tabla se explicará más adelante.
 
@@ -83,9 +93,11 @@ Esta función:
 - Crea el PDF y lo agrega en la sección "Galeradas" de OJS en la etapa de Publicación.
 - Llama a `pdfCreation()`, sobre la cual se realizaron modificaciones.
 
-## Modificación de la Función `pdfCreation()`
+## Modificación de la Función pdfCreation()
 
-Antes, `pdfCreation()` instanciaba una clase que extendía `TCPDFDocument`, generando el PDF de manera desordenada. Se reorganizó el código para **separar la creación del PDF de la gestión de metadatos**.
+Anteriormente, la función pdfCreation() se encargaba de instanciar la clase TCPDF y de construir cada parte del PDF, obteniendo directamente los metadatos desde OJS, con el apoyo parcial de una clase llamada TCPDFDocument.
+
+Con el objetivo de mejorar la organización del código y facilitar su mantenimiento, se realizó una refactorización que permitió separar la lógica de creación del PDF de la gestión de metadatos. De esta manera, cada responsabilidad quedó delimitada, lo que favorece futuras modificaciones.
 
 ### Nuevo Flujo de `pdfCreation()`
 
@@ -95,32 +107,11 @@ Antes, `pdfCreation()` instanciaba una clase que extendía `TCPDFDocument`, gene
 4. Aplicar el patrón de diseño **Strategy**, permitiendo la creación de múltiples plantillas en el futuro.
 5. Instanciar un objeto con el nombre de la plantilla correspondiente (`TemplateOne`, por ahora la única plantilla disponible).
 
+---
+
 ## Creación de Nuevas Plantillas
 
 Para agregar nuevas plantillas correctamente, seguir estos pasos:
-
-1. Crear un nuevo archivo `.php` en `jatsParser/JATSParser/src/JATSParser/PDF/Templates` con el **nombre de la plantilla**.
-2. Indicar el `namespace` en la nueva clase:
-   ```php
-   namespace JATSParser\PDF\Templates;
-   ```
-3. Agregar el siguiente `require_once` en la nueva clase para importar la librería TCPDF:
-   ```php
-   require_once(__DIR__ .'/../../../../vendor/tecnickcom/tcpdf/tcpdf.php');
-   ```
-   También incluir:
-   ```php
-   use JATSParser\PDF\PDFConfig\Configuration;
-   use JATSParser\PDF\PDFConfig\Translations;
-   ```
-4. En `TemplateStrategy`, agregar el siguiente `require_once`:
-   ```php
-   require_once __DIR__ . '/Templates/{nombre de la plantilla}.php';
-   ```
-   **Nota:** El nombre de la plantilla en esta ruta **debe coincidir** con el nombre de la clase creada en el paso 1.
-5. Tomar como referencia `TemplateOne` para entender el uso de TCPDF.
-
-Con esta estructura, el plugin `jatsParser` permite la correcta generación de PDFs personalizados en OJS, asegurando flexibilidad y escalabilidad en futuras mejoras.
 
 ---
 
