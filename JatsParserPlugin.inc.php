@@ -137,11 +137,9 @@ class JatsParserPlugin extends GenericPlugin {
 			}
 		}
 
-		$publicFileMgr = new PublicFileManager();
+		$privateFileManager = new PrivateFileManager();
 
-		$journalThumbnail = $journal->getLocalizedData('journalThumbnail');
-		$journalThumbnailName = $journalThumbnail['uploadName'];
-		$journalThumbnailPath = $publicFileMgr->getContextFilesPath($journal->getId()) . '/' . $journalThumbnailName;
+		$journalLogosPath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR ."journals" . DIRECTORY_SEPARATOR . $journal->getId() . DIRECTORY_SEPARATOR . $journal->getData('path');
 
 		$metadata = [
 			'citation_style' => $plugin->getSetting($context->getId(), 'citationStyle'),
@@ -152,8 +150,8 @@ class JatsParserPlugin extends GenericPlugin {
 			'online_issn' => $journal->getData('onlineIssn'),
 			'journal_title' => $journal->getLocalizedData('name'),
 			'journal_issue' => $publication->getData('issueId'),
+			'journal_logos_path' => $journalLogosPath,
 			'locale_key' => $localeKey,
-			'journal_thumbnail_path' => $journalThumbnailPath,
 			'journal_thumbnail' => $journal->getLocalizedData('journalThumbnail'),
 			'full_title' => $publication->getLocalizedFullTitle($localeKey),
 			'license_url' => $publication->getData('licenseUrl'),
@@ -162,7 +160,7 @@ class JatsParserPlugin extends GenericPlugin {
 			'date_submitted' => date('d/m/Y', strtotime($submission->getDateSubmitted())),
 			'date_accepted' => date('d/m/Y', strtotime($acceptedDate)),
 			'date_published' => str_replace('-', '/', $submission->getDatePublished()),
-			'journal_data' => ($issue !== null && $issue->getIdentification()) ? $issue->getIdentification() : "", // Includes volume, number, year of a journal.
+			'journal_data' => ($issue !== null && $issue->getIssueIdentification()) ? $issue->getIssueIdentification() : "", // Includes volume, number, year of a journal.
 			'user_groups' => $userGroups,
 			'contributors' => $publication->getAuthorString($userGroups),
 			'subject' => $publication->getLocalizedData('subject', $localeKey),
