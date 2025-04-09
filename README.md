@@ -311,7 +311,7 @@ class Header extends GenericComponent
 
 ## 4. 🧠 Uso de $pdfTemplate en render()
 
-Dentro del método render(), podés usar $this->pdfTemplate para acceder a los métodos de TCPDF como: GetX(), GetY(), SetFont(), SetColor(), Cell(), MultiCell(), etc.
+Dentro del método render(), se puede usar $this->pdfTemplate para acceder a los métodos de TCPDF como: GetX(), GetY(), SetFont(), SetColor(), Cell(), MultiCell(), etc.
 
 También se pueden usar métodos personalizados llamados Renderers. Estos se han implementado para poder definir métodos reutilizables que impriman información específica de una plantilla en específico, además pueden ser utilizados en cualquier plantilla.
   
