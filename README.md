@@ -614,6 +614,7 @@ La idea es que cada estilo de citación tenga su propia plantilla HTML (este HTM
    - La key del idioma local (`$locale_key`).  
 
 Estos parámetros se reciben desde la clase `TableHTML`.
+
 6. Diseñar el formulario HTML necesario para la nueva Tabla de Citas.
 
 Para crear la plantilla se puede seguir como ejemplo la clase `ApaStyle`, la cual puede servir de ayuda para entender cómo se desarrolló la misma.
