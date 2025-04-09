@@ -49,7 +49,7 @@ Contiene los siguientes metadatos:
 - Datos de los autores (nombre, ORCID, email, afiliación).
 - Fechas de recepción, aceptación y publicación del artículo (esta última debe cargarse en "Fecha de publicación" dentro de la sección "Número" en la etapa de Publicación).
 
-Se tuvo en cuenta la traducción de metadatos como título, subtítulo, resúmenes y palabras clave. Se implementó un **arreglo clave-valor** para manejar estas traducciones correctamente.
+Se tuvo en cuenta la traducción de metadatos como título, subtítulo, resúmenes y palabras clave. Se implementó un **arreglo clave-valor** para manejar estas traducciones correctamente (el mismo se encuenta en la clase Translations).
 
 #### **Header**
 - Número de la revista.
