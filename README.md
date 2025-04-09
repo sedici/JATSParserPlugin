@@ -109,12 +109,6 @@ Con el objetivo de mejorar la organización del código y facilitar su mantenimi
 
 ---
 
-## Creación de Nuevas Plantillas
-
-Para agregar nuevas plantillas correctamente, seguir estos pasos:
-
----
-
 ### TemplateOne y la Configuración de PDF
 
 En `TemplateOne`, se trabaja con una configuración recibida como parámetro. Esta clase, `Configuration`, está dentro de la carpeta `PDFConfig`.
@@ -231,7 +225,175 @@ Actualmente, los idiomas soportados son:
 - **Español**
 - **Portugués**
 
-Se pueden agregar más idiomas según se requiera en futuras versiones del sistema.
+Se pueden agregar más idiomas según se requiera en futuras versiones del plugin.
+
+---
+
+# 📄 Creación de Nuevas Plantillas
+
+Para agregar nuevas plantillas correctamente, se deben seguir los siguientes pasos (utilizar como referencia la plantilla TemplateOne):
+
+## 1. 📁 Crear la Carpeta de la Plantilla
+
+Crear una carpeta con el nombre de la nueva plantilla dentro del siguiente directorio: `jatsParser/JATSParser/PDF/Templates`
+
+> Ejemplo:  
+> `jatsParser/JATSParser/PDF/Templates/{NombreDePlantillaNueva}`
+
+---
+
+## 2. 🧱 Estructura Básica
+
+Dentro de la nueva carpeta:
+
+- Crear una subcarpeta llamada `Components`.
+- Crear un archivo `.php` con el **mismo nombre** que la carpeta.  
+  Por ejemplo: `NombreDePlantillaNueva.php`
+
+### En `SkyBlueTemplate.php`:
+
+```php
+// Reemplazar {NombreDePlantillaNueva} por el nombre específico de la nueva plantilla.
+
+<?php namespace JATSParser\PDF\Templates\{NombreDePlantillaNueva}; 
+
+//Importar BaseTemplate y los componentes específicos de la nueva plantilla
+use JATSParser\PDF\Templates\BaseTemplate;
+use JATSParser\PDF\Templates\{NombreDePlantillaNueva}\Components\TemplateBody;
+use JATSParser\PDF\Templates\{NombreDePlantillaNueva}\Components\Header;
+use JATSParser\PDF\Templates\{NombreDePlantillaNueva}\Components\Footer;
+use JATSParser\PDF\Templates\{NombreDePlantillaNueva}\Components\Body;
+
+class {NombreDePlantillaNueva} extends BaseTemplate
+{
+}
+```
+
+✅ Asegurate de:
+
+- Usar el namespace correcto.
+- Que la clase tenga el mismo nombre que el archivo.
+- Que la clase extienda de BaseTemplate.
+
+## 3. 🧩 Crear los Componentes
+
+Dentro de Components/, crear los siguientes archivos:
+
+- TemplateBody.php
+- Header.php
+- Footer.php
+- Body.php
+
+### Estructura de cada componente: 
+
+```php
+// Reemplazar {NombreDePlantillaNueva} por el nombre específico de la nueva plantilla.
+
+<?php namespace JATSParser\PDF\Templates\{NombreDePlantillaNueva}\Components;
+
+use JATSParser\PDF\Templates\GenericComponent;
+
+class Header extends GenericComponent
+{
+    public function render()
+    {
+        // Lógica del componente
+    }
+}
+```
+
+✅ Asegurate de:
+
+- Usar el namespace correcto.
+- Que la clase tenga el mismo nombre que el archivo.
+- Que la clase extienda de GenericComponent.
+- Definir el método render().
+
+## 4. 🧠 Uso de $pdfTemplate en render()
+
+Dentro del método render(), podés usar $this->pdfTemplate para acceder a los métodos de TCPDF como: GetX(), GetY(), SetFont(), SetColor(), Cell(), MultiCell(), etc.
+
+También se pueden usar métodos personalizados llamados Renderers. Estos se han implementado para poder definir métodos reutilizables que impriman información específica de una plantilla en específico, además pueden ser utilizados en cualquier plantilla.
+  
+## 5. 🧩 ¿Qué son los Renderers?
+
+Los Renderers son funciones reutilizables que encapsulan la lógica de impresión o procesamiento de metadatos en el PDF. Están organizados en dos tipos:
+
+- *SingleRenderers*: imprimen información puntual.
+  Ej: ClickableOrcidLogo, License.
+
+- *GroupRenderers*: imprimen bloques de información.
+  Ej: AuthorsData, AbstractAndKeywords.
+
+📁 Se encuentran en:
+/JATSParser/PDF/Templates/Renderers
+
+## 6. ➕ Crear un Nuevo Renderer
+
+Pasos:
+
+1. Crear un archivo .php en:
+   - GroupRenderer/ o SingleRenderer/
+
+2. Definir el namespace:
+
+```php
+//Si estamos creando un GroupRenderer:
+<?php namespace JATSParser\PDF\Templates\Renderers\GroupRenderer;
+
+o
+
+//Si estamos creando un SingleRenderer:
+<?php namespace JATSParser\PDF\Templates\Renderers\SingleRenderer;
+
+```
+
+3. Definir una clase con un método público y estático:
+
+```php
+//Reemplazar {NombreDelRenderer} por el nombre específico del Renderer
+
+class {NombreDelRenderer} {
+
+   public static function render{NombreDelRenderer}($pdfTemplate, ...) {
+        // Lógica del renderer
+    }
+
+⚠️ IMPORTANTE: El método debe recibir de forma obligatoria el parámetro $pdfTemplate, ya que es la instancia  sobre la cual se realizarán las operaciones. También puede recibir $config (Configuración del PDF) u otros parámetros específicos necesarios y trabajar con ellos en este método.
+🔁 Seguir como patrón para el nombre del método: render{NombreDelRenderer}.   
+}
+```
+
+## 7. 🧪 Usar un Renderer en un Componente
+
+1. Dirigirse al componente de la plantilla donde se desea importar el Renderer.
+
+2. Importar el Renderer:
+
+```php
+use JATSParser\PDF\Templates\Renderers\GroupRenderer\{NombreDelRenderer};
+
+o
+
+use JATSParser\PDF\Templates\Renderers\SingleRenderer\{NombreDelRenderer};
+```
+
+3. Usarlo en el método render() del componente, por ejemplo:
+
+```php
+{NombreDelRenderer}::render{NombreDelRenderer}(
+   $this->pdfTemplate, // Es obligatorio. Es la instancia de la plantilla PDF (se almacena en GenericComponent)
+   $this->config, //Es opcional. Es la configuración de la plantilla PDF (se almacena en GenericComponent)
+   $this->pdfTemplate->GetX(), //Es opcional. Método que devuelve la posición de X en el PDF (es propio de TCPDF) 
+   $this->pdfTemplate->GetY() //Es opcional. Método que devuelve la posición de Y en el PDF (es propio de TCPDF)
+);
+```
+
+⚠️ Es obligatorio pasar `$this->pdfTemplate` como parámetro.
+Además, En lugar de enviar $this->config, también se puede enviar una configuración más específica como:
+`$this->config->getTemplateBodyConfig` 
+o incluso valores definidos directamente en la clase.
+💡 La implementación queda a criterio de cada desarrollador.
 
 ---
 ---
