@@ -338,6 +338,8 @@ Dentro de Components/, crear los siguientes archivos:
 
 ### Estructura de cada componente: 
 
+- Para el Header:
+
 ```php
 // Reemplazar {NombreDePlantillaNueva} por el nombre específico de la nueva plantilla.
 
@@ -353,6 +355,61 @@ class Header extends GenericComponent
     }
 }
 ```
+
+- Para el TemplateBody:
+
+```php
+// Reemplazar {NombreDePlantillaNueva} por el nombre específico de la nueva plantilla.
+
+<?php namespace JATSParser\PDF\Templates\{NombreDePlantillaNueva}\Components;
+
+use JATSParser\PDF\Templates\GenericComponent;
+
+class TemplateBody extends GenericComponent
+{
+    public function render()
+    {
+        // Lógica del componente
+    }
+}
+```
+
+- Para el Body:
+
+```php
+// Reemplazar {NombreDePlantillaNueva} por el nombre específico de la nueva plantilla.
+
+<?php namespace JATSParser\PDF\Templates\{NombreDePlantillaNueva}\Components;
+
+use JATSParser\PDF\Templates\GenericComponent;
+
+class Body extends GenericComponent
+{
+    public function render()
+    {
+        // Lógica del componente
+    }
+}
+```
+
+- Para el Footer:
+
+```php
+// Reemplazar {NombreDePlantillaNueva} por el nombre específico de la nueva plantilla.
+
+<?php namespace JATSParser\PDF\Templates\{NombreDePlantillaNueva}\Components;
+
+use JATSParser\PDF\Templates\GenericComponent;
+
+class Footer extends GenericComponent
+{
+    public function render()
+    {
+        // Lógica del componente
+    }
+}
+```
+
 
 ✅ Asegurate de:
 
