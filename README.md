@@ -11,6 +11,10 @@ El desarrollo que se ha llevado a cabo ha sido sobre un plugin ya existente llam
 3. Instalar las dependencias necesarias para la conversión de JATS a PDF: entra en la carpeta JATSParser con `cd jatsParser/JATSParser` y ejecuta `composer install`.  
 4. Instalar las fuentes necesarias para generar el PDF: Ejecutar el script install-fonts.php. Para ello, dentro de la carpeta JATSParser dirijase a la carpeta install-fonts con `cd scripts/install-fonts`. Luego en la consola ejecute el siguiente comando: `php install-fonts.php` .
 
+---
+---
+---
+
 ## Funcionalidad del Plugin
 
 El propósito de este plugin es generar un documento **PDF** a partir de un archivo **XML** que sigue el estándar **JATS**.
@@ -21,6 +25,8 @@ Inicialmente, el PDF generado tenía una plantilla predefinida y  se han realiza
 - Permitir la citación de referencias de acuerdo con el estilo de citación utilizado.
 - Soporte para la creación de múltiples plantillas.
 - Otras mejoras que se detallarán más adelante.
+
+---
 
 ## Proceso de Generación del PDF
 
@@ -122,6 +128,8 @@ Internamente, TemplateStrategy utiliza el nombre recibido para construir dinámi
 
 Luego, instancia dicha clase y la retorna. Esto permite que la lógica de selección de plantillas sea completamente dinámica y extensible, sin tener que realizar cambios en TemplateStrategy al incorporar nuevas plantillas.
 
+---
+
 ### **¿Como funciona `BaseTemplate`?**
 
 La clase abstracta BaseTemplate actúa como la base para todas las plantillas específicas. Cada plantilla concreta (como TemplateOne) debe extender de esta clase.
@@ -131,6 +139,8 @@ Cuando se instancia una plantilla, se ejecuta el constructor de BaseTemplate, el
 2. **Inicialización de la plantilla base:** Llama al constructor de GenericTemplate, pasándose a sí misma y la configuración.
 
 Esto garantiza que cada plantilla use sus propios componentes personalizados, definidos en su namespace.
+
+---
 
 ### **¿Como funciona `GenericTemplate`?**
 
