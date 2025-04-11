@@ -418,6 +418,19 @@ class Footer extends GenericComponent
 - Que la clase extienda de GenericComponent.
 - Definir el método render().
 
+**Para probar la plantilla, puede dirigirse a la función pdfCreation() en JatsParserPlugin.php (en la carpeta jatsParser/, la raíz del plugin) y modificar el valor de la variable $templateName por el nombre de la nueva plantilla. Por ejemplo:**
+
+```php
+	private function pdfCreation(string $htmlString, Publication $publication, Request $request, string $localeKey): string {
+		$metadata = $this->getMetadata($publication, $localeKey, $request, $htmlString);
+		$configuration = new Configuration($metadata);
+
+		$templateName = '{NombreDeLaPlantilla}'; //Reemplazar {NombreDeLaPlantilla por el nombre de la nueva plantilla creada.}
+		$templateStrategy = new TemplateStrategy($templateName, $configuration);
+
+		return $templateStrategy->OutputPdf();
+	}
+```
 
 ## 4. 🧠 Uso de $pdfTemplate en render()
 
