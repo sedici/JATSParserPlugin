@@ -39,7 +39,7 @@ La generación del PDF en este plugin se divide en dos partes:
 
 Por el momento, se ha desarrollado una única plantilla de PDF llamada TemplateOne, pero en el futuro se añadirán más.
 
-#### Plantilla TemplateOne 
+### Plantilla TemplateOne:
 
 Se divide en cuatro secciones principales:
 
