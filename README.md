@@ -278,6 +278,8 @@ Actualmente, los idiomas soportados son:
 Se pueden agregar más idiomas según se requiera en futuras versiones del plugin.
 
 ---
+---
+---
 
 # 📄 Creación de Nuevas Plantillas
 
@@ -289,8 +291,6 @@ Crear una carpeta con el nombre de la nueva plantilla dentro del siguiente direc
 
 > Ejemplo:  
 > `jatsParser/JATSParser/PDF/Templates/{NombreDePlantillaNueva}`
-
----
 
 ## 2. 🧱 Estructura Básica
 
