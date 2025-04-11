@@ -67,7 +67,7 @@ Ejemplo de URL de licencia:
 > https://creativecommons.org/licenses/by/4.0/
 
 #### Body
-- Todo el contenido del artículo subido a OJS.
+- Todo el contenido del XML JATS del artículo subido a OJS.
 
 ---
 
