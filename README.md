@@ -382,8 +382,8 @@ use JATSParser\PDF\Templates\Renderers\SingleRenderer\{NombreDelRenderer};
 
 ```php
 {NombreDelRenderer}::render{NombreDelRenderer}(
-   $this->pdfTemplate, // Es obligatorio. Es la instancia de la plantilla PDF (se almacena en GenericComponent)
-   $this->config, //Es opcional. Es la configuración de la plantilla PDF (se almacena en GenericComponent)
+   $this->pdfTemplate, // Es obligatorio. Es la instancia de la plantilla PDF (está almacenada en GenericComponent)
+   $this->config, //Es opcional. Es la configuración de la plantilla PDF (está almacenada en GenericComponent)
    $this->pdfTemplate->GetX(), //Es opcional. Método que devuelve la posición de X en el PDF (es propio de TCPDF) 
    $this->pdfTemplate->GetY() //Es opcional. Método que devuelve la posición de Y en el PDF (es propio de TCPDF)
 );
