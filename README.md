@@ -11,10 +11,6 @@ El desarrollo que se ha llevado a cabo ha sido sobre un plugin ya existente llam
 3. Instalar las dependencias necesarias para la conversión de JATS a PDF: entra en la carpeta JATSParser con `cd jatsParser/JATSParser` y ejecuta `composer install`.  
 4. Instalar las fuentes necesarias para generar el PDF: Ejecutar el script install-fonts.php. Para ello, dentro de la carpeta JATSParser dirijase a la carpeta install-fonts con `cd scripts/install-fonts`. Luego en la consola ejecute el siguiente comando: `php install-fonts.php` .
 
----
----
----
-
 ## Funcionalidad del Plugin
 
 El propósito de este plugin es generar un documento **PDF** a partir de un archivo **XML** que sigue el estándar **JATS**.
