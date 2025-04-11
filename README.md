@@ -37,6 +37,8 @@ La generación del PDF en este plugin se divide en dos partes:
    - Es la primera sección visible del PDF generado antes de mostrar el contenido del artículo.
    - Se utiliza la librería **TCPDF** en PHP para la creación del documento PDF.
 
+**---**
+
 ## Plantillas
 
 Por el momento, se ha desarrollado una única plantilla de PDF llamada TemplateOne, pero en el futuro se añadirán más.
