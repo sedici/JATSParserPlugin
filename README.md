@@ -421,6 +421,9 @@ class Footer extends GenericComponent
 **Para probar la plantilla, puede dirigirse a la función pdfCreation() en JatsParserPlugin.php (en la carpeta jatsParser/, la raíz del plugin) y modificar el valor de la variable $templateName por el nombre de la nueva plantilla. Por ejemplo:**
 
 ```php
+
+	//Dentro de JatsParserPlugin.php
+
 	private function pdfCreation(string $htmlString, Publication $publication, Request $request, string $localeKey): string {
 		$metadata = $this->getMetadata($publication, $localeKey, $request, $htmlString);
 		$configuration = new Configuration($metadata);
