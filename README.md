@@ -111,7 +111,7 @@ Con el objetivo de mejorar la organización del código y facilitar su mantenimi
 
 ---
 
-### ¿Como funciona `TemplateStrategy`? 
+### **¿Como funciona `TemplateStrategy`?**
 
 La clase `TemplateStrategy` implementa el patrón **Strategy**, lo cual permite seleccionar dinámicamente qué plantilla utilizar en función del nombre recibido. Este diseño facilita la escalabilidad del sistema, permitiendo agregar nuevas plantillas y seleccionarlas sin modificar la lógica principal de creación de PDFs.
 
@@ -122,7 +122,7 @@ Internamente, TemplateStrategy utiliza el nombre recibido para construir dinámi
 
 Luego, instancia dicha clase y la retorna. Esto permite que la lógica de selección de plantillas sea completamente dinámica y extensible, sin tener que realizar cambios en TemplateStrategy al incorporar nuevas plantillas.
 
-### ¿Como funciona `BaseTemplate`? 
+### **¿Como funciona `BaseTemplate`?**
 
 La clase abstracta BaseTemplate actúa como la base para todas las plantillas específicas. Cada plantilla concreta (como TemplateOne) debe extender de esta clase.
 Cuando se instancia una plantilla, se ejecuta el constructor de BaseTemplate, el cual realiza dos tareas principales:
@@ -132,7 +132,7 @@ Cuando se instancia una plantilla, se ejecuta el constructor de BaseTemplate, el
 
 Esto garantiza que cada plantilla use sus propios componentes personalizados, definidos en su namespace.
 
-### ¿Como funciona `GenericTemplate`? 
+### **¿Como funciona `GenericTemplate`?**
 
 La clase abstracta GenericTemplate extiende de TCPDF e incorpora la lógica general para configurar y generar el PDF.
 Su constructor recibe una instancia de BaseTemplate (es decir, una plantilla concreta) junto con la configuración, y lleva a cabo las siguientes tareas:
