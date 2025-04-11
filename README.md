@@ -250,7 +250,7 @@ Dentro de la nueva carpeta:
 - Crear un archivo `.php` con el **mismo nombre** que la carpeta.  
   Por ejemplo: `NombreDePlantillaNueva.php`
 
-### En `SkyBlueTemplate.php`:
+### En `NombreDeLaPlantilla.php`:
 
 ```php
 // Reemplazar {NombreDePlantillaNueva} por el nombre específico de la nueva plantilla.
