@@ -101,11 +101,53 @@ Con el objetivo de mejorar la organización del código y facilitar su mantenimi
 
 ### Nuevo Flujo de `pdfCreation()`
 
-1. Llamar a `getMetadata()`, que devuelve un arreglo `['clave' => 'valor']` con los metadatos necesarios para el PDF.
-2. Pasar estos metadatos a la clase `Configuration`, donde se almacenan en el atributo `$config`.
-3. Instanciar `TemplateStrategy`, la cual recibe el **nombre de la plantilla** y la **configuración de metadatos**.
+1. Se llama a `getMetadata()`, que devuelve un arreglo `['clave' => 'valor']` con los metadatos necesarios para el PDF.
+2. Se instancia `Configuration`, la cual recibe los metadatos obtenidos para almacenarlos en el atributo $config.
+3. Se instancia `TemplateStrategy`, que recibe 2 parámetros: el **nombre de la plantilla ($templateName)** y la **configuración de metadatos ($config)**.
 4. Aplicar el patrón de diseño **Strategy**, permitiendo la creación de múltiples plantillas en el futuro.
-5. Instanciar un objeto con el nombre de la plantilla correspondiente (`TemplateOne`, por ahora la única plantilla disponible).
+5. Instanciar un objeto que referencia a la plantilla correspondiente (por ejemplo: `TemplateOne`, por ahora la única plantilla disponible).
+6. Al instanciar la plantilla, se ejecuta el constructor de `BaseTemplate`. Por eso, es importante que toda plantilla lo extienda correctamente.
+7. `BaseTemplate` ejecuta el constructor de `GenericTemplate`, donde se inicializan y configuran los atributos iniciales del PDF. Además, se renderizan los componentes específicos de la plantilla: `Header`, `TemplateBody`, `Footer` y `Body`.
+
+---
+
+### ¿Como funciona `TemplateStrategy`? 
+
+La clase `TemplateStrategy` implementa el patrón **Strategy**, lo cual permite seleccionar dinámicamente qué plantilla utilizar en función del nombre recibido. Este diseño facilita la escalabilidad del sistema, permitiendo agregar nuevas plantillas y seleccionarlas sin modificar la lógica principal de creación de PDFs.
+
+Al instanciar esta clase, se le pasa como parámetro el nombre de la plantilla (por ejemplo, "TemplateOne") y una instancia de Configuration, que contiene la configuración necesaria para la generación del PDF.
+Internamente, TemplateStrategy utiliza el nombre recibido para construir dinámicamente el namespace completo de la clase de plantilla correspondiente, siguiendo la convención: 
+
+`JATSParser\\PDF\\Templates\\{$templateName}\\{$templateName}`
+
+Luego, instancia dicha clase y la retorna. Esto permite que la lógica de selección de plantillas sea completamente dinámica y extensible, sin tener que realizar cambios en TemplateStrategy al incorporar nuevas plantillas.
+
+### ¿Como funciona `BaseTemplate`? 
+
+La clase abstracta BaseTemplate actúa como la base para todas las plantillas específicas. Cada plantilla concreta (como TemplateOne) debe extender de esta clase.
+Cuando se instancia una plantilla, se ejecuta el constructor de BaseTemplate, el cual realiza dos tareas principales:
+
+1. **Registro automático de componentes:** Mediante *reflection*, se detecta el namespace de la plantilla y se registran los componentes correspondientes (Header, TemplateBody, Footer, Body).
+2. **Inicialización de la plantilla base:** Llama al constructor de GenericTemplate, pasándose a sí misma y la configuración.
+
+Esto garantiza que cada plantilla use sus propios componentes personalizados, definidos en su namespace.
+
+### ¿Como funciona `GenericTemplate`? 
+
+La clase abstracta GenericTemplate extiende de TCPDF e incorpora la lógica general para configurar y generar el PDF.
+Su constructor recibe una instancia de BaseTemplate (es decir, una plantilla concreta) junto con la configuración, y lleva a cabo las siguientes tareas:
+
+1. **Inicialización de componentes:** Se crean instancias de los componentes registrados por BaseTemplate.
+2. **Configuración general del PDF:** Se establecen metadatos, márgenes, auto saltos de página y otros aspectos del documento.
+3. **Renderizado de componentes:** Se renderizan los componentes en orden:
+      - TemplateBody (estructura general)
+      - Header (cabecera)
+      - Footer (pie de página)
+      - Body (contenido principal del XML JATS del artículo subido a OJS)
+   
+La clase también define métodos públicos como Header(), Footer(), Body() y TemplateBody(), que se ejecutan automáticamente durante la generación del PDF. Cada uno de ellos se encarga de renderizar una sección específica del documento, delegando esta tarea al método render() del componente correspondiente.
+
+Este enfoque promueve una clara separación de responsabilidades y facilita el mantenimiento del código. Además, permite personalizar fácilmente el comportamiento de cualquier sección en plantillas específicas, sobrescribiendo los métodos correspondientes en sus propios componentes. Así, cada plantilla puede tener su estilo y lógica propios, sin afectar a las demás.
 
 ---
 
