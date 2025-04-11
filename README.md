@@ -277,9 +277,9 @@ Actualmente, los idiomas soportados son:
 
 Se pueden agregar más idiomas según se requiera en futuras versiones del plugin.
 
+
 ---
----
----
+
 
 # 📄 Creación de Nuevas Plantillas
 
@@ -291,6 +291,7 @@ Crear una carpeta con el nombre de la nueva plantilla dentro del siguiente direc
 
 > Ejemplo:  
 > `jatsParser/JATSParser/PDF/Templates/{NombreDePlantillaNueva}`
+
 
 ## 2. 🧱 Estructura Básica
 
@@ -324,6 +325,7 @@ class {NombreDePlantillaNueva} extends BaseTemplate
 - Usar el namespace correcto.
 - Que la clase tenga el mismo nombre que el archivo.
 - Que la clase extienda de BaseTemplate.
+
 
 ## 3. 🧩 Crear los Componentes
 
@@ -359,11 +361,13 @@ class Header extends GenericComponent
 - Que la clase extienda de GenericComponent.
 - Definir el método render().
 
+
 ## 4. 🧠 Uso de $pdfTemplate en render()
 
 Dentro del método render(), se puede usar $this->pdfTemplate para acceder a los métodos de TCPDF como: GetX(), GetY(), SetFont(), SetColor(), Cell(), MultiCell(), etc.
 
 Además del uso de métodos propios de TCPDF, se pueden utilizar métodos personalizados llamados Renderers. Estos fueron creados para simplificar la impresión de datos específicos (como autores, licencias, etc.) y pueden ser usados en cualquier plantilla, incluso si originalmente fueron pensados para una sola.
+
   
 ## 5. 🧩 ¿Qué son los Renderers?
 
@@ -377,6 +381,7 @@ Los Renderers son funciones reutilizables que encapsulan la lógica de impresió
 
 📁 Se encuentran en:
 /JATSParser/PDF/Templates/Renderers
+
 
 ## 6. ➕ Crear un Nuevo Renderer
 
@@ -414,6 +419,7 @@ class {NombreDelRenderer} {
 }
 ```
 
+
 ## 7. 🧪 Usar un Renderer en un Componente
 
 1. Dirigirse al componente de la plantilla donde se desea importar el Renderer.
@@ -445,9 +451,18 @@ Además, En lugar de enviar $this->config, también se puede enviar una configur
 o incluso valores definidos directamente en la clase.
 💡 La implementación queda a criterio de cada desarrollador.
 
+
+
+
+
 ---
 ---
 ---
+
+
+
+
+
 
 # JatsParser: Tabla de Citas
 
