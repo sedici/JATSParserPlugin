@@ -748,7 +748,9 @@ La idea es que cada estilo de citación que necesite implementar una tabla de ci
    ```php
    require_once __DIR__ . ('/GenericCitationTable.php');
    ```
-La clase GenericCitationTable se encarga de crear el HTML para generar la Tabla de Citas. El constructor de esta clase se llama desde TableHTML y recibe los siguientes parámetros: 
+
+
+7. **Diseñar el formulario HTML necesario para la nueva Tabla de Citas:** La clase abstracta GenericCitationTable implementa el patrón de diseño Template Method, definiendo el esqueleto para la creación del HTML de la Tabla de Citas y permitiendo que las subclases sobrescriban pasos específicos sin cambiar su estructura general. El constructor de esta clase recibe los siguientes parámetros: 
 
    - El arreglo con todos los datos de la tabla (`$arrayData`),  
    - La ruta absoluta del XML (`$absoluteXmlPath`),  
@@ -756,8 +758,6 @@ La clase GenericCitationTable se encarga de crear el HTML para generar la Tabla 
    - El ID de la publicación (`$publicationId`),  
    - La key del idioma local (`$locale_key`).  
 
-7. **Diseñar el formulario HTML necesario para la nueva Tabla de Citas:** La clase GenericCitationTable implementa el patrón de diseño Template Method, definiendo el esqueleto para la creación de la Tabla de Citas y permitiendo que las subclases sobrescriban pasos específicos sin cambiar su estructura general.
-
-   
+**ACLARACIÓN:** Desde la clase TableHTML se instancia la clase correspondiente al estilo de cita que se está utilizando pasandole los parámetros especificados en el punto 7, pero el constructor que se ejecuta es el de GenericCitationTable. 
 
 ---
