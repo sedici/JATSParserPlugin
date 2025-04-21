@@ -728,14 +728,14 @@ Luego de esto, dentro de cada contexto, en el lugar donde está el identificador
 
 Esto sirve para poder verificar qué texto se muestra en el lugar de la cita dentro del contexto, ya sea un valor por default o el que cargó el usuario desde la Tabla de Citas. Esto ayudará para que no se tenga que volver a cargar para cada cita su estilo de citación en caso de que haya algún inconveniente, evitando tener que rehacer todo nuevamente.
 
-Al finalizar este método `makeHtml`, se llama al método estático `makeHtml` de la clase `$className`. La clase que se llame dependerá del estilo de citación seleccionado en la configuración del plugin. Por ejemplo, si se está trabajando en APA, se llamará a la clase `ApaStyle`; si es IEEE, se llamará a `IeeeStyle`, y así sucesivamente con cada estilo de citación.
+Al finalizar este método `makeHtml`, se instancia la clase `$className`. La clase que se instancie dependerá del estilo de citación seleccionado en la configuración del plugin. Por ejemplo, si se está trabajando en APA, se instanciará la clase `ApaCitationTable`; si es Vancouver, se instanciará `VancouverCitationTable`, y así sucesivamente con cada estilo de citación.
 
-La idea es que cada estilo de citación tenga su propia plantilla HTML (este HTML representará a la Tabla de Citas mostrada). Por el momento, solo está creada la plantilla para APA (clase `ApaStyle`), pero si se desea agregar una nueva plantilla para un estilo de citación se pueden seguir los siguientes pasos:
+La idea es que cada estilo de citación que necesite implementar una tabla de citas propia tenga su propia plantilla HTML (este HTML representará a la Tabla de Citas mostrada). Por el momento, solo está creada la plantilla para APA (clase `ApaCitationTable`), pero si se desea agregar una nueva plantilla para un estilo de citación se pueden seguir los siguientes pasos:
 
 1. Asegurarse de que el estilo de citación esté definido en el arreglo `$supportedCustomCitationStyles` (agregar **en minúscula** la clave del estilo de citación al que se le desea agregar soporte).
 
-2. Crear un archivo que siga la estructura: `{estiloDeCitación}Style.php` dentro del directorio `/components/form/CitationStyles/`.  
-   Por ejemplo, si se desea agregar una plantilla para el estilo de citación Vancouver, se debe crear un archivo llamado `VancouverStyle.php` en la ruta especificada.
+2. Crear un archivo que siga la estructura: `{estiloDeCitación}CitationTable.php` dentro del directorio `/components/form/CitationStyles/`.  
+   Por ejemplo, si se desea agregar una plantilla para el estilo de citación Vancouver, se debe crear un archivo llamado `VancouverCitationTable.php` en la ruta especificada.
 
 3. En el nuevo archivo creado, agregar el siguiente `require_once`:
    ```php
@@ -744,7 +744,12 @@ La idea es que cada estilo de citación tenga su propia plantilla HTML (este HTM
    
 4. Asegurarse de que el nombre de la nueva clase sea el mismo que el nombre del archivo.
 
-5. Declarar el método estático `makeHtml` que reciba los siguientes parámetros en el orden indicado:  
+5. Asegurarse de que la nueva clase creada extienda de GenericCitationTable y además agregar el require de la misma:
+   ```php
+   require_once __DIR__ . ('/GenericCitationTable.php');
+   ```
+
+6. Declarar el método estático `makeHtml` que reciba los siguientes parámetros en el orden indicado:
    - El arreglo con todos los datos de la tabla (`$arrayData`),  
    - La ruta absoluta del XML (`$absoluteXmlPath`),  
    - El estilo de citación seleccionado desde la configuración del plugin (`$citationStyle`),  
