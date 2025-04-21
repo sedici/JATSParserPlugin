@@ -749,6 +749,10 @@ La idea es que cada estilo de citación que necesite implementar una tabla de ci
    require_once __DIR__ . ('/GenericCitationTable.php');
    ```
 
+6. La nueva clase creada debe definir los métodos: `formatSingleAuthorCitation`, `formatTwoAuthorsCitation`, `formatMultipleAuthorsCitation` y `getCitationSeparator`.
+   - **formatSingleAuthorCitation** define cómo se compondrá una cita con un único autor. En el caso de APA, la cita tendrá el siguiente formato para un único autor: `(Apellido1, 2025)` -> Tiene un único autor y solo se muestra el apellido del mismo seguido de una coma y el año.
+   - **formatTwoAuthorCitation** define cómo se compondrá una cita con dos autores. En el caso de APA, la cita tendrá el siguiente formato para dos autores: `(Apellido1 y Apellido2, 2025)` -> Tiene dos autores, se muestran solo los apellidos y además, como sepador entre apellidos la palabra "y" (este separador es una traducción, puede agregarse en la carpeta locale). Seguido de esto aparece una coma y el año. 
+   - **formatMultipleAuthorsCitation** define cómo se compondrá una cita con mas de 2 autores. En el caso de APA, la cita tendrá el siguiente formato para mas de dos autores: `(Apellido1 et al, 2025)` -> Tiene mas de dos autores pero solo se muestra el apellido del primer autor y luego la palabra "et al". Seguido de esto, al igual que los casos anteriores, se define una coma y el año.
 
 7. **Diseñar el formulario HTML necesario para la nueva Tabla de Citas:** La clase abstracta GenericCitationTable implementa el patrón de diseño Template Method, definiendo el esqueleto para la creación del HTML de la Tabla de Citas y permitiendo que las subclases sobrescriban pasos específicos sin cambiar su estructura general. El constructor de esta clase recibe los siguientes parámetros: 
 
