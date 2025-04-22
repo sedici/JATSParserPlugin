@@ -135,7 +135,28 @@ msgid "plugins.generic.jatsParser.pdf.abstract"
 msgstr "Resumen"
 
 msgid "plugins.generic.jatsParser.publication.jats.citationStyle.label"
-msgstr "Se han detectado las siguientes citas"
+msgstr "Tabla de Citas"
 
-msgid "plugins.generic.jatsParser.citationtable.error.nulloption"
+msgid "plugins.generic.jatsParser.citationtable.error.emptyoption"
 msgstr "Error: No puedes guardar una cita vacía"
+
+msgid "plugins.generic.citationtable.citations.notfound"
+msgstr "No se han encontrado citas en el artículo"
+
+msgid "plugins.generic.jatsParser.citationtable.titlecontext"
+msgstr "Contexto"
+
+msgid "plugins.generic.jatsParser.citationtable.titlereferences"
+msgstr "Referencias"
+
+msgid "plugins.generic.jatsParser.citationtable.titlecitationstyle"
+msgstr "Estilo de Cita"
+
+msgid "plugins.generic.jatsParser.citationtable.savebuttontext"
+msgstr "Guardar Citas"
+
+msgid "plugins.generic.jatsParser.citationtable.customtext"
+msgstr "Otro"
+
+msgid "plugins.generic.jatsParser.citationtable.citationstyle.twoauthors.separator"
+msgstr "y"
