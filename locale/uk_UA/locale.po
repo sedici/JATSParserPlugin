@@ -114,4 +114,4 @@ msgid "plugins.generic.jatsParser.pdf.abstract"
 msgstr "Резюме"
 
 msgid "plugins.generic.jatsParser.publication.jats.citationStyle.label"
-msgstr "Виявлені наступні посилання"
+msgstr "Таблиця призначення"

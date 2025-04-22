@@ -1,9 +1,6 @@
 <?php namespace PKP\components\forms;
 
-require_once __dir__ . '/CitationStyles/ApaStyle.php';
-require_once __dir__ . '/Helpers/getPublicationId.php';
-
-use PKP\components\forms\CitationStyles\ApaStyle;
+require_once __dir__ . '/CitationStyles/ApaCitationTable.php';
 
 class TableHTML {
 
@@ -171,11 +168,19 @@ class TableHTML {
     // Make the HTML for the table
     public function makeHtml(): void {
 
-        $className = "PKP\\components\\forms\\CitationStyles\\" . ucfirst($this->citationStyle) . 'Style';
+        $className = "PKP\\components\\forms\\CitationStyles\\" . ucfirst($this->citationStyle) . 'CitationTable';
 
         $processedArrayData = $this->processContexts($this->arrayData);
         
-        $this->html = $className::makeHtml($processedArrayData, $this->absoluteXmlPath, $this->citationStyle, $this->publicationId, $this->locale_key);
+        $tableStyle = new $className(
+            $processedArrayData, 
+            $this->absoluteXmlPath, 
+            $this->citationStyle, 
+            $this->publicationId, 
+            $this->locale_key
+        );
+
+        $this->html = $tableStyle->makeHtml();
     }   
 
     /**
