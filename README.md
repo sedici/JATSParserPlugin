@@ -79,7 +79,7 @@ jatsParser/
 │   │   └── install-fonts/                              
 │   │       └── install-fonts.php                       # Script de instalación automática de fuentes personalizadas para TCPDF
 │   ├── vendor/
-│   ├── logo/                                           # Se añadieron logos que son utilizados para la generación del PDF (como el logo ORCID y logos de las licencias Creative Commons)  
+│   ├── logo/                                           # Se añadieron logos que son utilizados para la generación del PDF (como el logo ORCID y los correspondientes a las licencias Creative Commons)  
 │   ├── examples/
 │   └── composer.json
 │
