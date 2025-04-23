@@ -108,16 +108,20 @@ jatsParser/
 └── **archivos específicos del plugin**
 ```
 
-📁 Archivos y directorios clave:
+📁 Archivos y directorios clave ***PARA LA GENERACIÓN DEL PDF***:
 - `JatsParserPlugin.php`: Archivo principal que define el flujo del plugin y registra los hooks de OJS. Se realizaron modificaciones importantes en la función `pdfCreation()` para separar la lógica de obtención de metadatos de la generación del PDF. Ahora, esta función:
-  - Obtiene los metadatos del artículo.
-  - Instancia `Configuration.php` con esos datos.
-  - Utiliza `TemplateStrategy` para seleccionar dinámicamente la plantilla a renderizar.
-  - Exporta el PDF generado para su visualización dentro de OJS.
-- `PDF/Templates/`: Contiene las plantillas de PDF.
-- `PDF/Templates/Renderers/`: Renderers reutilizables para elementos del PDF.
-- `PDFConfig/`: Configuración, estilos y traducciones.
-- `forms/CitationStyles/`: Contiene las clases específicas de estilos de citación (como ApaCitationTable.php) y sus estilos correspondientes en `Stylesheets/`.
-- `forms/Helpers/process.citations.php`: Se encarga de procesar y analizar las citas recibidas desde la Tabla de Citas para posteriormente llamar a CustomPublicationSettingsDao.
-- `daos/CustomPublicationSettingsDAO.php`: Accede y actualiza la configuración de citas en la base de datos, tanto para lectura como para escritura. Al generar el PDF se obtienen la configuración. Al guardar las citas desde la tabla, se actualiza la configuración.
-- `forms/TableHTML.php`: Procesa el XML JATS del artículo para generar el contenido de la Tabla de Citas (contexto, referencias, estilo).
+  👉 Obtiene los metadatos del artículo.
+  👉 Instancia `Configuration.php` con esos datos.
+  👉 Utiliza `TemplateStrategy` para seleccionar dinámicamente la plantilla a renderizar.
+  👉 Exporta el PDF generado para su visualización dentro de OJS.
+
+- `PDF/Templates/`: Contiene las plantillas utilizadas para generar el PDF, organizadas en carpetas individuales (por ejemplo, `TemplateOne/`). Cada plantilla incluye sus propios componentes (`Header`, `TemplateBody`, `Body`, `Footer`) y define cómo se renderiza cada sección del documento. También incluye los **Renderers reutilizables**, ubicados en `Renderers/`, que encapsulan la lógica para imprimir elementos específicos del PDF (como autores, licencias, palabras clave, etc.).
+- `PDFConfig/`: Almacena la configuración general del PDF (fuentes, colores, etc.) en `Configuration.php`, y las traducciones multilenguaje en `Translations.php`. Esta configuración es utilizada por todas las plantillas para mantener coherencia visual y textual, y permite generar PDFs adaptados al idioma del contenido (actualmente soporta español, inglés y portugués).
+
+📁 Archivos y directorios clave ***PARA LA TABLA DE CITAS***:
+- `forms/CitationStyles/`: Contiene las clases específicas que definen cómo se renderiza la Tabla de Citas para cada estilo de citación (por ejemplo, `ApaCitationTable.php`). Estas clases extienden de `GenericCitationTable` y definen cómo formatear citas con uno, dos o múltiples autores, además del separador entre citas. La carpeta `Stylesheets/` dentro de este directorio incluye archivos que encapsulan estilos comunes para reutilizar en múltiples estilos de citación.
+- `forms/Helpers/process_citations.php`: Encargado de procesar y analizar las citas seleccionadas en la Tabla de Citas desde la interfaz de OJS. Este script construye un JSON con la configuración de citas obtenida desde el formulario y lo envía a `CustomPublicationSettingsDAO` para su lectura o actualización en la base de datos.
+- `daos/CustomPublicationSettingsDAO.php`: Se encarga de acceder y actualizar la configuración de citas en la base de datos, la cual se almacena con el `setting_name` de `jatsParser::citationTableData` en la tabla `publication_settings`. Durante la generación del PDF, recupera la configuración correspondiente; y cuando se guardan las citas desde la Tabla de Citas, la información se actualiza o inserta según sea necesario.
+- `forms/TableHTML.php`: Procesa el XML JATS del artículo para generar el contenido de la Tabla de Citas, incluyendo el contexto, las referencias y el estilo correspondientes.
+
+**IMPORTANTE:** *Por el momento, la Tabla de Citas solo está diseñada con soporte para APA 7*
