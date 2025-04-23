@@ -33,14 +33,15 @@ Luego en la consola ejecute el siguiente comando:
 php install-fonts.php
 ```
 
-## ⚙️ Funcionalidades principales
+## ⚙️ Funcionalidades y cambios principales
 
-- ⚙️ Conversión de XML JATS a HTML, luego a PDF mediante TCPDF.
-- 🧠 Plantillas personalizadas para la estructura del PDF (cada una con sus componentes: Header, TemplateBody, Footer, Body).
-- 🖨️ ***Impresión*** de metadatos en el PDF (como títulos, resúmenes, palabras clave, fechas, etc) ***en diferentes idiomas*** (actualmente solo se soporta español, inglés y portugués) 
-- 🛠 Interfaz visual en OJS para cargar citas según el estilo de citación y contexto del artículo: la Tabla de Citas.
-- ♻️ Separación de responsabilidades (metadatos, plantilla, renderers).
-- 🔄 Soporte multilenguaje textos específicos (como por ejemplo: Palabras clave - Keywords - Palavras chave) del PDF (gracias a la clase Translations)
-- 📁 Estructura modular con ***Strategy Pattern*** para facilitar nuevas plantillas sin modificar la lógica central.
-- 🧩 Renderers reutilizables para imprimir bloques o elementos específicos en cualquier parte del PDF.
-- 📚 ***Compatibilidad*** con el plugin ***Texture*** y adecuación para estilos como APA e IEEE.
+- Conversión de XML JATS a HTML, luego a PDF mediante TCPDF.
+- Plantillas personalizadas para la estructura del PDF (cada una con sus componentes: Header, TemplateBody, Footer, Body).
+- ***Impresión*** de metadatos en el PDF (como títulos, resúmenes, palabras clave, fechas, etc) ***en diferentes idiomas*** (actualmente solo se soporta español, inglés y portugués) 
+- Interfaz visual en OJS para cargar citas según el estilo de citación y contexto del artículo: la Tabla de Citas.
+- Separación de responsabilidades (metadatos, plantilla, renderers).
+- Soporte multilenguaje textos específicos (como por ejemplo: Palabras clave - Keywords - Palavras chave) del PDF (gracias a la clase Translations)
+- Estructura modular con ***Strategy Pattern*** para facilitar nuevas plantillas sin modificar la lógica central.
+- Renderers reutilizables para imprimir bloques o elementos específicos en cualquier parte del PDF.
+- ***Compatibilidad*** con el plugin ***Texture*** y adecuación para estilos como APA e IEEE.
+
