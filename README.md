@@ -47,7 +47,7 @@ php install-fonts.php
 
 ## 🧱 Estructura del Plugin
 
-```mathematica
+```text
 jatsParser/
 ├── JATSParser/
 │   ├── src/
@@ -56,12 +56,12 @@ jatsParser/
 │   │       ├── Body/
 │   │       ├── HTML/
 │   │       └── PDF/
-│   │           ├── PDFBodyHelper.php
-│   │           ├── TemplateStrategy.php
-│   │           ├── PDFConfig/
-│   │           │   ├── Configuration.php
-│   │           │   └── Translations.php
-│   │           └── Templates/
+│   │           ├── PDFBodyHelper.php                   # Modificado para procesar el contenido del XML JATS correspondiente al artículo al de generar el PDF
+│   │           ├── TemplateStrategy.php                # Implementado para manejar plantillas dinámicamente (Strategy Pattern)
+│   │           ├── PDFConfig/                          # Configuración agregada
+│   │           │   ├── Configuration.php               # Agregado para centralizar metadatos y estilos del PDF.
+│   │           │   └── Translations.php                # Agregado para definir traducciones de textos específicos usados al generar el PDF
+│   │           └── Templates/                    
 │   │               ├── Renderers/
 │   │               │   ├── GroupRenderer/
 │   │               │   └── SingleRenderer/
