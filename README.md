@@ -114,7 +114,6 @@ jatsParser/
   👉 Instancia `Configuration.php` con esos datos.
   👉 Utiliza `TemplateStrategy` para seleccionar dinámicamente la plantilla a renderizar.
   👉 Exporta el PDF generado para su visualización dentro de OJS.
-
 - `PDF/Templates/`: Contiene las plantillas utilizadas para generar el PDF, organizadas en carpetas individuales (por ejemplo, `TemplateOne/`). Cada plantilla incluye sus propios componentes (`Header`, `TemplateBody`, `Body`, `Footer`) y define cómo se renderiza cada sección del documento. También incluye los **Renderers reutilizables**, ubicados en `Renderers/`, que encapsulan la lógica para imprimir elementos específicos del PDF (como autores, licencias, palabras clave, etc.).
 - `PDFConfig/`: Almacena la configuración general del PDF (fuentes, colores, etc.) en `Configuration.php`, y las traducciones multilenguaje en `Translations.php`. Esta configuración es utilizada por todas las plantillas para mantener coherencia visual y textual, y permite generar PDFs adaptados al idioma del contenido (actualmente soporta español, inglés y portugués).
 
