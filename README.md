@@ -46,9 +46,8 @@ php install-fonts.php
 - ***Compatibilidad*** con el plugin ***Texture*** y adecuación para estilos como APA e IEEE.
 
 ## 🧱 Estructura del Plugin
-## 🧱 Estructura del Plugin
 
-```text
+```mathematica
 jatsParser/
 ├── src/
 │   └── JATSParser/
