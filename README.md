@@ -78,16 +78,22 @@ jatsParser/
 │     ├── scripts/
 │     │   └── install-fonts/
 │     │       └── install-fonts.php
+│     │    
 │     ├── vendor/
 │     ├── logo/
 │     ├── examples/
 │     └── composer.json
 │
 ├── app/
+│
 ├── images/
+│
 ├── locale/
+│
 ├── resources/
+│
 ├── templates/
+│
 ├── classes/
 │      ├── components/
 │      │     └── forms/
