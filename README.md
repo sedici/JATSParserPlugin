@@ -56,30 +56,30 @@ jatsParser/
 │   │       ├── Body/
 │   │       ├── HTML/
 │   │       └── PDF/
-│   │           ├── PDFBodyHelper.php                   # Se ha añadido la funcionalidad de procesar el contenido XML JATS para estructurar de forma correcta el cuerpo del PDF si el artículo está en APA 
-│   │           ├── TemplateStrategy.php                # Se ha implementado para manejar plantillas dinámicamente implementando un Strategy Pattern
-│   │           ├── PDFConfig/                          # Se ha definido una carpeta para almacenar la configuración centralizada para la generación de PDFs
+│   │           ├── PDFBodyHelper.php                   # Se ha añadido la funcionalidad de procesar el contenido XML JATS para estructurar de forma correcta el cuerpo del PDF si el articulo esta en APA 
+│   │           ├── TemplateStrategy.php                # Se ha implementado para manejar plantillas dinamicamente implementando un Strategy Pattern
+│   │           ├── PDFConfig/                          # Se ha definido una carpeta para almacenar la configuracion centralizada para la generacion de PDFs
 │   │           │   ├── Configuration.php               # Se ha implementado para centralizar metadatos y estilos 
-│   │           │   └── Translations.php                # Se ha implementado para almacenar traducciones para textos específicos en PDFs generados 
+│   │           │   └── Translations.php                # Se ha implementado para almacenar traducciones para textos especificos en PDFs generados 
 │   │           └── Templates/                          # Se ha definido un sistema de plantillas modulares y extensibles
-│   │               ├── Renderers/                      # Se ha implementado un sistema de renderizado reutilizable con separación de responsabilidades
-│   │               │   ├── GroupRenderer/              # Se implementaron renderizadores para elementos compuestos (resúmenes en diferentes idiomas, información completa de autores, etc) 
-│   │               │   └── SingleRenderer/             # Se implementaron renderizadores para elementos atómicos (textos, imágenes, licencia, etc)
-│   │               ├── BaseTemplate.php                # Se ha implementado como clase base abstracta con métodos comunes para todas las plantillas. Reconoce los componentes de cada plantilla.
+│   │               ├── Renderers/                      # Se ha implementado un sistema de renderizado reutilizable con separacion de responsabilidades
+│   │               │   ├── GroupRenderer/              # Se implementaron renderizadores para elementos compuestos (resumenes en diferentes idiomas, informacion completa de autores, etc) 
+│   │               │   └── SingleRenderer/             # Se implementaron renderizadores para elementos atomicos (textos, imagenes, licencia, etc)
+│   │               ├── BaseTemplate.php                # Se ha implementado como clase base abstracta con metodos comunes para todas las plantillas. Reconoce los componentes de cada plantilla.
 │   │               ├── GenericTemplate.php             # Se ha implementado como clase base que inicializa los componentes correspondientes a la plantilla reconocida por BaseTemplate.
 │   │               ├── GenericComponent.php            # Se ha implementado como clase base para todos los componentes con funcionalidad compartida
 │   │               └── TemplateOne/                    # Se ha implementado una plantilla personalizada llamada "TemplateOne"
-│   │                   ├── TemplateOne.php             # Se ha implementado la clase principal de la plantilla. Carga sus componentes correspondientes que luego serán procesados en BaseTemplate.php
-│   │                   └── Components/                 # Componentes específicos de esta plantilla
-│   │                       ├── Body.php                # Renderiza el contenido del XML JATS del artículo (incluidas las referencias bibliograficas) 
+│   │                   ├── TemplateOne.php             # Se ha implementado la clase principal de la plantilla. Carga sus componentes correspondientes que luego seran procesados en BaseTemplate.php
+│   │                   └── Components/                 # Componentes especificos de esta plantilla
+│   │                       ├── Body.php                # Renderiza el contenido del XML JATS del articulo (incluidas las referencias bibliograficas) 
 │   │                       ├── Footer.php              # Renderiza el pie de pagina con la informacion de la licencia llamando al Renderer individual "Licence" 
 │   │                       ├── Header.php              # Renderiza el encabezado llamando a Renderers especificos segun los elementos que se deseen imprimir
-│   │                       └── TemplateBody.php        # Renderiza la caratula del artículo con datos introductorios, utilizando Renderers especificos según los elementos que se deseen imprimir
+│   │                       └── TemplateBody.php        # Renderiza la caratula del articulo con datos introductorios, utilizando Renderers especificos segun los elementos que se deseen imprimir
 │   ├── scripts/                                        # Se ha añadido esta carpeta que contiene los Scripts necesarios para el funcionamiento del plugin
 │   │   └── install-fonts/                              
 │   │       └── install-fonts.php                       # Script de instalacion automatica de fuentes personalizadas para TCPDF
 │   ├── vendor/
-│   ├── logo/                                           # Se han añadido logos que son utilizados para la generación del PDF, tales como como el logo ORCID o los logos correspondientes a los tipos de licencias Creative Commons                                                 
+│   ├── logo/                                           # Se han añadido logos que son utilizados para la generacion del PDF, tales como como el logo ORCID o los logos correspondientes a los tipos de licencias Creative Commons                                                 
 │   ├── examples/                                       
 │   └── composer.json                                   
 │                                                       
@@ -92,17 +92,17 @@ jatsParser/
 │   ├── components/                                     
 │   │   └── forms/                                      # Formularios y elementos relacionados a UI
 │   │       ├── CitationStyles/                         # Se ha implementado una Tabla de Citas para APA 7 
-│   │       │   ├── Stylesheets/                        # Se ha creado una carpeta que almacena los estilos para cada formato de citación (actualmente solo se soporta APA)
-│   │       │   │   ├── ApaStylesheet.php               # Estilos específicos para formato APA 
+│   │       │   ├── Stylesheets/                        # Se ha creado una carpeta que almacena los estilos para cada formato de citacion (actualmente solo se soporta APA)
+│   │       │   │   ├── ApaStylesheet.php               # Estilos especificos para formato APA 
 │   │       │   │   └── GenericStylesheet.php           # Clase base abstracta con estilos comunes
-│   │       │   ├── ApaCitationTable.php                # Implementación de una tabla de citas con estilo de citación APA
-│   │       │   └── GenericCitationTable.php            # Se ha implementado una clase base con un patrón Template Method para tablas de citación
+│   │       │   ├── ApaCitationTable.php                # Implementacion de una tabla de citas con estilo de citacion APA
+│   │       │   └── GenericCitationTable.php            # Se ha implementado una clase base con un patron Template Method para tablas de citacion
 │   │       ├── Helpers/                                # Se ha agregado una carpeta con funciones auxiliares para el procesamiento de formularios
 │   │       │   └── process_citations.php               # Se ha implementado para procesar las citas guardadas en la Tabla de Citas
-│   │       ├── TableHTML.php                           # Se ha implementado para procesar la información que se renderizara en cada parte de la Tabla de Citas (contexto, referencias, estilo de cita)
+│   │       ├── TableHTML.php                           # Se ha implementado para procesar la informacion que se renderizara en cada parte de la Tabla de Citas (contexto, referencias, estilo de cita)
 │   │       └── PublicationJATSUploadForm.inc.php       # Se ha añadido una funcionalidad: Un nuevo FieldHTML que renderizara el HTML correspondiente a la Tabla de Citas  
 │   ├── daos/                                           # Nueva carpeta con objetos de acceso a datos
-│   │   └── CustomPublicationSettingsDAO.inc.php        # Se ha implementado para actualizar u obtener la configuración de la Tabla de Citas almacenada en la base de datos 
+│   │   └── CustomPublicationSettingsDAO.inc.php        # Se ha implementado para actualizar u obtener la configuracion de la Tabla de Citas almacenada en la base de datos 
 │   └── JATSParserDocument.inc.php
 │
 └── **archivos específicos del plugin**
