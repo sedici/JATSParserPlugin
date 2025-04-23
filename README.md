@@ -47,7 +47,7 @@ php install-fonts.php
 
 ## 🧱 Estructura del Plugin
 
-```text
+```mathematica
 jatsParser/
 ├── JATSParser/
 │   ├── src/
