@@ -109,7 +109,11 @@ jatsParser/
 ```
 
 📁 Archivos y directorios clave:
-- `JatsParserPlugin.php`: Archivo principal, define flujo y hooks.
+- `JatsParserPlugin.php`: Archivo principal que define el flujo del plugin y registra los hooks de OJS. Se realizaron modificaciones importantes en la función `pdfCreation()` para separar la lógica de obtención de metadatos de la generación del PDF. Ahora, esta función:
+  - Obtiene los metadatos del artículo.
+  - Instancia `Configuration.php` con esos datos.
+  - Utiliza `TemplateStrategy` para seleccionar dinámicamente la plantilla a renderizar.
+  - Exporta el PDF generado para su visualización dentro de OJS.
 - `PDF/Templates/`: Contiene las plantillas de PDF.
 - `PDF/Templates/Renderers/`: Renderers reutilizables para elementos del PDF.
 - `PDFConfig/`: Configuración, estilos y traducciones.
