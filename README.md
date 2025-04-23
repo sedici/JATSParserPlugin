@@ -4,17 +4,17 @@ Este plugin extiende el [plugin original jatsParser](https://github.com/Vitaliy-
 
 ## 📦 Instalación
 
-1. Navega hasta la carpeta `plugins/generic` comenzando desde la raíz de OJS:
+👉 1. Navega hasta la carpeta `plugins/generic` comenzando desde la raíz de OJS:
 ```bash
 cd plugins/generic
 ```
 
-2. Clona el repositorio con el comando:
+👉 2. Clona el repositorio con el comando:
 ```bash
 git clone --recursive https://github.com/sedici/JATSParserPlugin.git jatsParser
 ```
 
-3. Instalar las dependencias necesarias para la conversión de JATS a PDF: entra en la carpeta JATSParser con:
+👉 3. Instalar las dependencias necesarias para la conversión de JATS a PDF: entra en la carpeta JATSParser con:
 ```bash
 cd jatsParser/JATSParser y ejecuta composer install.
 ```
@@ -23,7 +23,7 @@ y ejecuta el comando:
 composer install
 ```
 
-4. Instalar las fuentes necesarias para generar el PDF: Ejecutar el script install-fonts.php.
+👉 4. Instalar las fuentes necesarias para generar el PDF: Ejecutar el script install-fonts.php.
 Para ello, dentro de la carpeta JATSParser diríjase a la carpeta install-fonts con:
 ```bash
 cd scripts/install-fonts
