@@ -130,9 +130,7 @@ jatsParser/
 
 **IMPORTANTE:** *Por el momento, la Tabla de Citas solo está diseñada con soporte para APA 7*
 
-# 🔧 **Personalización y Extensiones**
-
-## 📄 Creación de Nuevas Plantillas
+## 🔧📄 ¿Cómo crear nuevas plantillas de PDF?
 
 Para agregar nuevas plantillas correctamente, se deben seguir los siguientes pasos (utilizar como referencia la plantilla TemplateOne):
 
