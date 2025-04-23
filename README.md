@@ -79,30 +79,30 @@ jatsParser/
 │   │   └── install-fonts/                              
 │   │       └── install-fonts.php                       # Script de instalación automática de fuentes personalizadas para TCPDF
 │   ├── vendor/
-│   ├── logo/                                           # Se añadieron logos que son utilizados para la generación del PDF, tales como como el logo ORCID o los logos correspondientes a los tipos de licencias Creative Commons  
-│   ├── examples/
-│   └── composer.json
-│
-├── app/
-├── images/
-├── locale/
-├── resources/
-├── templates/
-├── classes/
-│   ├── components/
-│   │   └── forms/
-│   │       ├── CitationStyles/
-│   │       │   ├── Stylesheets/
-│   │       │   │   ├── ApaStylesheet.php
-│   │       │   │   └── GenericStylesheet.php
-│   │       │   ├── ApaCitationTable.php
-│   │       │   └── GenericCitationTable.php
-│   │       ├── Helpers/
-│   │       │   └── process_citations.php
-│   │       ├── TableHTML.php
-│   │       └── PublicationJATSUploadForm.inc.php
-│   ├── daos/
-│   │   └── CustomPublicationSettingsDAO.inc.php
+│   ├── logo/                                           # Se añadieron logos que son utilizados para la generación del PDF, tales como como el logo ORCID o los logos correspondientes a los tipos de licencias Creative Commons                                                 
+│   ├── examples/                                       
+│   └── composer.json                                   
+│                                                       
+├── app/                                                
+├── images/                                             
+├── locale/                                             
+├── resources/                                          
+├── templates/                                          
+├── classes/                                            
+│   ├── components/                                     
+│   │   └── forms/                                      # Formularios y elementos relacionados a UI
+│   │       ├── CitationStyles/                         # Se implementó una Tabla de Citas para APA 7 
+│   │       │   ├── Stylesheets/                        # Se creó una carpeta que almacena los estilos para cada formato de citación (actualmente solo se soporta APA)
+│   │       │   │   ├── ApaStylesheet.php               # Estilos específicos para formato APA 
+│   │       │   │   └── GenericStylesheet.php           # Clase base abstracta con estilos comunes
+│   │       │   ├── ApaCitationTable.php                # Implementación de una tabla de citas con estilo de citación APA
+│   │       │   └── GenericCitationTable.php            # Se implementó una clase base con un patrón Template Method para tablas de citación
+│   │       ├── Helpers/                                # Se agregó una carpeta con funciones auxiliares para el procesamiento de formularios
+│   │       │   └── process_citations.php               # Se implementó para procesar las citas guardadas en la Tabla de Citas
+│   │       ├── TableHTML.php                           # Se implementó para procesar la información que se renderizará en cada parte de la Tabla de Citas (contexto, referencias, estilo de cita)
+│   │       └── PublicationJATSUploadForm.inc.php       # Se añadió una funcionalidad: Un nuevo FieldHTML que renderizará el HTML correspondiente a la Tabla de Citas  
+│   ├── daos/                                           # Nueva carpeta con objetos de acceso a datos
+│   │   └── CustomPublicationSettingsDAO.inc.php        # Se implementó para actualizar u obtener la configuración de la Tabla de Citas almacenada en la base de datos 
 │   └── JATSParserDocument.inc.php
 │
 └── **archivos específicos del plugin**
