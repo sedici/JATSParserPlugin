@@ -108,10 +108,12 @@ jatsParser/
 └── **archivos específicos del plugin**
 ```
 
+📁 Archivos y directorios clave:
 - `JatsParserPlugin.php`: Archivo principal, define flujo y hooks.
 - `PDF/Templates/`: Contiene las plantillas de PDF.
 - `PDF/Templates/Renderers/`: Renderers reutilizables para elementos del PDF.
 - `PDFConfig/`: Configuración, estilos y traducciones.
 - `forms/CitationStyles`: Tablas de citas definidas con sus estilos específicos en la carpeta `Stylesheets/`.
-- `forms/Helpers/process.citations.php`: Se encarga de procesar las citas recibidas desde la Tabla de Citas para actualizar la base de datos.
-- `forms/TableHTML.php`: Procesa el XML JATS del artículo para crear un arreglo que contenga la información que se mostrará en la Tabla de Citas
+- `forms/Helpers/process.citations.php`: Se encarga de procesar y analizar las citas recibidas desde la Tabla de Citas para posteriormente llamar a CustomPublicationSettingsDao.
+- `daos/CustomPublicationSettingsDAO.php`: Accede y actualiza la configuración de citas en la base de datos, tanto para lectura como para escritura. Al generar el PDF se obtienen la configuración. Al guardar las citas desde la tabla, se actualiza la configuración.
+- `forms/TableHTML.php`: Procesa el XML JATS del artículo para crear un arreglo que contenga los datos que se utilizarán para renderizar el HTML de la Tabla de Citas (Contexto - Referencia - Estilo de Citación) 
