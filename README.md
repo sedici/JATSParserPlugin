@@ -71,7 +71,7 @@ jatsParser/
 │   │               └── TemplateOne/                    # Se ha implementado una plantilla personalizada llamada "TemplateOne"
 │   │                   ├── TemplateOne.php             # Se ha implementado la clase principal de la plantilla. Carga sus componentes correspondientes que luego seran procesados en BaseTemplate.php
 │   │                   └── Components/                 # Componentes especificos de esta plantilla
-│   │                       ├── Body.php                # Renderiza el contenido del XML JATS del articulo (incluidas las referencias bibliograficas) 
+│   │                       ├── Body.php                # Renderiza el contenido del XML JATS del articulo (incluidas las referencias bibliograficas). Es importante que se utilice la clase PDFBodyHelper a la hora de procesar el XML JATS del artículo. 
 │   │                       ├── Footer.php              # Renderiza el pie de pagina con la informacion de la licencia llamando al Renderer individual "Licence" 
 │   │                       ├── Header.php              # Renderiza el encabezado llamando a Renderers especificos segun los elementos que se deseen imprimir
 │   │                       └── TemplateBody.php        # Renderiza la caratula del articulo con datos introductorios, utilizando Renderers especificos segun los elementos que se deseen imprimir
@@ -188,7 +188,7 @@ Dentro de Components/, crear los siguientes archivos:
 
 #### Estructura de cada componente: 
 
-- Para el Header:
+- **Para el Header:**
 
 ```php
 // Reemplazar {NombreDePlantillaNueva} por el nombre específico de la nueva plantilla.
@@ -206,7 +206,7 @@ class Header extends GenericComponent
 }
 ```
 
-- Para el TemplateBody:
+- **Para el TemplateBody:**
 
 ```php
 // Reemplazar {NombreDePlantillaNueva} por el nombre específico de la nueva plantilla.
@@ -224,7 +224,7 @@ class TemplateBody extends GenericComponent
 }
 ```
 
-- Para el Body:
+- **Para el Body:**
 
 ```php
 // Reemplazar {NombreDePlantillaNueva} por el nombre específico de la nueva plantilla.
@@ -235,14 +235,33 @@ use JATSParser\PDF\Templates\GenericComponent;
 
 class Body extends GenericComponent
 {
-    public function render()
-    {
-        // Lógica del componente
-    }
+    public function render(){
+		$bodyConfig = $this->config->getBodyConfig();
+		$htmlString = $this->config->getHtmlString();
+		$pluginPath = $this->config->getPluginPath();
+
+		$this->pdfTemplate->SetLeftMargin(27);
+		$this->pdfTemplate->SetRightMargin(27);
+
+		// Aquí puede especificar los estilos, fuentes, colores, etc. para el Body, por ejemplo:
+		// $this->pdfTemplate->SetFont($bodyConfig['config']['font']['family'], $bodyConfig['config']['font']['style'], $bodyConfig['config']['font']['size']);
+
+		$htmlString .= "\n" . '<style>' . "\n" . file_get_contents($pluginPath . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . 'styles' . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'pdfGalley.css') . '</style>';
+		$htmlString = PDFBodyHelper::_prepareForPdfGalley($htmlString, $this->config);
+		$this->pdfTemplate->writeHTML($htmlString, true, false, true, false, 'J');
+	}
 }
 ```
 
-- Para el Footer:
+El componente Body() de cualquier plantilla debe invocar al método _prepareForPdfGalley()** de la clase PDFBodyHelper.
+Este método:
+- Recorre el DOM HTML del artículo científico.
+- Adapta el contenido para su generación en PDF.
+- Realiza consultas con XPath para acomodar figuras y tablas.
+- Si el lenguaje de citación se encuentra en el arreglo $supportedCustomCitationStyles de Configuration.php, se utiliza la clase CustomPublicationSettingsDAO para **obtener** la información de las citas. Estas operaciones se realizan sobre la tabla publication_settings.
+Es por eso que todos los componentes BODY de cualquier plantilla deben seguir este diseño para un correcto renderizado del cuerpo del artículo.
+
+- **Para el Footer:**
 
 ```php
 // Reemplazar {NombreDePlantillaNueva} por el nombre específico de la nueva plantilla.
@@ -261,11 +280,11 @@ class Footer extends GenericComponent
 ```
 
 
-✅ Asegurate de:
-- Usar el namespace correcto.
-- Que la clase tenga el mismo nombre que el archivo.
-- Que la clase extienda de GenericComponent.
-- Definir el método render().
+✅ ***Asegurate de:***
+- Indicar los namespaces correctos.
+- Que cada nombre de clase tenga el mismo nombre que el archivo (por ejemplo, si creamos un archivo Header.php el nombre de su clase debe ser Header, no TemplateBody ni cualquier otro nombre diferente).
+- Que cada uno de los componentes definidos extiendan de GenericComponent.
+- Definir el método render() en cada uno de los componentes.
 
 **Para probar la plantilla, puede dirigirse a la función pdfCreation() en JatsParserPlugin.php (en la carpeta jatsParser/, la raíz del plugin) y modificar el valor de la variable $templateName por el nombre de la nueva plantilla. Por ejemplo:**
 
