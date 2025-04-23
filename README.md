@@ -130,11 +130,9 @@ jatsParser/
 
 **IMPORTANTE:** *Por el momento, la Tabla de Citas solo está diseñada con soporte para APA 7*
 
----
----
----
-
 # 🔧 **Personalización y Extensiones**
+
+---
 
 ## 📄 Creación de Nuevas Plantillas
 
