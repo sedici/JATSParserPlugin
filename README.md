@@ -312,15 +312,15 @@ Los Renderers son funciones reutilizables que encapsulan la lógica de impresió
 📁 Se encuentran en:
 /JATSParser/PDF/Templates/Renderers
 
-### 6. ➕ Crear un Nuevo Renderer
+### 6. ➕ Crear un Nuevo Renderer (opcional)
+
+Si necesitas procesar o imprimir información que no está definida en un Renderer ya existente, puedes crear un nuevo Renderer personalizado. Esto te permitirá adaptar la lógica de renderizado a los requerimientos específicos de tu proyecto.
 
 Pasos:
-
 1. Crear un archivo .php en:
    - GroupRenderer/ o SingleRenderer/
 
 2. Definir el namespace:
-
 ```php
 //Si estamos creando un GroupRenderer:
 <?php namespace JATSParser\PDF\Templates\Renderers\GroupRenderer;
@@ -333,7 +333,6 @@ o
 ```
 
 3. Definir una clase con un método público y estático:
-
 ```php
 //Reemplazar {NombreDelRenderer} por el nombre específico del Renderer
 
@@ -341,12 +340,11 @@ class {NombreDelRenderer} {
 
    public static function render{NombreDelRenderer}($pdfTemplate, ...) {
         // Lógica del renderer
-    }
-
-⚠️ IMPORTANTE: El método debe recibir de forma obligatoria el parámetro $pdfTemplate, ya que es la instancia  sobre la cual se realizarán las operaciones. También puede recibir $config (Configuración del PDF) u otros parámetros específicos necesarios y trabajar con ellos en este método.
-🔁 Seguir como patrón para el nombre del método: render{NombreDelRenderer}.   
+    }   
 }
 ```
+⚠️ IMPORTANTE: El método debe recibir de forma obligatoria el parámetro $pdfTemplate, ya que es la instancia  sobre la cual se realizarán las operaciones. También puede recibir $config (Configuración del PDF) u otros parámetros específicos necesarios y trabajar con ellos en este método.
+🔁 Seguir como patrón para el nombre del método: render{NombreDelRenderer}.
 
 
 ### 7. 🧪 Usar un Renderer en un Componente
