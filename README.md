@@ -129,3 +129,7 @@ jatsParser/
 - `forms/TableHTML.php`: Procesa el XML JATS del artículo para generar el contenido de la Tabla de Citas, incluyendo el contexto, las referencias y el estilo correspondientes.
 
 **IMPORTANTE:** *Por el momento, la Tabla de Citas solo está diseñada con soporte para APA 7*
+
+###
+
+## 🔧 **Personalización y Extensiones**
