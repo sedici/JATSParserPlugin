@@ -124,7 +124,7 @@ jatsParser/
 
 - `forms/Helpers/process_citations.php`: Encargado de procesar y analizar las citas seleccionadas en la Tabla de Citas desde la interfaz de OJS. Este script construye un JSON con la configuración de citas obtenida desde el formulario y lo envía a `CustomPublicationSettingsDAO` para su lectura o actualización en la base de datos.
 
-- `daos/CustomPublicationSettingsDAO.php`: Se encarga de acceder y actualizar la configuración de citas en la base de datos, la cual se almacena con el `setting_name` de `jatsParser::citationTableData` en la tabla `publication_settings`. Durante la generación del PDF, recupera la configuración correspondiente; y cuando se guardan las citas desde la Tabla de Citas, la información se actualiza o inserta según sea necesario.
+- `daos/CustomPublicationSettingsDAO.php`: Se encarga de actualizar (con el método updateSettings) u obtener (con el método getSettings) la configuración de las citas en la base de datos, almacenadas con el `setting_name` de `jatsParser::citationTableData` en la tabla `publication_settings`. Durante la generación del PDF, recupera la configuración correspondiente; y cuando se guardan las citas desde la Tabla de Citas, la información se actualiza o inserta según sea necesario.
 
 - `forms/TableHTML.php`: Procesa el XML JATS del artículo para generar el contenido de la Tabla de Citas, incluyendo el contexto, las referencias y el estilo correspondientes.
 
