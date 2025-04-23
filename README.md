@@ -90,22 +90,26 @@ jatsParser/
 ├── resources/
 ├── templates/
 ├── classes/
-│      ├── components/
-│      │     └── forms/
-│      │           ├── CitationStyles/
-│      │           │      ├── Stylesheets/
-│      │           │      │      ├── ApaStylesheet.php
-│      │           │      │      └── GenericStylesheet.php
-│      │           │      ├── ApaCitationTable.php
-│      │           │      └── GenericCitationTable.php 
-│      │           ├── Helpers/
-│      │           │      └── process_citations.php
-│      │           ├── TableHTML.php
-│      │           └── PublicationJATSUploadForm.inc.php
-│      │
-│      ├── daos/
-│      │     └── CustomPublicationSettingsDAO.inc.php
-│      └──JATSParserDocument.inc.php
+│     ├── components/
+│     │      └── forms/
+│     │            ├── CitationStyles/
+│     │            │      ├── Stylesheets/
+│     │            │      │      ├── ApaStylesheet.php
+│     │            │      │      └── GenericStylesheet.php
+│     │            │      │      
+│     │            │      ├── ApaCitationTable.php
+│     │            │      └── GenericCitationTable.php
+│     │            │ 
+│     │            ├── Helpers/
+│     │            │      └── process_citations.php
+│     │            │
+│     │            ├── TableHTML.php
+│     │            └── PublicationJATSUploadForm.inc.php
+│     │
+│     ├── daos/
+│     │     └── CustomPublicationSettingsDAO.inc.php
+│     │
+│     └──JATSParserDocument.inc.php
 │
 └── **archivos específicos del plugin**
 ```
