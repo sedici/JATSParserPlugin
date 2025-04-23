@@ -49,37 +49,37 @@ php install-fonts.php
 
 ```mathematica
 jatsParser/
-├── JATSParser/
+├── JATSParser/                                         # Biblioteca core para procesamiento de documentos JATS
 │   ├── src/
 │   │   └── JATSParser/
 │   │       ├── Back/
 │   │       ├── Body/
 │   │       ├── HTML/
 │   │       └── PDF/
-│   │           ├── PDFBodyHelper.php                   # Modificado para procesar el contenido del XML JATS correspondiente al artículo al de generar el PDF
-│   │           ├── TemplateStrategy.php                # Implementado para manejar plantillas dinámicamente (Strategy Pattern)
-│   │           ├── PDFConfig/                          # Configuración agregada
-│   │           │   ├── Configuration.php               # Agregado para centralizar metadatos y estilos del PDF.
-│   │           │   └── Translations.php                # Agregado para definir traducciones de textos específicos usados al generar el PDF
-│   │           └── Templates/                    
-│   │               ├── Renderers/
-│   │               │   ├── GroupRenderer/
-│   │               │   └── SingleRenderer/
-│   │               ├── BaseTemplate.php
-│   │               ├── GenericComponent.php
-│   │               ├── GenericTemplate.php
-│   │               └── TemplateOne/
-│   │                   ├── TemplateOne.php
-│   │                   └── Components/
-│   │                       ├── Body.php
-│   │                       ├── Footer.php
-│   │                       ├── Header.php
-│   │                       └── TemplateBody.php
-│   ├── scripts/
-│   │   └── install-fonts/
-│   │       └── install-fonts.php
+│   │           ├── PDFBodyHelper.php                   # Se añadió la funcionalidad de procesar el contenido XML JATS para estructurar de forma correcta el cuerpo del PDF si el artículo está en APA 
+│   │           ├── TemplateStrategy.php                # Se implementó para manejar plantillas dinámicamente implementando un Strategy Pattern
+│   │           ├── PDFConfig/                          # Se definió una carpeta para almacenar la configuración centralizada para la generación de PDFs
+│   │           │   ├── Configuration.php               # Se implementó para centralizar metadatos y estilos 
+│   │           │   └── Translations.php                # Se implementó para almacenar traducciones para textos específicos en PDFs generados 
+│   │           └── Templates/                          # Se definió un sistema de plantillas modulares y extensibles
+│   │               ├── Renderers/                      # Se implementó un sistema de renderizado reutilizable con separación de responsabilidades
+│   │               │   ├── GroupRenderer/              # Se implementaron renderizadores para elementos compuestos (resúmenes en diferentes idiomas, información completa de autores, etc) 
+│   │               │   └── SingleRenderer/             # Se implementaron renderizadores para elementos atómicos (textos, imágenes, licencia, etc)
+│   │               ├── BaseTemplate.php                # Se implementó como clase base abstracta con métodos comunes para todas las plantillas. Reconoce los componentes de cada plantilla.
+│   │               ├── GenericTemplate.php             # Se implementó como clase base que inicializa los componentes correspondientes a la plantilla reconocida por BaseTemplate.
+│   │               ├── GenericComponent.php            # Se implementó como clase base para todos los componentes con funcionalidad compartida
+│   │               └── TemplateOne/                    # Se implementó una plantilla personalizada llamada "TemplateOne"
+│   │                   ├── TemplateOne.php             # Se implementó la clase principal de la plantilla. Carga sus componentes correspondientes que luego serán procesados en BaseTemplate.php
+│   │                   └── Components/                 # Componentes específicos de esta plantilla
+│   │                       ├── Body.php                # Renderiza el contenido del XML JATS del artículo (incluídas las referencias bibliográficas) 
+│   │                       ├── Footer.php              # Renderiza el pie de página con la información de la licencia llamando al Renderer individual "Licence" 
+│   │                       ├── Header.php              # Renderiza el encabezado llamando a Renderers específicos según los elementos que se deseen imprimir
+│   │                       └── TemplateBody.php        # Renderiza la carátula del artículo con datos introductorios, utilizando Renderers específicos según los elementos que se deseen imprimir
+│   ├── scripts/                                        # Se agregó esta carpeta que contiene los Scripts necesarios para el funcionamiento del plugin
+│   │   └── install-fonts/                              
+│   │       └── install-fonts.php                       # Script de instalación automática de fuentes personalizadas para TCPDF
 │   ├── vendor/
-│   ├── logo/
+│   ├── logo/                                           # Se añadieron logos que son utilizados para la generación del PDF (como el logo ORCID y logos de las licencias Creative Commons)  
 │   ├── examples/
 │   └── composer.json
 │
