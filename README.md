@@ -108,7 +108,7 @@ jatsParser/
 └── **archivos específicos del plugin**
 ```
 
-### 📁 **Archivos y directorios clave** ***PARA LA GENERACIÓN DEL PDF***: ###
+#### 📁 **Archivos y directorios clave** ***PARA LA GENERACIÓN DEL PDF***: ###
 - `JatsParserPlugin.php`: Archivo principal que define el flujo del plugin y registra los hooks de OJS. Se realizaron modificaciones importantes en la función `pdfCreation()` para separar la lógica de obtención de metadatos de la generación del PDF. Ahora, esta función:
   👉 Obtiene los metadatos del artículo.
   👉 Instancia `Configuration.php` con esos datos.
@@ -119,7 +119,7 @@ jatsParser/
 
 - `PDFConfig/`: Almacena la configuración general del PDF (fuentes, colores, etc.) en `Configuration.php`, y las traducciones multilenguaje en `Translations.php`. Esta configuración es utilizada por todas las plantillas para mantener coherencia visual y textual, y permite generar PDFs adaptados al idioma del contenido (actualmente soporta español, inglés y portugués).
 
-### 📁 **Archivos y directorios clave** ***PARA LA TABLA DE CITAS***: ###
+#### 📁 **Archivos y directorios clave** ***PARA LA TABLA DE CITAS***: ###
 - `forms/CitationStyles/`: Contiene las clases específicas que definen cómo se renderiza la Tabla de Citas para cada estilo de citación (por ejemplo, `ApaCitationTable.php`). Estas clases extienden de `GenericCitationTable` y definen cómo formatear citas con uno, dos o múltiples autores, además del separador entre citas. La carpeta `Stylesheets/` dentro de este directorio incluye archivos que encapsulan estilos comunes para reutilizar en múltiples estilos de citación.
 
 - `forms/Helpers/process_citations.php`: Encargado de procesar y analizar las citas seleccionadas en la Tabla de Citas desde la interfaz de OJS. Este script construye un JSON con la configuración de citas obtenida desde el formulario y lo envía a `CustomPublicationSettingsDAO` para su lectura o actualización en la base de datos.
