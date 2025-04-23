@@ -49,36 +49,62 @@ php install-fonts.php
 
 ```mathematica
 jatsParser/
-├── src/
-│   └── JATSParser/
-│       ├── Back/
-│       ├── Body/
-│       ├── HTML/
-│       └── PDF/
-│           ├── PDFBodyHelper.php
-│           ├── TemplateStrategy.php
-│           ├── PDFConfig/
-│           │   ├── Configuration.php
-│           │   └── Translations.php
-│           └── Templates/
-│               ├── Renderers/
-│               │   ├── GroupRenderer/
-│               │   └── SingleRenderer/
-│               ├── BaseTemplate.php
-│               ├── GenericComponent.php
-│               ├── GenericTemplate.php
-│               └── TemplateOne/
-│                   ├── TemplateOne.php
-│                   └── Components/
-│                       ├── Body.php
-│                       ├── Footer.php
-│                       ├── Header.php
-│                       └── TemplateBody.php
-├── scripts/
-│   └── install-fonts/
-│       └── install-fonts.php
-├── vendor/
-├── logo/
-├── examples/
-├── composer.json
+├── JATSParser/
+│     ├── src/
+│     │   └── JATSParser/
+│     │       ├── Back/
+│     │       ├── Body/
+│     │       ├── HTML/
+│     │       └── PDF/
+│     │           ├── PDFBodyHelper.php
+│     │           ├── TemplateStrategy.php
+│     │           ├── PDFConfig/
+│     │           │   ├── Configuration.php
+│     │           │   └── Translations.php
+│     │           └── Templates/
+│     │               ├── Renderers/
+│     │               │   ├── GroupRenderer/
+│     │               │   └── SingleRenderer/
+│     │               ├── BaseTemplate.php
+│     │               ├── GenericComponent.php
+│     │               ├── GenericTemplate.php
+│     │               └── TemplateOne/
+│     │                   ├── TemplateOne.php
+│     │                   └── Components/
+│     │                       ├── Body.php
+│     │                       ├── Footer.php
+│     │                       ├── Header.php
+│     │                       └── TemplateBody.php
+│     ├── scripts/
+│     │   └── install-fonts/
+│     │       └── install-fonts.php
+│     ├── vendor/
+│     ├── logo/
+│     ├── examples/
+│     └── composer.json
+│
+├── app/
+├── images/
+├── locale/
+├── resources/
+├── templates/
+├── classes/
+│      ├── components/
+│      │     └── forms/
+│      │           ├── CitationStyles/
+│      │           │      ├── Stylesheets/
+│      │           │      │      ├── ApaStylesheet.php
+│      │           │      │      └── GenericStylesheet.php
+│      │           │      ├── ApaCitationTable.php
+│      │           │      └── GenericCitationTable.php 
+│      │           ├── Helpers/
+│      │           │      └── process_citations.php
+│      │           ├── TableHTML.php
+│      │           └── PublicationJATSUploadForm.inc.php
+│      │
+│      ├── daos/
+│      │     └── CustomPublicationSettingsDAO.inc.php
+│      └──JATSParserDocument.inc.php
+│
+└── **archivos específicos del plugin**
 ```
