@@ -45,3 +45,41 @@ php install-fonts.php
 - Renderers reutilizables para imprimir bloques o elementos específicos en cualquier parte del PDF.
 - ***Compatibilidad*** con el plugin ***Texture*** y adecuación para estilos como APA e IEEE.
 
+## 🧱 Estructura del Plugin
+## 🧱 Estructura del Plugin
+
+```text
+jatsParser/
+├── src/
+│   └── JATSParser/
+│       ├── Back/
+│       ├── Body/
+│       ├── HTML/
+│       └── PDF/
+│           ├── PDFBodyHelper.php
+│           ├── TemplateStrategy.php
+│           ├── PDFConfig/
+│           │   ├── Configuration.php
+│           │   └── Translations.php
+│           └── Templates/
+│               ├── Renderers/
+│               │   ├── GroupRenderer/
+│               │   └── SingleRenderer/
+│               ├── BaseTemplate.php
+│               ├── GenericComponent.php
+│               ├── GenericTemplate.php
+│               └── TemplateOne/
+│                   ├── TemplateOne.php
+│                   └── Components/
+│                       ├── Body.php
+│                       ├── Footer.php
+│                       ├── Header.php
+│                       └── TemplateBody.php
+├── scripts/
+│   └── install-fonts/
+│       └── install-fonts.php
+├── vendor/
+├── logo/
+├── examples/
+├── composer.json
+```
