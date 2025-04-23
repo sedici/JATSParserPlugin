@@ -132,8 +132,6 @@ jatsParser/
 
 # 🔧 **Personalización y Extensiones**
 
----
-
 ## 📄 Creación de Nuevas Plantillas
 
 Para agregar nuevas plantillas correctamente, se deben seguir los siguientes pasos (utilizar como referencia la plantilla TemplateOne):
