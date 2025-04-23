@@ -173,10 +173,11 @@ class {NombreDePlantillaNueva} extends BaseTemplate
 }
 ```
 
-✅ Asegurate de:
-- Usar el namespace correcto.
-- Que la clase tenga el mismo nombre que el archivo.
-- Que la clase extienda de BaseTemplate.
+✅ ***Asegurate de:***
+- Definir el namespace correcto.
+- Importar correctamente cada componente
+- Que el nombre del archivo y la clase que lo compone tengan exactamente el mismo nombre (Por ejemplo, si se crea un archivo "SkyBlue.php", el nombre de la clase que lo compone ***debe*** ser "SkyBlue", ***no puede*** tener un nombre diferente).
+- Que la clase creada extienda de BaseTemplate.
 
 
 ### 3. 🧩 Crear los Componentes
