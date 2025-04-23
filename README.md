@@ -343,8 +343,9 @@ class {NombreDelRenderer} {
     }   
 }
 ```
-⚠️ IMPORTANTE: El método debe recibir de forma obligatoria el parámetro $pdfTemplate, ya que es la instancia  sobre la cual se realizarán las operaciones. También puede recibir $config (Configuración del PDF) u otros parámetros específicos necesarios y trabajar con ellos en este método.
-🔁 Seguir como patrón para el nombre del método: render{NombreDelRenderer}.
+⚠️ **IMPORTANTE:**
+- El método debe recibir de forma obligatoria el parámetro $pdfTemplate, ya que es la instancia  sobre la cual se realizarán las operaciones. También puede recibir $config (Configuración del PDF) u otros parámetros específicos necesarios y trabajar con ellos en este método.
+- 🔁 Seguir como patrón para el nombre del método: render{NombreDelRenderer}.
 
 
 ### 7. 🧪 Usar un Renderer en un Componente
