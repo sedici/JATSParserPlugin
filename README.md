@@ -108,7 +108,6 @@ jatsParser/
 └── **archivos específicos del plugin**
 ```
 
-
 📁 **Archivos y directorios clave** ***PARA LA GENERACIÓN DEL PDF***:
 - `JatsParserPlugin.php`: Archivo principal que define el flujo del plugin y registra los hooks de OJS. Se realizaron modificaciones importantes en la función `pdfCreation()` para separar la lógica de obtención de metadatos de la generación del PDF. Ahora, esta función:
   👉 Obtiene los metadatos del artículo.
