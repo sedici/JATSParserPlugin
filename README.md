@@ -253,7 +253,7 @@ class Body extends GenericComponent
 }
 ```
 
-El componente Body() de cualquier plantilla debe invocar al método _prepareForPdfGalley()** de la clase PDFBodyHelper.
+El componente Body() de cualquier plantilla debe invocar al método _prepareForPdfGalley() de la clase PDFBodyHelper.
 Este método:
 - Recorre el DOM HTML del artículo científico.
 - Adapta el contenido para su generación en PDF.
