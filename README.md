@@ -32,3 +32,15 @@ Luego en la consola ejecute el siguiente comando:
 ```bash
 php install-fonts.php
 ```
+
+## ⚙️ Funcionalidades principales
+
+- Conversión de XML JATS a HTML, luego a PDF mediante TCPDF.
+
+- Plantillas personalizadas para la estructura del PDF (header, footer, cuerpo).
+
+- Traducción de metadatos: título, resumen, keywords, fechas.
+
+- Sistema visual de tabla de citas según el estilo (APA, IEEE, etc).
+
+- Separación de responsabilidades (metadatos, plantilla, renderers).
