@@ -388,7 +388,7 @@ o incluso valores definidos directamente en la clase.
 		$metadata = $this->getMetadata($publication, $localeKey, $request, $htmlString);
 		$configuration = new Configuration($metadata);
 
-		$templateName = '{NombreDeLaPlantilla}'; //Reemplazar {NombreDeLaPlantilla por el nombre de la nueva plantilla creada.}
+		$templateName = '{NombreDeLaPlantilla}'; //Reemplazar {NombreDeLaPlantilla} por el nombre de la nueva plantilla creada.
 		$templateStrategy = new TemplateStrategy($templateName, $configuration);
 
 		return $templateStrategy->OutputPdf();
