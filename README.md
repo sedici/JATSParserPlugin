@@ -47,8 +47,6 @@ php install-fonts.php
 
 ## 🧱 Estructura del Plugin
 
-## 🧱 Estructura del Plugin
-
 ```mathematica
 jatsParser/
 ├── JATSParser/
@@ -109,3 +107,11 @@ jatsParser/
 │
 └── **archivos específicos del plugin**
 ```
+
+- `JatsParserPlugin.php`: Archivo principal, define flujo y hooks.
+- `PDF/Templates/`: Contiene las plantillas de PDF.
+- `PDF/Templates/Renderers/`: Renderers reutilizables para elementos del PDF.
+- `PDFConfig/`: Configuración, estilos y traducciones.
+- `forms/CitationStyles`: Tablas de citas definidas con sus estilos específicos en la carpeta `Stylesheets/`.
+- `forms/Helpers/process.citations.php`: Se encarga de procesar las citas recibidas desde la Tabla de Citas para actualizar la base de datos.
+- `forms/TableHTML.php`: Procesa el XML JATS del artículo para crear un arreglo que contenga la información que se mostrará en la Tabla de Citas
