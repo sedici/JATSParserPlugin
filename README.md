@@ -279,6 +279,7 @@ class Footer extends GenericComponent
 }
 ```
 
+---
 
 ✅ ***Asegurate de:***
 - Indicar los namespaces correctos.
@@ -286,22 +287,7 @@ class Footer extends GenericComponent
 - Que cada uno de los componentes definidos extiendan de GenericComponent.
 - Definir el método render() en cada uno de los componentes.
 
-**Para probar la plantilla, puede dirigirse a la función pdfCreation() en JatsParserPlugin.php (en la carpeta jatsParser/, la raíz del plugin) y modificar el valor de la variable $templateName por el nombre de la nueva plantilla. Por ejemplo:**
-
-```php
-
-	//Dentro de JatsParserPlugin.php
-
-	private function pdfCreation(string $htmlString, Publication $publication, Request $request, string $localeKey): string {
-		$metadata = $this->getMetadata($publication, $localeKey, $request, $htmlString);
-		$configuration = new Configuration($metadata);
-
-		$templateName = '{NombreDeLaPlantilla}'; //Reemplazar {NombreDeLaPlantilla por el nombre de la nueva plantilla creada.}
-		$templateStrategy = new TemplateStrategy($templateName, $configuration);
-
-		return $templateStrategy->OutputPdf();
-	}
-```
+---
 
 ### 4. 🧠 Uso de $pdfTemplate en render()
 
@@ -390,6 +376,24 @@ Además, En lugar de enviar $this->config, también se puede enviar una configur
 `$this->config->getTemplateBodyConfig` 
 o incluso valores definidos directamente en la clase.
 💡 La implementación queda a criterio de cada desarrollador.
+
+---
+
+**Para probar la plantilla, puede dirigirse a la función pdfCreation() en JatsParserPlugin.php (en la carpeta jatsParser/, la raíz del plugin) y modificar el valor de la variable $templateName por el nombre de la nueva plantilla. Por ejemplo:**
+
+```php
+	//Dentro de JatsParserPlugin.php
+
+	private function pdfCreation(string $htmlString, Publication $publication, Request $request, string $localeKey): string {
+		$metadata = $this->getMetadata($publication, $localeKey, $request, $htmlString);
+		$configuration = new Configuration($metadata);
+
+		$templateName = '{NombreDeLaPlantilla}'; //Reemplazar {NombreDeLaPlantilla por el nombre de la nueva plantilla creada.}
+		$templateStrategy = new TemplateStrategy($templateName, $configuration);
+
+		return $templateStrategy->OutputPdf();
+	}
+```
 
 ---
 ---
