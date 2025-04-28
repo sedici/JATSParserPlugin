@@ -1,4 +1,4 @@
-<?php namespace PKP\components\forms\CitationStyles\Stylesheets;
+<?php namespace PKP\components\forms\CitationStyles\Core\Stylesheets;
 
 abstract class GenericStylesheet {
     // Common constants for all stylesheets
