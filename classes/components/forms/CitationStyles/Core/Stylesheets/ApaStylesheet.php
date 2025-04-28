@@ -1,4 +1,4 @@
-<?php namespace PKP\components\forms\CitationStyles\Stylesheets;
+<?php namespace PKP\components\forms\CitationStyles\Core\Stylesheets;
 
 require_once __DIR__ . ('/GenericStylesheet.php');
 
