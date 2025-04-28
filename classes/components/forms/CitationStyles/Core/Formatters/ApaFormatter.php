@@ -1,5 +1,6 @@
 <?php namespace PKP\components\forms\CitationStyles\Core\Formatters;
 
+
 use PKP\components\forms\CitationStyles\Core\Formatters\AbstractCitationFormatter;
 
 class ApaFormatter extends AbstractCitationFormatter {
@@ -18,5 +19,5 @@ class ApaFormatter extends AbstractCitationFormatter {
     public function getCitationSeparator(): string {
         return '; ';
     }
-    
+
 }
