@@ -18,4 +18,5 @@ class ApaFormatter extends AbstractCitationFormatter {
     public function getCitationSeparator(): string {
         return '; ';
     }
+    
 }
