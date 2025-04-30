@@ -6,14 +6,52 @@ require_once __DIR__ . '/../FormValidators/ApaFormValidator.php';
 use PKP\components\forms\CitationStyles\Core\Formatters\AbstractCitationFormatter;
 use PKP\components\forms\CitationStyles\Core\FormValidators\ApaFormValidator;
 
+/**
+ * Class responsible for rendering APA citation tables in HTML format.
+ * This class manages the generation of citation tables with APA formatting
+ * including form structure, table layout, and citation options.
+ */
 class ApaTableRenderer {
 
+    /**
+     * Citation formatter instance used to format citation strings
+     * @var AbstractCitationFormatter
+     */
     public $formatter;
+
+    /**
+     * Absolute path to the XML file containing citation data
+     * @var string
+     */
     public $absoluteXmlPath;
+
+    /**
+     * The selected citation style being used
+     * @var string
+     */
     public $citationStyle;
+
+    /**
+     * The ID of the publication that has the citations
+     * @var int
+     */
     public $publicationId;
+
+    /**
+     * The locale key used for internationalization
+     * @var string
+     */
     public $localeKey;
 
+    /**
+     * Constructor for the APA Table Renderer
+     * 
+     * @param AbstractCitationFormatter $formatter The formatter for citation strings
+     * @param string $absoluteXmlPath Path to the XML file with citation data
+     * @param string $citationStyle The citation style to use
+     * @param int $publicationId The publication ID
+     * @param string $localeKey The locale key for translation
+     */
     public function __construct(AbstractCitationFormatter $formatter, string $absoluteXmlPath, string $citationStyle, int $publicationId, string $localeKey) {
         $this->formatter = $formatter;
         $this->absoluteXmlPath = $absoluteXmlPath;
@@ -22,7 +60,12 @@ class ApaTableRenderer {
         $this->localeKey = $localeKey;
     }
 
-    public function getFormOpeningHtml(): string {
+    /**
+     * Returns the opening HTML form tags with necessary hidden fields
+     * 
+     * @return string HTML string containing form opening and hidden fields
+     */
+    public function getFormOpening(): string {
         return '<form method="POST" target="_self" id="citationForm" onsubmit="' . ApaFormValidator::onSubmitFunctions() . '">
                 <input type="hidden" name="xmlFilePath" value="' . htmlspecialchars($this->absoluteXmlPath) . '">
                 <input type="hidden" name="citationStyleName" value="' . htmlspecialchars($this->citationStyle) . '">
@@ -30,6 +73,20 @@ class ApaTableRenderer {
                 <input type="hidden" name="locale_key" value="' . htmlspecialchars($this->localeKey) . '">';
     }
 
+    /**
+     * Returns the closing HTML form tags
+     * 
+     * @return string HTML string containing closing form tags
+     */
+    public function getClosingForm(): string {
+        return '</form></div>';
+    }
+
+    /**
+     * Returns the opening HTML table tags with table headers
+     * 
+     * @return string HTML string containing table opening and headers
+     */
     public function getTableHeader(): string {
         return '<table class="citation-table">
                 <tr class="citation-header">
@@ -39,6 +96,22 @@ class ApaTableRenderer {
                 </tr>';
     }
 
+    /**
+     * Returns the closing HTML table tags
+     * 
+     * @return string HTML string containing table closing tags
+     */
+    public function getClosingTable() : string {
+        return '</table>';
+    }
+
+    /**
+     * Renders a row of citations in the table
+     * 
+     * @param string $xrefId The cross-reference ID
+     * @param array $data The data for the citation row
+     * @return string HTML string containing the citation row
+     */
     public function renderCitationRow(string $xrefId, array $data): string {
         $html = '';
         $numRows = count($data['references']);
@@ -64,6 +137,14 @@ class ApaTableRenderer {
         return $html;
     }
 
+    /**
+     * Renders the citation options for a citation depending on the number of authors or if it is a 
+     * custom citation (not default)
+     * 
+     * @param string $xrefId The cross-reference ID
+     * @param array $data The data for the citation options
+     * @return string HTML string containing the citation options
+     */
     public function renderCitationOptions(string $xrefId, array $data): string {
         $citationOptions = [];
         $years = [];
@@ -93,10 +174,23 @@ class ApaTableRenderer {
         $customValue = isset($data['citationText']) ? $data['citationText'] : '';
         $isCustom = !$isDefault && $customValue && $customValue !== "($citationText)" && $customValue !== "($yearsText)";
         
-        return $this->buildSelectElement($xrefId, $citationText, $yearsText, $isDefault, $isCustom, $customValue);
+        $numRows = count($data['references']);
+
+        return $this->buildSelectElement($numRows, $xrefId, $citationText, $yearsText, $isDefault, $isCustom, $customValue);
     }
 
-    public function buildSelectElement($xrefId, $citationText, $yearsText, $isDefault, $isCustom, $customValue): string {
+    /**
+     * Builds the select element (option menu) for citation options for every citation in the table 
+     * 
+     * @param string $xrefId The cross-reference ID
+     * @param string $citationText The formatted citation text
+     * @param string $yearsText The formatted years text
+     * @param bool $isDefault Whether the citation style is default
+     * @param bool $isCustom Whether the citation style is custom
+     * @param string $customValue The custom citation value
+     * @return string HTML string containing the select element
+     */
+    public function buildSelectElement($numRows, $xrefId, $citationText, $yearsText, $isDefault, $isCustom, $customValue): string {
         // Construct the options for the select element
         $citationTextOption = "<option value='($citationText)' " . ($isDefault || (!$isDefault && $customValue === "($citationText)") ? "selected" : "") . ">($citationText)</option>";
         $yearsTextOption = "<option value='($yearsText)' " . (!$isDefault && $customValue === "($yearsText)" ? "selected" : "") . ">($yearsText)</option>";
@@ -105,7 +199,7 @@ class ApaTableRenderer {
         // Apply styles to the select element based on the selected option
         $selectClass = 'citation-select citation-original';
         
-        $html = "<td rowspan='1' class='citation-td'>
+        $html = "<td rowspan='{$numRows}' class='citation-td select-wrapper-cell'>
                     <select name='citationStyle[{$xrefId}]' id='citationStyle_{$xrefId}' 
                         class='{$selectClass}'
                         data-original-value='" . ($isCustom ? "custom" : ($isDefault || (!$isDefault && $customValue === "($citationText)") ? "($citationText)" : "($yearsText)")) . "'
@@ -178,16 +272,4 @@ class ApaTableRenderer {
         return $html;
     }
 
-    public function getFormSaveButton() {
-        return '</table>
-                    <button type="submit" class="save-btn-citations">
-                        ' . __('plugins.generic.jatsParser.citationtable.savebuttontext') . '
-                    </button>
-                </form>
-                </div>';
-    }
-
-    public function getEmptyCitationsMessage(): string {
-        return "<div><span>" . __('plugins.generic.citationtable.citations.notfound') . "</span></div>";
-    }
 }
