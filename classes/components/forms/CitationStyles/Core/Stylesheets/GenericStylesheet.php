@@ -20,7 +20,6 @@ abstract class GenericStylesheet {
                 width: 100%;
                 border-collapse: collapse;
                 box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-                animation: fadeIn ' . self::DELAY_TIME . 's ease-in-out;
             }
 
             .citation-form-container .citation-th {
@@ -28,32 +27,30 @@ abstract class GenericStylesheet {
                 padding: 12px;
                 border: 1px solid #ddd;
                 text-align: left;
-                animation: fadeIn ' . self::DELAY_TIME . 's ease-in-out;
             }
 
             .citation-form-container .citation-td {
                 padding: 12px;
                 border: 1px solid #ddd;
                 text-align: left;
-                animation: fadeIn ' . self::DELAY_TIME . 's ease-in-out;
             }
             
-            /* SAVE BUTTON */
-            .citation-form-container .save-btn-citations {
+            /* VIEW CITATIONS BUTTON */
+             .view-btn-citations {
                 margin-top: 10px;
                 padding: 8px 12px;
-                background-color: #004e92;
+                background-color: #2196F3;
                 color: white;
                 border: none;
                 cursor: pointer;
-                transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+                transition: transform 0.3s ease, background-color 0.3s ease;
                 border-radius: 5px;
-                animation: fadeIn ' . self::DELAY_TIME . 's ease-in-out;
+                margin-right: 10px;
             }
 
-            .citation-form-container .save-btn-citations:hover {
-                transform: scale(1.08); 
-                background-color: #0073e6;
+            .view-btn-citations:hover {
+                transform: scale(1.08);
+                background-color: #0b7dda;
             }
             
             /* ERROR MESSAGES */
@@ -64,7 +61,6 @@ abstract class GenericStylesheet {
                 margin-bottom: 15px;
                 border-left: 5px solid ' . self::ERROR_COLOR . ';
                 border-radius: 3px;
-                animation: fadeIn ' . self::DELAY_TIME . 's ease-in-out;
                 font-weight: 500;
             }
             
@@ -98,7 +94,6 @@ abstract class GenericStylesheet {
                 min-width: 200px;
                 border: 1px solid #ccc;
                 border-radius: 4px;
-                animation: fadeIn ' . self::DELAY_TIME . 's ease-in-out;
             }
 
             .citation-form-container .custom-input {
@@ -109,8 +104,13 @@ abstract class GenericStylesheet {
                 min-width: 200px;
                 border: 1px solid #ccc;
                 border-radius: 4px;
-                animation: fadeIn '. self::DELAY_TIME .'s ease-in-out;
             }
+
+            .citation-form-container .select-wrapper-cell select {
+                margin: 0 auto;
+                display: block;
+            }
+                
             
             /* ANIMATIONS */
             @keyframes fadeIn {

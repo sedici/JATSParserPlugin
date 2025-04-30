@@ -160,3 +160,6 @@ msgstr "Otro"
 
 msgid "plugins.generic.jatsParser.citationtable.citationstyle.twoauthors.separator"
 msgstr "y"
+
+msgid "plugins.generic.jatsParser.citationtable.viewcitations"
+msgstr "Asignar Citas"
