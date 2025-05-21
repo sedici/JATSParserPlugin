@@ -33,6 +33,25 @@ Luego en la consola ejecute el siguiente comando:
 php install-fonts.php
 ```
 
+**DATO IMPORTANTE:** 
+Para agregar el logo de la institución y el logo de la revista en el PDF, por el momento es necesario copiar manualmente estos archivos dentro de la carpeta correspondiente al ID de la revista en el directorio privado (`/files`) del servidor.
+
+- El logo de la revista debe llamarse logo.jpg.
+- El logo de la institución debe llamarse institution.jpg.
+
+Estos nombres son obligatorios para que los logos se impriman correctamente en los PDFs generados.
+Ejemplo:
+Si queremos agregar los logos para la revista con ID 1, debemos ejecutar:
+```bash
+# Desde el directorio donde se encuentran los archivos logo.jpg e institution.jpg
+
+docker cp logo.jpg contenedor_ojs_web:/var/www/files/journals/1
+docker cp institution.jpg contenedor_ojs_web:/var/www/files/journals/1
+```
+
+👉 Importante:
+Este proceso debe repetirse para cada revista. Por el momento, los logos no se cargan desde el panel de administración, sino que deben copiarse manualmente a su respectiva carpeta para que se impriman correctamente en los PDFs de los artículos.
+
 ## ⚙️ Funcionalidades y cambios principales
 
 - Conversión de XML JATS a HTML, luego a PDF mediante TCPDF.
