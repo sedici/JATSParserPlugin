@@ -455,6 +455,9 @@ class JatsParserPlugin extends GenericPlugin {
 			// Set references
 			$fullText = $this->_setReferences($newPublication, $localeKey, $fullText);
 
+			// Set footnotes
+			$fullText = $this->_setFootnotes($newPublication, $localeKey, $fullText);
+			
 			// Finally, convert and receive TCPDF output as a binary string
 			$pdf = $this->pdfCreation($fullText, $newPublication, $request, $localeKey);
 
@@ -555,6 +558,7 @@ class JatsParserPlugin extends GenericPlugin {
 		$rawCitations = $publication->getData('citationsRaw'); //References
 		if (empty($rawCitations)) return $htmlString;
 
+
 		// Use OJS raw citations tokenizer
 		import('lib.pkp.classes.citation.CitationListTokenizerFilter');
 		$citationTokenizer = new CitationListTokenizerFilter();
@@ -564,41 +568,108 @@ class JatsParserPlugin extends GenericPlugin {
 		$context = Application::get()->getRequest()->getContext();
 		$plugin = PluginRegistry::getPlugin('generic', 'jatsparserplugin'); /* @var $plugin JATSParserPlugin */
 		$citationStyle = $plugin->getSetting($context->getId(), 'citationStyle');
-
+		
+		// Obtain CSS styles for the references based on the citation style
+		$referencesStylesCSS = $this->_getCitationStylesCSS($citationStyle);
+		
 		if (!is_array($citationStrings) || empty($citationStrings)) return $htmlString;
 		$htmlString .= "\n";
+		// Add CSS styles for the references
+		$htmlString .= $referencesStylesCSS;
+		
+		// Agregar contenedor de referencias con estilos directamente y título traducido
+		$htmlString .= "\n<div style=\"margin-top: 3em; border-top: 1px solid #ddd; padding-top: 1em;\">";
+		$htmlString .= '<h2>' . __('plugins.generic.jatsParser.article.references.title') . '</h2>';
+		
+		// Add container for the references
+		$containerClass = ' class="references-container"';
 		//check if the references will be numbered or not (e.g. IEEE style have numbered references, but APA style does not)
-		$htmlString .= in_array($citationStyle, $numberedCitations) ? '<ol id="references">' : '<div id="references">';
+		$htmlString .= in_array($citationStyle, $numberedCitations) ? '<ol id="references"' . $containerClass . '>' : '<div id="references"' . $containerClass . '>';
 		$htmlString .= "\n";
+		
+		// Apply a class to each item in the list for styling purposes
+		$itemClass = ' class="reference-item"';
+		
 		foreach ($citationStrings as $citationString) {
+			// Format the citation string, applying the URL formatting
+			$formattedCitation = $this->_formatUrlsInText($citationString);
+			
 			$htmlString .= "\t";
-			$htmlString .= '<li>' . $citationString . '</li>';
-			$htmlString .= "\n";
+			// Apply the class to the list item and include the formatted citation
+			$htmlString .= '<li' . $itemClass . '>' . $formattedCitation . '</li>';
+			$htmlString .= "<br/>\n";
 		}
 		$htmlString .= in_array($citationStyle, $numberedCitations) ? '</ol>' : '</div>';
+		
+		// Cerrar el contenedor principal
+		$htmlString .= '</div>';
 
 		return $htmlString;
 	}
 
 	/**
-	 * @param HTMLDocument $htmlDocument
-	 * @param Publication $newPublication
-	 * @return void
-	 * @brief saves parsed citeproc references as raw citations
+	 * @param string $citationStyle
+	 * @return string
+	 * @brief returns CSS styles for the given citation style
 	 */
-	private function _importCitations(HTMLDocument $htmlDocument, Publication $newPublication): void {
-		$refs = $htmlDocument->getRawReferences();
-		$publicationId = $newPublication->getId();
-		$citationDao = DAORegistry::getDAO('CitationDAO'); /** @var $citationDao CitationDAO */
+	private function _getCitationStylesCSS(string $citationStyle): string {
+		$stylesCSS = '';
+		
+		// Estructura de switch para facilitar la adición de nuevos estilos
+		switch ($citationStyle) {
+			case 'apa':
+				$stylesCSS = '<style>
+				.references-container {
+					margin-top: 2em;
+				}
+				.reference-item {
+					margin-left: 0;
+					padding-left: 7em;      /* Sangría francesa amplia */
+					margin-bottom: 2.5em;   /* Espacio entre referencias */
+					line-height: 1.1;       /* Interlineado para legibilidad */
+					text-align: left;       /* Texto justificado */
+					padding-bottom: 0.5em;  /* Padding inferior adicional */
+				}
+				/* URL styles for APA */
+				.reference-url {
+					color: #31849b;
+					word-wrap: break-word;
+				}
+				.reference-item a {
+					color: #31849b;
+					text-decoration: none;
+				}
+				</style>';
+				break;
 
-		$citationDao->deleteByPublicationId($publicationId);
-		$rawCitations = '';
-
-		foreach ($refs as $key => $ref) {
-			$rawCitations .= $ref . "\n";
 		}
+		
+		return $stylesCSS;
+	}
 
-		$newPublication->setData('citationsRaw', $rawCitations);
+	/**
+	 * @param string $text => The text of the reference to be formatted.
+	 * @return string
+	 * @brief Detect and format URLs in the given reference text with a specific style.
+	 */
+	private function _formatUrlsInText(string $text): string {
+		// Regular expression to detect URLs that start with http://, https://, or ftp://
+		$urlPattern = '/(https?|ftp):\/\/[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|\/))/';
+		
+		// Detect URLs that start with www. too
+		$wwwPattern = '/(?<![\w.])www\.[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|\/))/';
+		
+		// Search and replace URLs that start with http://, https://, or ftp:// with the appropriate style
+		$text = preg_replace_callback($urlPattern, function($matches) {
+			return '<span class="reference-url">' . $matches[0] . '</span>';
+		}, $text);
+		
+		// Search and replace URLs that start with www. with the appropriate style
+		$text = preg_replace_callback($wwwPattern, function($matches) {
+			return '<span class="reference-url">' . $matches[0] . '</span>';
+		}, $text);
+		
+		return $text;
 	}
 
 	/**
@@ -977,6 +1048,93 @@ class JatsParserPlugin extends GenericPlugin {
 			'value' => null
 		]));
 
+	}
+
+	/**
+	 * @param Publication $publication
+	 * @param string $locale
+	 * @param string $htmlString
+	 * @return string
+	 * @brief set footnotes for PDF galley
+	 */
+	private function _setFootnotes(Publication $publication, string $locale, string $htmlString): string {
+		// Get the JATS file ID for this locale
+		$jatsFileId = $publication->getData('jatsParser::fullTextFileId', $locale);
+		if (!$jatsFileId) return $htmlString;
+		
+		$submissionFile = Services::get('submissionFile')->get($jatsFileId);
+		if (!$submissionFile) return $htmlString;
+		
+		// Get the path to the JATS XML file
+		import('lib.pkp.classes.file.PrivateFileManager');
+		$fileMgr = new PrivateFileManager();
+		$jatsFilePath = $fileMgr->getBasePath() . DIRECTORY_SEPARATOR . $submissionFile->getData('path');
+		
+		// Load the JATS XML document
+		$dom = new DOMDocument();
+		$dom->load($jatsFilePath);
+		$xpath = new DOMXPath($dom);
+		
+		// Get all footnotes from the fn-group in the back section
+		$footnotes = [];
+		$fnGroups = $xpath->query('//back/fn-group/fn');
+		
+		if ($fnGroups->length === 0) {
+			return $htmlString; // No footnotes found
+		}
+		
+		// Añadir contenedor de notas al pie con estilos directamente en el elemento
+		$htmlString .= "\n<div style=\"margin-top: 3em; border-top: 1px solid #ddd; padding-top: 1em;\">";
+		$htmlString .= '<h2>' . __('plugins.generic.jatsParser.article.footnotes.title') . '</h2>';
+		
+		// Process each footnote
+		foreach ($fnGroups as $fn) {
+			$fnId = $fn->getAttribute('id');
+			$label = '';
+			
+			// Get the footnote label
+			$labelNodes = $xpath->query('.//label', $fn);
+			if ($labelNodes->length > 0) {
+				$label = $labelNodes->item(0)->nodeValue;
+			}
+			
+			// Get the footnote content
+			$content = '';
+			$pNodes = $xpath->query('.//p', $fn);
+			if ($pNodes->length > 0) {
+				foreach ($pNodes as $p) {
+					// Get HTML content of the paragraph
+					$contentFragment = $dom->saveHTML($p);
+					// Remove the paragraph tags to get just the inner content
+					$content .= preg_replace('/<\/?p[^>]*>/', '', $contentFragment);
+				}
+			}
+			
+			// Format the footnote using inline styles
+			$htmlString .= '<div style="display: flex; flex-direction: row; margin-bottom: 1em; font-size: 1.05em; align-items: flex-start;" id="fn-' . htmlspecialchars($fnId) . '">';
+			$htmlString .= '<span style="display: inline-block; color: #31849b; font-weight: bold; margin-right: 0.8em; min-width: 1.5em; text-align: left;">' . htmlspecialchars($label) . ' </span>';
+			$htmlString .= '<span style="display: inline-block; flex: 1; text-align: left;">' . $content . '</span>';
+			$htmlString .= '</div>';
+		}
+		
+		$htmlString .= '</div>';
+		
+		return $htmlString;
+	}
+
+	private function _importCitations(HTMLDocument $htmlDocument, Publication $newPublication): void {
+		$refs = $htmlDocument->getRawReferences();
+		$publicationId = $newPublication->getId();
+		$citationDao = DAORegistry::getDAO('CitationDAO'); /** @var $citationDao CitationDAO */
+
+		$citationDao->deleteByPublicationId($publicationId);
+		$rawCitations = '';
+
+		foreach ($refs as $key => $ref) {
+			$rawCitations .= $ref . "\n";
+		}
+
+		$newPublication->setData('citationsRaw', $rawCitations);
 	}
 
 }

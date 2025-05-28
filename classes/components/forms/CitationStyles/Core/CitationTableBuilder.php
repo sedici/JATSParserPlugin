@@ -77,7 +77,9 @@ class CitationTableBuilder {
         $html = Buttons::getViewCitationsButton();
         $html .= Modal::getOpeningCitationModal();
 
-        $html .= '<div class="citation-form-container">';
+        // Container for the citation form
+        // This container will have a max height and scrollable overflow to handle large tables
+        $html .= '<div class="citation-form-container" style="max-height: 80vh; overflow-y: auto; overflow-x: hidden;">';
 
         $html .= Messages::getErrorMessageHtml();
         
@@ -98,6 +100,8 @@ class CitationTableBuilder {
         $html .= Buttons::getFormSaveButton(); 
 
         $html .= $tableRenderer->getClosingForm(); 
+
+        $html .= '</div>'; // Closing the citation-form-container div
 
         $html .= Modal::getClosingCitationModal();
 

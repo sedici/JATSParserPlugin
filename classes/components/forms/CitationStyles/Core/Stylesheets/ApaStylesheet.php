@@ -56,28 +56,34 @@ class ApaStylesheet extends GenericStylesheet {
                 position: relative;
                 background-color: #fefefe;
                 margin: 5% auto;
-                padding: 20px;
+                padding: 20px; /* This padding is for the modal content area itself */
                 border: 1px solid #888;
-                width: 80%;
-                max-width: 800px;
+                width: 100%; 
+                max-width: 1400px; 
                 border-radius: 5px;
             }
             
             .citation-modal-close {
                 position: absolute;
-                top: 10px;
-                right: 15px;
+                top: 5px; /* Adjusted from 10px to move it higher */
+                right: 10px; /* Adjusted from 15px for a bit more space from edge if needed */
                 color: #aaa;
                 font-size: 24px;
                 font-weight: bold;
                 cursor: pointer;
             }
 
+            /* Container for the scrollable table and form */
+            .citation-form-container {
+                padding-right: 20px; /* Adds space to the right, pushing content left from scrollbar */
+                /* max-height and overflow are set inline in CitationTableBuilder.php */
+            }
+
             /* SAVE BUTTON */
             .citation-form-container .save-btn-citations {
                 margin-top: 10px;
                 padding: 8px 12px;
-                background-color: #004e92;
+                background-color: #0168d3;
                 color: white;
                 border: none;
                 cursor: pointer;
@@ -86,8 +92,48 @@ class ApaStylesheet extends GenericStylesheet {
             }
 
             .citation-form-container .save-btn-citations:hover {
-                transform: scale(1.08); 
-                background-color: #0073e6;
+                transform: scale(0.95); 
+                background-color: #00b0df;
+            }
+
+            /*  TABLE STYLES */
+            .citation-form-container .citation-table { /* Changed selector for higher specificity */
+                width: 100% !important;
+                table-layout: fixed !important;
+                border-collapse: collapse; /* Ensures borders combine nicely */
+                border: 2px solid #000000; /* Sets the outer border for the table */
+            }
+
+            .citation-form-container table th,
+            .citation-form-container table td {
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+                white-space: normal !important; /* Make sure text wraps */
+                border: 1px solid #ddd; /* Default light border for top, left, right */
+                border-bottom: 1px solid #ddd; /* Default light border for bottom */
+                padding: 8px; /* Default padding for all cells */
+                text-align: left; /* Default text alignment */
+            }
+
+            .citation-form-container table th {
+                background-color: #f8f8f8; /* Light background for header cells */
+                font-weight: bold; /* Make header text bold */
+            }
+
+            /* Apply thick bottom border to all cells in the last row of a group */
+            .citation-row.citation-group-last-row > td {
+                border-bottom: 3px solid #000000; 
+            }
+
+            /* 
+             * Apply thick bottom border to Context and Style Options cells.
+             * These cells are in the first row of their group and use rowspan.
+             * Their own bottom border must be thick to ensure a continuous line.
+             */
+            .citation-row > td[rowspan]:first-child, /* Context cell (first td with rowspan in a citation row) */
+            .citation-row > td[rowspan].select-wrapper-cell /* Style Options cell (td with rowspan and select-wrapper-cell class) */
+            {
+                border-bottom: 3px solid #000000; /* 
             }
 
             </style>';
