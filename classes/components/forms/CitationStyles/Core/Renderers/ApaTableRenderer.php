@@ -117,8 +117,17 @@ class ApaTableRenderer {
         $numRows = count($data['references']);
         $firstRow = true;
         
-        foreach ($data['references'] as $referenceData) {
-            $html .= "<tr class='citation-row'>";
+        $referenceKeys = array_keys($data['references']);
+        $lastReferenceKey = end($referenceKeys);
+
+        foreach ($data['references'] as $key => $referenceData) {
+            $isLastRowInGroup = ($key === $lastReferenceKey);
+            $rowClass = 'citation-row';
+            if ($isLastRowInGroup) {
+                $rowClass .= ' citation-group-last-row';
+            }
+
+            $html .= "<tr class='" . $rowClass . "'>";
             
             if ($firstRow) {
                 $html .= '<td rowspan="' . $numRows . '" class="citation-td">' . $data['context'] . '</td>';

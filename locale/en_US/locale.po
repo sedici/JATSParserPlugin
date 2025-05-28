@@ -145,3 +145,9 @@ msgstr "Other"
 
 msgid "plugins.generic.jatsParser.citationtable.citationstyle.twoauthors.separator"
 msgstr "&"
+
+msgid "plugins.generic.jatsParser.article.footnotes.title"
+msgstr "Footnotes"
+
+msgid "plugins.generic.jatsParser.article.references.title"
+msgstr "References"
