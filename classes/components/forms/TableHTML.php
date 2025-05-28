@@ -132,31 +132,46 @@ class TableHTML {
         $referencesArray = array();
 
         $nodes = self::$xpath->query("/article/back/ref-list/ref");
-        foreach ($nodes as $reference) {
-            $id = $reference->getAttribute('id'); 
-
+        foreach ($nodes as $referenceNode) {
+            $id = $referenceNode->getAttribute('id');
             $data = [];
-            $authorNodes = self::$xpath->query(".//element-citation//person-group[@person-group-type='author']//name", $reference);
-            
             $authorsCont = 1;
-            foreach ($authorNodes as $authorNode) {
-                $surnameNode = $authorNode->getElementsByTagName("surname")->item(0);
-                if ($surnameNode) {
-                    $surname = $surnameNode->nodeValue;
-                    if ($surname) {
-                        $data['data_' . $authorsCont]['surname'] = $surname;
+
+            // Process each element-citation within the ref
+            $elementCitations = self::$xpath->query(".//element-citation", $referenceNode);
+            foreach ($elementCitations as $elementCitation) {
+                // Extract year once per element-citation
+                $yearNode = self::$xpath->query(".//year", $elementCitation)->item(0);
+                $year = $yearNode ? $yearNode->nodeValue : "s.f.";
+
+                // Process authors
+                $authorNodes = self::$xpath->query(".//person-group[@person-group-type='author']//name", $elementCitation);
+                foreach ($authorNodes as $authorNode) {
+                    $surnameNode = $authorNode->getElementsByTagName("surname")->item(0);
+                    if ($surnameNode) {
+                        $surname = $surnameNode->nodeValue;
+                        if ($surname) {
+                            $data['data_' . $authorsCont]['surname'] = $surname;
+                            $data['data_' . $authorsCont]['year'] = $year;
+                            $authorsCont++;
+                        }
                     }
                 }
-                
-                $yearNode = self::$xpath->query(".//element-citation//year", $reference)->item(0);
-                $year = $yearNode ? $yearNode->nodeValue : "s.f.";
-                
-                $data['data_' . $authorsCont]['year'] = $year;
-                $authorsCont++;
+
+                // Process institutions (collab)
+                $collabNodes = self::$xpath->query(".//collab/named-content[@content-type='name']", $elementCitation);
+                foreach ($collabNodes as $collabNode) {
+                    $institutionName = $collabNode->nodeValue;
+                    if ($institutionName) {
+                        $data['data_' . $authorsCont]['surname'] = trim($institutionName); // Use trim to clean potential whitespace
+                        $data['data_' . $authorsCont]['year'] = $year;
+                        $authorsCont++;
+                    }
+                }
             }
 
             $referencesArray[$id] = [
-                'reference' => $reference->textContent,
+                'reference' => $referenceNode->textContent,
                 'authors' => $data
             ];
         }
