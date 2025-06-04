@@ -151,3 +151,6 @@ msgstr "Footnotes"
 
 msgid "plugins.generic.jatsParser.article.references.title"
 msgstr "References"
+
+msgid "plugins.generic.jatsParser.figure.title"
+msgstr "Figure"
