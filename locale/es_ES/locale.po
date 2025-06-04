@@ -169,3 +169,6 @@ msgstr "Notas"
 
 msgid "plugins.generic.jatsParser.article.references.title"
 msgstr "Referencias"
+
+msgid "plugins.generic.jatsParser.figure.title"
+msgstr "Figura"
