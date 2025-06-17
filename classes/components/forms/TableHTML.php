@@ -1,5 +1,8 @@
 <?php namespace PKP\components\forms;
 
+use JATSParser\Body\Document as JATSDocument;
+use JATSParser\HTML\Reference as HTMLReference;
+
 require_once __dir__ . '/CitationStyles/ApaCitationTable.php';
 
 class TableHTML {
@@ -12,7 +15,7 @@ class TableHTML {
     private $citationStyle;
     private $arrayData = array();
     private $absoluteXmlPath;
-    private $publicationId;
+    private $publication;
     private $locale_key;
 
     private $citationsArray;
@@ -20,10 +23,10 @@ class TableHTML {
     private $xrefsArray = array();
     private $debug = false;
 
-    public function __construct(String $citationStyle, ?String $absoluteXmlPath, $customCitationData, int $publicationId, String $locale_key)
+    public function __construct(String $citationStyle, ?String $absoluteXmlPath, $customCitationData, $publication, String $locale_key)
     {
         $this->locale_key = $locale_key;
-        $this->publicationId = $publicationId;
+        $this->publication = $publication;
         $this->absoluteXmlPath = $absoluteXmlPath;
         
         // Make sure citationsArray is properly structured even if empty
@@ -92,7 +95,7 @@ class TableHTML {
     public function extractXRefs(){
         $xrefsArray = array();
         $xrefBrand = 0;
-        foreach (self::$xpath->evaluate("/article/body//sec//p//xref") as $xref) {
+        foreach (self::$xpath->evaluate("//xref[@ref-type='bibr']") as $xref) {
             $rid = $xref->getAttribute("rid"); //saving citations rid attribute
             $id = $xref->getAttribute("id");
 
@@ -131,13 +134,30 @@ class TableHTML {
     public function extractReferences(): void {
         $referencesArray = array();
 
+        // Create a JATSDocument instance
+        $jatsDocument = new JATSDocument($this->absoluteXmlPath);
+        
+        // Get the references from the JATS document
+        $references = $jatsDocument->getReferences();
+        
+        // Create an HTML document to handle formatting
+        $htmlDoc = new \JATSParser\HTML\Document($jatsDocument);
+        // Set the references with the desired citation style
+
+        $formattedLocaleKey = str_replace('_', '-', $this->locale_key);
+        $htmlDoc->setReferences($this->citationStyle, $formattedLocaleKey, false);
+        
+        // Get raw formatted references
+        $formattedRefs = $htmlDoc->getRawReferences();
+        
+        // Process each reference - maintain your current DOM-based query for author info
         $nodes = self::$xpath->query("/article/back/ref-list/ref");
         foreach ($nodes as $referenceNode) {
             $id = $referenceNode->getAttribute('id');
             $data = [];
             $authorsCont = 1;
 
-            // Process each element-citation within the ref
+            // Keep your existing author extraction logic
             $elementCitations = self::$xpath->query(".//element-citation", $referenceNode);
             foreach ($elementCitations as $elementCitation) {
                 // Extract year once per element-citation
@@ -163,22 +183,25 @@ class TableHTML {
                 foreach ($collabNodes as $collabNode) {
                     $institutionName = $collabNode->nodeValue;
                     if ($institutionName) {
-                        $data['data_' . $authorsCont]['surname'] = trim($institutionName); // Use trim to clean potential whitespace
+                        $data['data_' . $authorsCont]['surname'] = trim($institutionName);
                         $data['data_' . $authorsCont]['year'] = $year;
                         $authorsCont++;
                     }
                 }
             }
-
+            
+            // Use the formatted reference if available, fallback to original text
+            $formattedReference = isset($formattedRefs[$id]) ? $formattedRefs[$id] : $referenceNode->textContent;
+            
+            // Store both the formatted reference and author data
             $referencesArray[$id] = [
-                'reference' => $referenceNode->textContent,
+                'reference' => $formattedReference,
                 'authors' => $data
             ];
         }
-
+        
         $this->referencesArray = $referencesArray;
     }
-
 
     // Make the HTML for the table
     public function makeHtml(): void {
@@ -191,7 +214,7 @@ class TableHTML {
             $processedArrayData, 
             $this->absoluteXmlPath, 
             $this->citationStyle, 
-            $this->publicationId, 
+            $this->publication->getId(), 
             $this->locale_key
         );
 

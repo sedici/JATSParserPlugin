@@ -154,3 +154,6 @@ msgstr "References"
 
 msgid "plugins.generic.jatsParser.figure.title"
 msgstr "Figure"
+
+msgid "plugins.generic.jatsParser.table.title"
+msgstr "Table"

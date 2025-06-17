@@ -47,7 +47,6 @@ class JatsParserPlugin extends GenericPlugin {
 				HookRegistry::register('Form::config::before', array($this, 'addCitationsFormFields'));
 				HookRegistry::register('Publication::edit', array($this, 'editPublicationReferences'));
 				HookRegistry::register('Publication::edit', array($this, 'createPdfGalley'), HOOK_SEQUENCE_LAST);
-				HookRegistry::register('Publication::add', array($this, 'initPublicationCitationTable'));
 			}
 
 			return true;
@@ -118,16 +117,18 @@ class JatsParserPlugin extends GenericPlugin {
 
 	//add metadata to $GLOBAL_CONFIGURATION array
 	private function getMetadata($publication, $localeKey, $request, $htmlString) {
+		$editDecisionDao = DAORegistry::getDAO('EditDecisionDAO');
+		$userGroupDao = DAORegistry::getDAO('UserGroupDAO');
+		$issueDao = DAORegistry::getDAO('IssueDAO');
+		$sectionDao = DAORegistry::getDAO('SectionDAO');
+
 		$submission = Services::get('submission')->get($publication->getData('submissionId')); /* @var $submission Submission */
 		$context = $request->getContext(); /* @var $context Journal */
 		$journal = $request->getContext();
-		$issueDao = DAORegistry::getDAO('IssueDAO');
 		$issue = $issueDao->getById($publication->getData('issueId'), $context->getId());
-		$userGroupDao = DAORegistry::getDAO('UserGroupDAO');
 		$userGroups = $userGroupDao->getByContextId($journal->getId())->toArray();
 		$plugin = PluginRegistry::getPlugin('generic', 'jatsparserplugin');
 
-		$editDecisionDao = DAORegistry::getDAO('EditDecisionDAO');
 		$decisions = $editDecisionDao->getEditorDecisions($submission->getId());
 	
 		$acceptedDate = null;
@@ -142,6 +143,7 @@ class JatsParserPlugin extends GenericPlugin {
 		$journalLogosPath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR ."journals" . DIRECTORY_SEPARATOR . $journal->getId() . DIRECTORY_SEPARATOR . $journal->getData('path');
 
 		$metadata = [
+			'section_title' => $sectionDao->getById($publication->getData('sectionId'), $context->getId())->getLocalizedTitle(),
 			'citation_style' => $plugin->getSetting($context->getId(), 'citationStyle'),
 			'publication_id' => $publication->getId(),
 			'doi' => $publication->getData('pub-id::doi'),
@@ -225,29 +227,6 @@ class JatsParserPlugin extends GenericPlugin {
 		$schema->properties->{'jatsParser::fullTextFileId'} = json_decode($propId);
 		$schema->properties->{'jatsParser::fullText'} = json_decode($propText);
 		$schema->properties->{'jatsParser::citationTableData'} = json_decode($propText);
-	}
-
-	/**
-	 * Initialize citationTableData for new publications
-	 * 
-	 * @param $hookName string
-	 * @param $args array [
-	 *   Publication - the new publication
-	 *   Request
-	 * ]
-	 * @return boolean
-	 */
-	public function initPublicationCitationTable($hookName, $args) {
-		$publication = $args[0]; /* @var $publication Publication */
-		
-		// Add an empty value to ensure the field is created
-		$publication->setData('jatsParser::citationTableData', '');
-		
-		// Update the publication
-		$publicationDao = DAORegistry::getDAO('PublicationDAO');
-		$publicationDao->updateObject($publication);
-		
-		return false;
 	}
 
 	/**
@@ -558,93 +537,43 @@ class JatsParserPlugin extends GenericPlugin {
 		$rawCitations = $publication->getData('citationsRaw'); //References
 		if (empty($rawCitations)) return $htmlString;
 
-
 		// Use OJS raw citations tokenizer
 		import('lib.pkp.classes.citation.CitationListTokenizerFilter');
 		$citationTokenizer = new CitationListTokenizerFilter();
 		$citationStrings = $citationTokenizer->execute($rawCitations);
-
+		
 		$numberedCitations = Configuration::getNumberedReferences();
 		$context = Application::get()->getRequest()->getContext();
 		$plugin = PluginRegistry::getPlugin('generic', 'jatsparserplugin'); /* @var $plugin JATSParserPlugin */
 		$citationStyle = $plugin->getSetting($context->getId(), 'citationStyle');
 		
-		// Obtain CSS styles for the references based on the citation style
-		$referencesStylesCSS = $this->_getCitationStylesCSS($citationStyle);
-		
 		if (!is_array($citationStrings) || empty($citationStrings)) return $htmlString;
 		$htmlString .= "\n";
-		// Add CSS styles for the references
-		$htmlString .= $referencesStylesCSS;
 		
-		// Agregar contenedor de referencias con estilos directamente y título traducido
-		$htmlString .= "\n<div style=\"margin-top: 3em; border-top: 1px solid #ddd; padding-top: 1em;\">";
+		// Add container with semantic class instead of inline styles
+		$htmlString .= "\n<div class=\"references-section\">";
 		$htmlString .= '<h2>' . __('plugins.generic.jatsParser.article.references.title') . '</h2>';
 		
-		// Add container for the references
-		$containerClass = ' class="references-container"';
-		//check if the references will be numbered or not (e.g. IEEE style have numbered references, but APA style does not)
-		$htmlString .= in_array($citationStyle, $numberedCitations) ? '<ol id="references"' . $containerClass . '>' : '<div id="references"' . $containerClass . '>';
+		// Add container for the references with citation style as data attribute
+		$containerTag = in_array($citationStyle, $numberedCitations) ? 'ol' : 'div';
+		$htmlString .= '<' . $containerTag . ' id="references" class="citation-list" data-style="' . $citationStyle . '">';
 		$htmlString .= "\n";
-		
-		// Apply a class to each item in the list for styling purposes
-		$itemClass = ' class="reference-item"';
 		
 		foreach ($citationStrings as $citationString) {
 			// Format the citation string, applying the URL formatting
 			$formattedCitation = $this->_formatUrlsInText($citationString);
 			
 			$htmlString .= "\t";
-			// Apply the class to the list item and include the formatted citation
-			$htmlString .= '<li' . $itemClass . '>' . $formattedCitation . '</li>';
+			// Apply semantic class to the list item
+			$htmlString .= '<li class="citation-item">' . $formattedCitation . '</li>';
 			$htmlString .= "<br/>\n";
 		}
-		$htmlString .= in_array($citationStyle, $numberedCitations) ? '</ol>' : '</div>';
+		$htmlString .= '</' . $containerTag . '>';
 		
-		// Cerrar el contenedor principal
+		// Close the container
 		$htmlString .= '</div>';
 
 		return $htmlString;
-	}
-
-	/**
-	 * @param string $citationStyle
-	 * @return string
-	 * @brief returns CSS styles for the given citation style
-	 */
-	private function _getCitationStylesCSS(string $citationStyle): string {
-		$stylesCSS = '';
-		
-		// Estructura de switch para facilitar la adición de nuevos estilos
-		switch ($citationStyle) {
-			case 'apa':
-				$stylesCSS = '<style>
-				.references-container {
-					margin-top: 2em;
-				}
-				.reference-item {
-					margin-left: 0;
-					padding-left: 7em;      /* Sangría francesa amplia */
-					margin-bottom: 2.5em;   /* Espacio entre referencias */
-					line-height: 1.1;       /* Interlineado para legibilidad */
-					text-align: left;       /* Texto justificado */
-					padding-bottom: 0.5em;  /* Padding inferior adicional */
-				}
-				/* URL styles for APA */
-				.reference-url {
-					color: #31849b;
-					word-wrap: break-word;
-				}
-				.reference-item a {
-					color: #31849b;
-					text-decoration: none;
-				}
-				</style>';
-				break;
-
-		}
-		
-		return $stylesCSS;
 	}
 
 	/**
@@ -659,14 +588,14 @@ class JatsParserPlugin extends GenericPlugin {
 		// Detect URLs that start with www. too
 		$wwwPattern = '/(?<![\w.])www\.[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|\/))/';
 		
-		// Search and replace URLs that start with http://, https://, or ftp:// with the appropriate style
+		// Search and replace URLs with semantic classes instead of inline styles
 		$text = preg_replace_callback($urlPattern, function($matches) {
-			return '<span class="reference-url">' . $matches[0] . '</span>';
+			return '<span class="citation-url">' . $matches[0] . '</span>';
 		}, $text);
 		
-		// Search and replace URLs that start with www. with the appropriate style
+		// Search and replace URLs that start with www. with semantic classes
 		$text = preg_replace_callback($wwwPattern, function($matches) {
-			return '<span class="reference-url">' . $matches[0] . '</span>';
+			return '<span class="citation-url">' . $matches[0] . '</span>';
 		}, $text);
 		
 		return $text;
@@ -1083,8 +1012,8 @@ class JatsParserPlugin extends GenericPlugin {
 			return $htmlString; // No footnotes found
 		}
 		
-		// Añadir contenedor de notas al pie con estilos directamente en el elemento
-		$htmlString .= "\n<div style=\"margin-top: 3em; border-top: 1px solid #ddd; padding-top: 1em;\">";
+		// Add footnotes container with semantic class instead of inline styles
+		$htmlString .= "\n<div class=\"footnotes-container\">";
 		$htmlString .= '<h2>' . __('plugins.generic.jatsParser.article.footnotes.title') . '</h2>';
 		
 		// Process each footnote
@@ -1103,17 +1032,39 @@ class JatsParserPlugin extends GenericPlugin {
 			$pNodes = $xpath->query('.//p', $fn);
 			if ($pNodes->length > 0) {
 				foreach ($pNodes as $p) {
-					// Get HTML content of the paragraph
+					// Process xrefs in the paragraph before getting HTML content
+					$xrefs = $xpath->query('.//xref', $p);
+					foreach ($xrefs as $xref) {
+						// Get xref attributes
+						$xrefId = $xref->getAttribute('id');
+						$rid = $xref->getAttribute('rid');
+						$refType = $xref->getAttribute('ref-type');
+						
+						// Create a new anchor element to replace the xref
+						$anchor = $dom->createElement('a');
+						$anchor->setAttribute('id', $xrefId);
+						$anchor->setAttribute('href', '#' . $rid);
+						$anchor->setAttribute('data-ref-type', $refType);
+						$anchor->setAttribute('class', 'citation-link');
+						
+						// Copy the text content
+						$anchor->nodeValue = $xref->nodeValue;
+						
+						// Replace xref with anchor
+						$xref->parentNode->replaceChild($anchor, $xref);
+					}
+					
+					// Get HTML content of the modified paragraph
 					$contentFragment = $dom->saveHTML($p);
 					// Remove the paragraph tags to get just the inner content
 					$content .= preg_replace('/<\/?p[^>]*>/', '', $contentFragment);
 				}
 			}
 			
-			// Format the footnote using inline styles
-			$htmlString .= '<div style="display: flex; flex-direction: row; margin-bottom: 1em; font-size: 1.05em; align-items: flex-start;" id="fn-' . htmlspecialchars($fnId) . '">';
-			$htmlString .= '<span style="display: inline-block; color: #31849b; font-weight: bold; margin-right: 0.8em; min-width: 1.5em; text-align: left;">' . htmlspecialchars($label) . ' </span>';
-			$htmlString .= '<span style="display: inline-block; flex: 1; text-align: left;">' . $content . '</span>';
+			// Format the footnote using semantic classes instead of inline styles
+			$htmlString .= '<div class="footnote-item" id="fn-' . htmlspecialchars($fnId) . '">';
+			$htmlString .= '<span class="footnote-label">' . htmlspecialchars($label) . ' </span>';
+			$htmlString .= '<span class="footnote-content">' . $content . '</span>';
 			$htmlString .= '</div>';
 		}
 		
