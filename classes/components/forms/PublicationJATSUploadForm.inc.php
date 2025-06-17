@@ -108,12 +108,11 @@ class PublicationJATSUploadForm extends FormComponent {
 				$absolutePath = $fileMgr->getBasePath() . DIRECTORY_SEPARATOR . $relativeFilePath;
 				
 				$customPublicationSettingsDao = new CustomPublicationSettingsDAO();
-				$publicationId = $publication->getId();
 
 				$locale_key = $context->getPrimaryLocale();
 
-				$customCitationData = $customPublicationSettingsDao->getSetting($publicationId, 'jatsParser::citationTableData', $locale_key); //get jatsParser::citationTableData from database from "publication_settings" table
-				$tableHTML = new TableHTML($citationStyle, $absolutePath, $customCitationData, $publicationId, $locale_key);
+				$customCitationData = $customPublicationSettingsDao->getSetting($publication->getId(), 'jatsParser::citationTableData', $locale_key); //get jatsParser::citationTableData from database from "publication_settings" table
+				$tableHTML = new TableHTML($citationStyle, $absolutePath, $customCitationData, $publication, $locale_key);
 				
 				$html = $tableHTML->getHtml();
 				
