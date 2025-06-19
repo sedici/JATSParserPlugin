@@ -115,7 +115,7 @@ class JatsParserPlugin extends GenericPlugin {
 		return parent::manage($args, $request);
 	}
 
-	//add metadata to $GLOBAL_CONFIGURATION array
+	//Get an array of OJS metadata to be used in the PDF generation
 	private function getMetadata($publication, $localeKey, $request, $htmlString) {
 		$editDecisionDao = DAORegistry::getDAO('EditDecisionDAO');
 		$userGroupDao = DAORegistry::getDAO('UserGroupDAO');
@@ -536,7 +536,7 @@ class JatsParserPlugin extends GenericPlugin {
 	private function _setReferences(Publication $publication, string $locale, string $htmlString): string {
 		$rawCitations = $publication->getData('citationsRaw'); //References
 		if (empty($rawCitations)) return $htmlString;
-
+		
 		// Use OJS raw citations tokenizer
 		import('lib.pkp.classes.citation.CitationListTokenizerFilter');
 		$citationTokenizer = new CitationListTokenizerFilter();
