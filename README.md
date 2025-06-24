@@ -34,7 +34,7 @@ php install-fonts.php
 ```
 
 **DATO IMPORTANTE:** 
-Para agregar el logo de la institución y el logo de la revista en el PDF, por el momento es necesario copiar manualmente estos archivos dentro de la carpeta correspondiente al ID de la revista en el directorio privado (`{directorio privado}/journals/{id de la revista}`) del servidor.
+Para agregar el logo de la institución y el logo de la revista en el PDF, por el momento es necesario copiar manualmente estos archivos dentro de la carpeta correspondiente al ID de la revista en el directorio privado de OJS, donde se encuentran las revistas (`{directorio privado de ojs}/journals/{id de la revista}`) del servidor.
 - El logo de la revista debe llamarse logo.jpg.
 - El logo de la institución debe llamarse institution.jpg.
 
