@@ -16,7 +16,7 @@ git clone --recursive https://github.com/sedici/JATSParserPlugin.git jatsParser
 
 👉 3. Instalar las dependencias necesarias para la conversión de JATS a PDF: entra en la carpeta JATSParser con:
 ```bash
-cd JATSParser
+cd jatsParser/JATSParser
 ```
 y dentro ejecuta el comando:
 ```bash
