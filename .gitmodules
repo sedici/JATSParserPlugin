@@ -1,4 +1,3 @@
 [submodule "JATSParser"]
 	path = JATSParser
 	url = https://github.com/sedici/JATSParser.git
-	branch = dev
