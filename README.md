@@ -26,7 +26,7 @@ composer install
 👉 4. Instalar las fuentes necesarias para generar el PDF: Ejecutar el script install-fonts.php.
 Para ello, dentro de la carpeta jatsParser/JATSParser diríjase a la carpeta install-fonts con:
 ```bash
-cd scripts/install-fonts/
+cd scripts/install-fonts/ //Asegurese de estar en la rama "dev" para poder visualizar la carpeta scripts
 ```
 Luego en la consola ejecute el siguiente comando:
 ```bash
