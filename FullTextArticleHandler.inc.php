@@ -10,8 +10,9 @@ class FullTextArticleHandler extends ArticleHandler {
 	 * Constructor
 	 */
 	function __construct() {
+		error_log('FullTextArticleHandler::__construct()');
 		parent::__construct();
-		$this->_plugin = PluginRegistry::getPlugin('generic', JATSPARSER_PLUGIN_NAME);
+		$this->_plugin = PluginRegistry::getPlugin('generic', 'jatsParser');
 	}
 
 	/**
@@ -20,6 +21,7 @@ class FullTextArticleHandler extends ArticleHandler {
 	 * @brief download supplementary files for article's full-text
 	 */
 	function downloadFullTextAssoc($args, $request) {
+		error_log('FullTextArticleHandler::downloadFullTextAssoc()');
 		$fileId = $args[2];
 		$dispatcher = $request->getDispatcher(); /** @var $dispatcher Dispatcher */
 		if (empty($fileId) || !$this->article || !$this->publication) $dispatcher->handle404();

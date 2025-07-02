@@ -12,8 +12,9 @@
  *
  * @brief Form for journal managers to modify jatsParser plugin settings
  */
-
 import('lib.pkp.classes.form.Form');
+use PKP\form\validation\FormValidatorPost;
+use PKP\form\validation\FormValidatorCSRF;
 
 class JatsParserSettingsForm extends Form {
 
