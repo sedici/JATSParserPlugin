@@ -59,6 +59,21 @@ class JatsParserPlugin extends GenericPlugin {
 				HookRegistry::add('Form::config::before', array($this, 'addCitationsFormFields'));
 				HookRegistry::add('Publication::edit', array($this, 'editPublicationReferences'));
 				HookRegistry::add('Publication::edit', array($this, 'createPdfGalley'), HOOK_SEQUENCE_LAST);
+				HookRegistry::add('TemplateManager::display', function($hookName, $args) {
+					$templateMgr = $args[0];
+					$request = \Application::get()->getRequest();
+					$templateMgr->addJavaScript(
+						'citationTable',
+						$request->getBaseUrl() . '/plugins/generic/jatsParser/citationTable.js',
+						array('contexts' => 'frontend', 'priority' => 10)
+					);
+					$templateMgr->addStyleSheet(
+						'citationTableCss',
+						$request->getBaseUrl() . '/plugins/generic/jatsParser/citationTable.css',
+						array('contexts' => 'frontend', 'priority' => 10)
+					);
+					return false;
+				});
 			}
 
 			return true;
@@ -434,6 +449,7 @@ class JatsParserPlugin extends GenericPlugin {
 	 */
 	function editPublicationReferences(string $hookname, array $args) {
 		error_log('JATSParserPlugin::editPublicationReferences() called');
+		$newPublication = $args[0];
 		$params = $args[2];
 		if (!array_key_exists('jatsParser::references', $params)) return false;
 

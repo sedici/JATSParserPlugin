@@ -66,7 +66,7 @@ class ApaTableRenderer {
      * @return string HTML string containing form opening and hidden fields
      */
     public function getFormOpening(): string {
-        return '<form method="POST" target="_self" id="citationForm" onsubmit="' . ApaFormValidator::onSubmitFunctions() . '">
+        return '<form method="POST" target="_self" id="citationForm">
                 <input type="hidden" name="xmlFilePath" value="' . htmlspecialchars($this->absoluteXmlPath) . '">
                 <input type="hidden" name="citationStyleName" value="' . htmlspecialchars($this->citationStyle) . '">
                 <input type="hidden" name="publicationId" value="' . htmlspecialchars($this->publicationId) . '">
@@ -200,83 +200,28 @@ class ApaTableRenderer {
      * @return string HTML string containing the select element
      */
     public function buildSelectElement($numRows, $xrefId, $citationText, $yearsText, $isDefault, $isCustom, $customValue): string {
-        // Construct the options for the select element
         $citationTextOption = "<option value='($citationText)' " . ($isDefault || (!$isDefault && $customValue === "($citationText)") ? "selected" : "") . ">($citationText)</option>";
         $yearsTextOption = "<option value='($yearsText)' " . (!$isDefault && $customValue === "($yearsText)" ? "selected" : "") . ">($yearsText)</option>";
         $customOption = "<option value='custom' " . ($isCustom ? "selected" : "") . ">" . __('plugins.generic.jatsParser.citationtable.customtext') . "</option>";
 
-        // Apply styles to the select element based on the selected option
         $selectClass = 'citation-select citation-original';
-        
+
         $html = "<td rowspan='{$numRows}' class='citation-td select-wrapper-cell'>
                     <select name='citationStyle[{$xrefId}]' id='citationStyle_{$xrefId}' 
                         class='{$selectClass}'
-                        data-original-value='" . ($isCustom ? "custom" : ($isDefault || (!$isDefault && $customValue === "($citationText)") ? "($citationText)" : "($yearsText)")) . "'
-                        onchange='
-                            let selectElem = this;
-                            let inputField = document.getElementById(\"customInput_{$xrefId}\");
-                            
-                            // Aplicar estilos según el cambio
-                            if(selectElem.value !== selectElem.getAttribute(\"data-original-value\")) {
-                                selectElem.classList.remove(\"citation-original\");
-                                selectElem.classList.add(\"citation-modified\");
-                            } else {
-                                selectElem.classList.remove(\"citation-modified\");
-                                selectElem.classList.add(\"citation-original\");
-                            }
-                            
-                            if(selectElem.value == \"custom\"){
-                                if(!inputField){
-                                    inputField = document.createElement(\"input\");
-                                    inputField.type = \"text\";
-                                    inputField.name = \"customCitation[{$xrefId}]\";
-                                    inputField.id = \"customInput_{$xrefId}\";
-                                    inputField.placeholder = \"ej: (González, 2011, p. 34)\";
-                                    inputField.className = \"custom-input\";
-                                    inputField.onchange = function() {
-                                        if(this.value.trim() === \"\") {
-                                            this.classList.add(\"citation-select-error\");
-                                        } else {
-                                            this.classList.remove(\"citation-select-error\");
-                                        }
-                                    };
-                                    selectElem.parentNode.appendChild(inputField);
-                                }
-                            } else {
-                                if(inputField){
-                                    inputField.remove();
-                                }
-                            }
-                        '>
+                        data-original-value='" . ($isCustom ? "custom" : ($isDefault || (!$isDefault && $customValue === "($citationText)") ? "($citationText)" : "($yearsText)")) . "'>
                         {$citationTextOption}
                         {$yearsTextOption}
                         {$customOption}
                     </select>";
-        
-        // If the option is custom, show the input field and apply styles based on the value
         if ($isCustom) {
             $customInputClass = "custom-input" . ($customValue ? " citation-original" : "");
             $html .= "<input type='text' name='customCitation[{$xrefId}]' id='customInput_{$xrefId}' 
                           value='" . htmlspecialchars($customValue) . "' 
                           placeholder='ej: (González, 2011, p. 34)' 
                           class='{$customInputClass}'
-                          data-original-value='" . htmlspecialchars($customValue) . "'
-                          onchange=\"
-                            if(this.value.trim() === '') {
-                                this.classList.add('citation-select-error');
-                            } else {
-                                this.classList.remove('citation-select-error');
-                                if(this.value !== this.getAttribute('data-original-value')) {
-                                    this.classList.remove('citation-original');
-                                    this.classList.add('citation-modified');
-                                } else {
-                                    this.classList.remove('citation-modified');
-                                    this.classList.add('citation-original');
-                                }
-                            }
-                          \">";
+                          data-original-value='" . htmlspecialchars($customValue) . "'>";
         }
-        
         $html .= "</td>";
         return $html;
     }

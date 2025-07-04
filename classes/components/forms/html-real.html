@@ -1,0 +1,48 @@
+<button type="button" id="openCitationModalBtn" class="view-btn-citations">
+    Asignar Citas
+</button>
+<div id="citationModal" class="citation-modal" style="display: none;">
+    <div class="citation-modal-content">
+        <span class="citation-modal-close">&times;</span>
+        <div class="citation-form-container" style="max-height: 80vh; overflow-y: auto; overflow-x: hidden;">
+            <div id="citationErrorMessage" class="citation-error-message" style="display:none;">
+                <span class="error-icon">⚠️</span> Error: No puedes guardar una cita vacía.
+            </div>
+            <form method="POST" target="_self" id="citationForm">
+                <input type="hidden" name="xmlFilePath" value="/var/ojs-data/journals/2/articles/3/6866e32d9a918.xml">
+                <input type="hidden" name="citationStyleName" value="apa">
+                <input type="hidden" name="publicationId" value="3">
+                <input type="hidden" name="locale_key" value="es">
+                <table class="citation-table">
+                    <tr class="citation-header">
+                        <th class="citation-th">Contexto</th>
+                        <th class="citation-th">Referencias</th>
+                        <th class="citation-th">Estilo de Cita</th>
+                    </tr>
+                    <tr class='citation-row citation-group-last-row'>
+                        <td rowspan="1" class="citation-td">
+                            Etiam velit neque, ullamcorper id ornare in, pharetra vel magna (3–5). Ut vehicula pellentesque quam, et aliquam massa volutpat eget . Suspendisse potenti. Sed ultricies nibh eu felis consectetur pellentesque. <span style="color: #0066cc; font-weight: bold; background-color: #f0f8ff; padding: 0 3px; border-radius: 3px;">asdasd</span>
+                        </td>
+                        <td class='citation-td'>
+                            Abad Castelló, M., &amp; Álvarez Baz, A. (2021). Aprendizaje basado en datos y combinaciones léxicas: una propuesta didáctica con cuasisinónimos. MLS Educational Research, 2(5), 88-104. https://doi.org/10.29314/mlser.v5i2.562
+                        </td>
+                        <td rowspan='1' class='citation-td select-wrapper-cell'>
+                            <select name='citationStyle[xref-02102872623d21d2633b46fbecb711aa]' id='citationStyle_xref-02102872623d21d2633b46fbecb711aa' 
+                                class='citation-select citation-original' data-original-value='custom'>
+                                <option value='(Abad Castelló y Álvarez Baz, 2021)' >(Abad Castelló y Álvarez Baz, 2021)</option>
+                                <option value='(2021)' >(2021)</option>
+                                <option value='custom' selected>Otro</option>
+                            </select>
+                            <input type='text' name='customCitation[xref-02102872623d21d2633b46fbecb711aa]' id='customInput_xref-02102872623d21d2633b46fbecb711aa' 
+                                  value='asdasd' placeholder='ej: (González, 2011, p. 34)' 
+                                  class='custom-input citation-original' data-original-value='asdasd'>
+                        </td>
+                    </tr>
+                </table>
+                <button type="submit" class="save-btn-citations">
+                    Guardar Citas
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
