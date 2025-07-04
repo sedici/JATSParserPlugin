@@ -449,7 +449,7 @@ class JatsParserPlugin extends GenericPlugin {
 	 */
 	function editPublicationReferences(string $hookname, array $args) {
 		error_log('JATSParserPlugin::editPublicationReferences() called');
-		$newPublication = $args[0];
+		$newPublication = $args[0]; /* @var $newPublication Publication */
 		$params = $args[2];
 		if (!array_key_exists('jatsParser::references', $params)) return false;
 
