@@ -168,7 +168,7 @@ class JatsParserPlugin extends GenericPlugin {
 			'section_title' => $section?->getLocalizedTitle(),
 			'citation_style' => $plugin->getSetting($context->getId(), 'citationStyle'),
 			'publication_id' => $publication->getId(),
-			'doi' => $publication->getData('pub-id::doi'), //No tiene
+			'doi' => $publication->getDoi(),
 			'journal_id' => $journal->getId(),
 			'authors' => $publication->getData('authors'),
 			'online_issn' => $journal->getData('onlineIssn'), //no se imprime
