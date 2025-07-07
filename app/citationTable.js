@@ -1,4 +1,3 @@
-// plugins/generic/tuPlugin/js/tuPluginCitas.js
 
 document.addEventListener('DOMContentLoaded', function() {
     // Modal open/close
@@ -113,40 +112,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return false;
             } else {
                 if (errorMsg) errorMsg.style.display = 'none';
-                // Si quieres que el formulario se envíe por AJAX, descomenta la siguiente sección
-                // Si quieres que el formulario se envíe de forma normal (recargando la página), no hagas nada más aquí,
-                // ya que 'e.preventDefault()' solo se llama si hay errores.
-
-                /*
-                // Ejemplo de envío AJAX si lo deseas (descomenta y adapta si es tu caso):
-                e.preventDefault(); // Asegúrate de prevenir el envío normal
-                let formData = new FormData(citationForm);
-
-                fetch('./process_citations.php', { // Asegúrate que esta ruta sea correcta
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Error en el servidor: ' + response.statusText);
-                    }
-                    return response.text(); // O response.json()
-                })
-                .then(data => {
-                    console.log('Respuesta de AJAX:', data);
-                    // Aquí puedes mostrar un mensaje de éxito, cerrar el modal, etc.
-                    // Si quieres recargar la página, hazlo después de recibir la respuesta exitosa:
-                    // window.location.reload(true);
-                })
-                .catch(error => {
-                    console.error('Error al enviar AJAX:', error);
-                    // Muestra un mensaje de error al usuario
-                    if (errorMsg) {
-                        errorMsg.textContent = 'Ocurrió un error al guardar las citas. Intenta de nuevo.';
-                        errorMsg.style.display = 'block';
-                    }
-                });
-                */
             }
         });
     }

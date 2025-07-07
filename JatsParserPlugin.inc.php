@@ -59,40 +59,6 @@ class JatsParserPlugin extends GenericPlugin {
 				HookRegistry::add('Form::config::before', array($this, 'addCitationsFormFields'));
 				HookRegistry::add('Publication::edit', array($this, 'editPublicationReferences'));
 				HookRegistry::add('Publication::edit', array($this, 'createPdfGalley'), HOOK_SEQUENCE_LAST);
-                HookRegistry::add('TemplateManager::display', function($hookName, $args) {
-                    $templateMgr = $args[0]; // El TemplateManager es el primer argumento del hook
-
-                    // Obtener la URL base del plugin
-                    // Es crucial obtenerla dentro del hook o pasarla via 'use'
-					$request = \Application::get()->getRequest();
-                    $pluginUrl = $request->getBaseUrl() . '/' . $this->getPluginPath();
-					error_log($pluginUrl);
-					error_log($pluginUrl);
-					error_log($pluginUrl);
-					error_log($pluginUrl);
-					error_log($pluginUrl);
-					error_log($pluginUrl);
-					error_log($pluginUrl);
-					error_log($pluginUrl);
-
-                    // Añadir tu archivo JavaScript
-                    // Asume que tu JS está en: tuPlugin/js/mi-script.js
-                    $templateMgr->addJavaScript(
-                        'tuPluginCustomJs', // ID único para el script
-                        $pluginUrl . '/app/citationTable.js',
-                        array('contexts' => 'frontend', 'priority' => 10) // 'frontend' para el lado público
-                    );
-
-                    // Añadir tu archivo CSS
-                    // Asume que tu CSS está en: tuPlugin/css/mi-estilo.css
-                    $templateMgr->addStyleSheet(
-                        'tuPluginCustomCss', // ID único para el estilo
-                        $pluginUrl . '/app/citationTable.css',
-                        array('contexts' => 'frontend', 'priority' => 10) // 'frontend' para el lado público
-                    );
-
-                    return false; // Devuelve false para permitir que otros hooks sigan procesándose
-                });
 			}
 
 			return true;
@@ -941,12 +907,28 @@ class JatsParserPlugin extends GenericPlugin {
 		$templateMgr = $args[0];
 		$template = $args[1];
 
+		// Rutas absolutas para debug
+		$cssPath = __DIR__ . '/app/citationTable.css';
+		$jsPath = __DIR__ . '/app/citationTable.js';
+
+		$templateMgr->addJavaScript(
+			'citationTable',
+			$jsPath,
+		);
+		
+		$templateMgr->addStyleSheet(
+			'citationTableCss',
+			$cssPath,
+		);
+		////////////////////////////////////////////
+
 		if ($template !== "frontend/pages/article.tpl") return false;
 
 		$request = $this->getRequest();
 		$baseUrl = $request->getBaseUrl() . '/' . $this->getPluginPath();
 
 		$themePlugins = PluginRegistry::getPlugins('themes');
+
 		foreach ($themePlugins as $themePlugin) {
 			if ($themePlugin->isActive()) {
 				$parentTheme = $themePlugin->parent;
