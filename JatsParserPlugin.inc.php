@@ -134,8 +134,13 @@ class JatsParserPlugin extends GenericPlugin {
 		$submission = Repo::submission()->get($publication->getData('submissionId'));
 		$context = $request->getContext(); /* @var $context Journal */
 		$journal = $request->getContext();
-
-		$issue = Repo::issue()->get($publication->getData('issueId'));
+		
+		$issueIdentification = "";
+		if($publication->getData('issueId')){
+			$issue = Repo::issue()->get($publication->getData('issueId'));
+			$issueIdentification = $issue->getIssueIdentification();
+		}
+		
 		$section = Repo::section()->get($publication->getData('sectionId'));
 		$userGroups = Repo::userGroup()
 			->getCollector()
@@ -167,7 +172,7 @@ class JatsParserPlugin extends GenericPlugin {
 			'section_title' => $section?->getLocalizedTitle(),
 			'citation_style' => $plugin->getSetting($context->getId(), 'citationStyle'),
 			'publication_id' => $publication->getId(),
-			'doi' => $publication->getData('pub-id::doi'), //No tiene
+			'doi' => $publication->getDoi(),
 			'journal_id' => $journal->getId(),
 			'authors' => $publication->getData('authors'),
 			'online_issn' => $journal->getData('onlineIssn'), //no se imprime
@@ -183,7 +188,7 @@ class JatsParserPlugin extends GenericPlugin {
 			'date_submitted' => date('d/m/Y', strtotime($submission->getDateSubmitted())),
 			'date_accepted' => $acceptedDate ? date('d/m/Y', strtotime($acceptedDate)) : '',
 			'date_published' => str_replace('-', '/', $submission->getDatePublished()),
-			'journal_data' => ($issue !== null && $issue->getIssueIdentification()) ? $issue->getIssueIdentification() : "", // Includes volume, number, year of a journal.
+			'journal_data' => $issueIdentification, // Includes volume, number, year of a journal.
 			'user_groups' => $userGroups,
 			'contributors' => null,//$publication->getAuthorString($userGroups),
 			'subject' => $publication->getLocalizedData('subject', $localeKey),
