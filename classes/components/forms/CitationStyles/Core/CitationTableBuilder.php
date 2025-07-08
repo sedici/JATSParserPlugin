@@ -77,36 +77,34 @@ class CitationTableBuilder {
         $html = Buttons::getViewCitationsButton();
         $html .= Modal::getOpeningCitationModal();
 
-        // Container for the citation form
-        // This container will have a max height and scrollable overflow to handle large tables
         $html .= '<div class="citation-form-container" style="max-height: 80vh; overflow-y: auto; overflow-x: hidden;">';
 
         $html .= Messages::getErrorMessageHtml();
-        
+
         $tableRendererClassname = 'PKP\\components\\forms\\CitationStyles\\Core\\Renderers\\' . ucfirst($this->citationStyle) . 'TableRenderer';
-        $stylesheetClassname = 'PKP\\components\\forms\\CitationStyles\\Core\\Stylesheets\\' . ucfirst($this->citationStyle) . 'Stylesheet';
-        
+
         $tableRenderer = new $tableRendererClassname($this->formatter, $this->xmlPath, $this->citationStyle, $this->publicationId, $this->localeKey);
-        
+
         $html .= $tableRenderer->getFormOpening();
         $html .= $tableRenderer->getTableHeader();
-        
+
         foreach ($this->data as $xrefId => $rowData) {
             $html .= $tableRenderer->renderCitationRow($xrefId, $rowData);
         }
 
         $html .= $tableRenderer->getClosingTable();
 
-        $html .= Buttons::getFormSaveButton(); 
+        $html .= Buttons::getFormSaveButton();
 
-        $html .= $tableRenderer->getClosingForm(); 
+        $html .= $tableRenderer->getClosingForm();
 
         $html .= '</div>'; // Closing the citation-form-container div
 
         $html .= Modal::getClosingCitationModal();
 
-        $html .= $stylesheetClassname::getStyles();
-        
+        // Ya no agregues $stylesheetClassname::getStyles();
+        // El CSS se cargará como archivo externo
+
         return $html;
     }
 }

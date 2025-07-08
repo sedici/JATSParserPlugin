@@ -131,7 +131,11 @@ class PublicationJATSUploadForm extends FormComponent {
 					
 					$tableHTML = new TableHTML($citationStyle, $absolutePath, $customCitationData, $publication, $locale_key);
 					$html = $tableHTML->getHtml();
-					
+
+					// Guardar el HTML de la tabla en un archivo para pruebas
+					$testFilePath = __DIR__ . '/test-citation-table.html';
+					file_put_contents($testFilePath, $html);
+
 					$this->addField(new FieldHTML("citationTable", array(
 						'label' => __('plugins.generic.jatsParser.publication.jats.citationStyle.label'),
 						'description' => $html, 

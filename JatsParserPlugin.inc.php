@@ -912,12 +912,28 @@ class JatsParserPlugin extends GenericPlugin {
 		$templateMgr = $args[0];
 		$template = $args[1];
 
+		// Rutas absolutas para debug
+		$cssPath = __DIR__ . '/app/citationTable.css';
+		$jsPath = __DIR__ . '/app/citationTable.js';
+
+		$templateMgr->addJavaScript(
+			'citationTable',
+			$jsPath,
+		);
+		
+		$templateMgr->addStyleSheet(
+			'citationTableCss',
+			$cssPath,
+		);
+		////////////////////////////////////////////
+
 		if ($template !== "frontend/pages/article.tpl") return false;
 
 		$request = $this->getRequest();
 		$baseUrl = $request->getBaseUrl() . '/' . $this->getPluginPath();
 
 		$themePlugins = PluginRegistry::getPlugins('themes');
+
 		foreach ($themePlugins as $themePlugin) {
 			if ($themePlugin->isActive()) {
 				$parentTheme = $themePlugin->parent;
