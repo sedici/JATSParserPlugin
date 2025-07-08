@@ -22,6 +22,7 @@ import('lib.pkp.classes.citation.Citation');
 import('lib.pkp.classes.file.PrivateFileManager');
 import('lib.pkp.classes.file.PKPPublicFileManager');
 
+use PKP\decision\Decision;
 use PKP\citation\CitationListTokenizerFilter;
 use JATSParser\PDF\PDFConfig\Translations;
 use JATSParser\PDF\PDFConfig\Configuration;
@@ -38,8 +39,6 @@ use PKP\locale\Locale;
 use PKP\galley\Galley;
 
 use PKP\db\DAORegistry;
-
-
 
 define("CREATE_PDF_QUERY", "download=pdf");
 
@@ -153,11 +152,11 @@ class JatsParserPlugin extends GenericPlugin {
 			->getMany();
 
 		$acceptedDate = null;
+
 		foreach ($decisions as $decision) {
-			
-			if ($decision->getData('stageId') === 3 && $decision->getData('decision') === 1){
-				error_log('JATSParserPlugin::getMetadata() - decision: ' . print_r($decision, true));
-				$acceptedDate = $decision->getDateDecided();
+			if ($decision->getData('stageId') === WORKFLOW_STAGE_ID_EXTERNAL_REVIEW && $decision->getData('decision') === Decision::ACCEPT){
+				$acceptedDate = $decision->getData('dateDecided');
+				break;
 			}
 		}
 
@@ -182,7 +181,7 @@ class JatsParserPlugin extends GenericPlugin {
 			'article_title' => $publication->getLocalizedData('title'),
 			'submission' => $submission,
 			'date_submitted' => date('d/m/Y', strtotime($submission->getDateSubmitted())),
-			'date_accepted' => date('d/m/Y', strtotime($acceptedDate)),
+			'date_accepted' => $acceptedDate ? date('d/m/Y', strtotime($acceptedDate)) : '',
 			'date_published' => str_replace('-', '/', $submission->getDatePublished()),
 			'journal_data' => ($issue !== null && $issue->getIssueIdentification()) ? $issue->getIssueIdentification() : "", // Includes volume, number, year of a journal.
 			'user_groups' => $userGroups,
@@ -198,9 +197,6 @@ class JatsParserPlugin extends GenericPlugin {
 			'subtitles' => $publication->getData('subtitle'),
 			'editorial' => $context->getLocalizedData('institution')
 		];
-
-		$path = __DIR__ . '/salida.html';
-		file_put_contents($path, $htmlString);
 
 		error_log('JATSParserPlugin::getMetadata() - metadata return');
 		return $metadata;
@@ -483,7 +479,6 @@ class JatsParserPlugin extends GenericPlugin {
 		$jatsSubmissionFile = Repo::submissionFile()->get($jatsFileId);
 
 		if ($jatsSubmissionFile) {
-			error_log('fullText: ' . $fullText);
 			$fullText = $this->_setSupplImgPath($jatsSubmissionFile, $fullText);
 		}
 
