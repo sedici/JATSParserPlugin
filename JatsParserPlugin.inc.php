@@ -167,8 +167,11 @@ class JatsParserPlugin extends GenericPlugin {
 
 		$privateFileManager = new PrivateFileManager();
 		$journalLogosPath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR ."journals" . DIRECTORY_SEPARATOR . $journal->getId() . DIRECTORY_SEPARATOR . $journal->getData('path');
-
 		
+		$prefix = $publication->getData('prefix');
+
+		error_log(print_r($prefix, true));
+
 		$metadata = [
 			'section_title' => $section?->getLocalizedTitle(),
 			'citation_style' => $plugin->getSetting($context->getId(), 'citationStyle'),
@@ -201,7 +204,8 @@ class JatsParserPlugin extends GenericPlugin {
 			'journal_url' => $request->getBaseUrl() . '/' . $journal->getPath(),
 			'titles' => $publication->getData('title'),
 			'subtitles' => $publication->getData('subtitle'),
-			'editorial' => $context->getLocalizedData('institution')
+			'editorial' => $context->getLocalizedData('institution'),
+			'prefixes' => $publication->getData('prefix')
 		];
 
 		error_log('JATSParserPlugin::getMetadata() - metadata return');
