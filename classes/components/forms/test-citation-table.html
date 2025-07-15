@@ -1,1 +1,23 @@
-<div><span>No se han encontrado citas en el artículo</span></div>
+<button type="button" id="openCitationModalBtn" class="view-btn-citations">Asignar Citas</button><div id="citationModal" class="citation-modal" style="display: none;">
+                    <div class="citation-modal-content">
+                    <span class="citation-modal-close">&times;</span><div class="citation-form-container" style="max-height: 80vh; overflow-y: auto; overflow-x: hidden;"><div id="citationErrorMessage" class="citation-error-message" style="display:none;">
+                <span class="error-icon">⚠️</span> Error: No puedes guardar una cita vacía.
+                </div><form method="POST" target="_self" id="citationForm">
+                <input type="hidden" name="xmlFilePath" value="/var/ojs-data/journals/2/articles/4/687664f81687d.xml">
+                <input type="hidden" name="citationStyleName" value="apa">
+                <input type="hidden" name="publicationId" value="4">
+                <input type="hidden" name="locale_key" value="es"><table class="citation-table">
+                <tr class="citation-header">
+                    <th class="citation-th">Contexto</th>
+                    <th class="citation-th">Referencias</th>
+                    <th class="citation-th"> Estilo de Cita </th>
+                </tr><tr class='citation-row citation-group-last-row'><td rowspan="1" class="citation-td">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ornare mattis feugiat. Nam metus mauris, egestas congue <span style="color: #0066cc; font-weight: bold; background-color: #f0f8ff; padding: 0 3px; border-radius: 3px;">[1]</span></td><td class='citation-td'>Abad Castelló, M., &amp; Álvarez Baz, A. (2021). Aprendizaje basado en datos y combinaciones léxicas: una propuesta didáctica con cuasisinónimos. <i>MLS Educational Research</i>, <i>2</i>(5), 88-104. https://doi.org/10.29314/mlser.v5i2.562</td><td rowspan='1' class='citation-td select-wrapper-cell'>
+                    <select name='citationStyle[xref-6087106bfc0cc6209058c6a436c1b422]' id='citationStyle_xref-6087106bfc0cc6209058c6a436c1b422' 
+                        class='citation-select citation-original'
+                        data-original-value='(Abad Castelló y Álvarez Baz, 2021)'>
+                        <option value='(Abad Castelló y Álvarez Baz, 2021)' selected>(Abad Castelló y Álvarez Baz, 2021)</option>
+                        <option value='(2021)' >(2021)</option>
+                        <option value='custom' >Otro</option>
+                    </select></td></tr></table><button type="submit" class="save-btn-citations">
+                    Guardar Citas
+                </button></form></div></div></div></div></div>

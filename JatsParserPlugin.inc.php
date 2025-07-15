@@ -165,13 +165,12 @@ class JatsParserPlugin extends GenericPlugin {
 			}
 		}
 
+		error_log($journal->getData('licenseUrl'));
+		$licenseUrl = !empty($publication->getData('licenseUrl')) ? $publication->getData('licenseUrl') : $journal->getData('licenseUrl');
+
 		$privateFileManager = new PrivateFileManager();
 		$journalLogosPath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR ."journals" . DIRECTORY_SEPARATOR . $journal->getId() . DIRECTORY_SEPARATOR . $journal->getData('path');
 		
-		$prefix = $publication->getData('prefix');
-
-		error_log(print_r($prefix, true));
-
 		$metadata = [
 			'section_title' => $section?->getLocalizedTitle(),
 			'citation_style' => $plugin->getSetting($context->getId(), 'citationStyle'),
@@ -186,7 +185,7 @@ class JatsParserPlugin extends GenericPlugin {
 			'locale_key' => $localeKey,
 			'journal_thumbnail' => $journal->getLocalizedData('journalThumbnail'),
 			'full_title' => $publication->getLocalizedFullTitle($localeKey),
-			'license_url' => $publication->getData('licenseUrl'), //
+			'license_url' => $licenseUrl, //
 			'article_title' => $publication->getLocalizedData('title'),
 			'submission' => $submission,
 			'date_submitted' => date('d/m/Y', strtotime($submission->getDateSubmitted())),
