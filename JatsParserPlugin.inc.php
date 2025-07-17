@@ -648,13 +648,15 @@ class JatsParserPlugin extends GenericPlugin {
 		$htmlString .= '<' . $containerTag . ' id="references" class="citation-list" data-style="' . $citationStyle . '">';
 		$htmlString .= "\n";
 		
+		$referenceIdPrefix = 'parser_';
+		$i = 0;
 		foreach ($citationStrings as $citationString) {
 			// Format the citation string, applying the URL formatting
 			$formattedCitation = $this->_formatUrlsInText($citationString);
 			
 			$htmlString .= "\t";
 			// Apply semantic class to the list item
-			$htmlString .= '<li class="citation-item">' . $formattedCitation . '</li>';
+			$htmlString .= '<li class="citation-item" id="' . $referenceIdPrefix . $i++ . '">' . $formattedCitation . '</li>';
 			$htmlString .= "<br/>\n";
 		}
 		$htmlString .= '</' . $containerTag . '>';
