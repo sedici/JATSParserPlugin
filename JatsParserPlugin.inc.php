@@ -32,6 +32,7 @@ use \PKP\components\forms\FormComponent;
 use JATSParser\PDF\TemplateStrategy;
 use APP\facades\Repo;
 use PKP\core\JSONMessage;
+use JATSParser\Body\Document as JATSDocument;
 
 use APP\core\Request;
 use PKP\context\Context;
@@ -488,11 +489,13 @@ class JatsParserPlugin extends GenericPlugin {
 		$jatsSubmissionFile = Repo::submissionFile()->get($jatsFileId);
 
 		if ($jatsSubmissionFile) {
-			$fullText = $this->_setSupplImgPath($jatsSubmissionFile, $fullText);
+			import('lib.pkp.classes.file.PrivateFileManager');
+			$privateFileManager = new PrivateFileManager();
+			$jatsFilePath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $jatsSubmissionFile->getData('path');
 		}
 
 		// Set references y footnotes
-		$fullText = $this->_setReferences($newPublication, $localeKey, $fullText);
+		$fullText = $this->_setReferences($newPublication, $localeKey, $fullText, $jatsFilePath);
 		$fullText = $this->_setFootnotes($newPublication, $localeKey, $fullText);
 
 		
@@ -620,7 +623,7 @@ class JatsParserPlugin extends GenericPlugin {
 	 * @return string
 	 * @brief set references for PDF galley
 	 */
-	private function _setReferences(Publication $publication, string $locale, string $htmlString): string {
+	private function _setReferences(Publication $publication, string $locale, string $htmlString, $jatsPath): string {
 
 		error_log('JATSParserPlugin::_setReferences() called');
 
@@ -629,14 +632,37 @@ class JatsParserPlugin extends GenericPlugin {
 
 		// Use OJS raw citations tokenizer
 		$citationTokenizer = new CitationListTokenizerFilter();
-		$citationStrings = $citationTokenizer->execute($rawCitations);
+		$formattedRefs = $citationTokenizer->execute($rawCitations);
 		
 		$numberedCitations = Configuration::getNumberedReferences();
 		$context = Application::get()->getRequest()->getContext();
 		$plugin = PluginRegistry::getPlugin('generic', 'jatsparserplugin'); /* @var $plugin JATSParserPlugin */
 		$citationStyle = $plugin->getSetting($context->getId(), 'citationStyle');
 		
-		if (!is_array($citationStrings) || empty($citationStrings)) return $htmlString;
+		//Obtain xml jats file
+        // Create a JATSDocument instance
+        $jatsDocument = new JATSDocument($jatsPath);
+        
+        // Get the references from the JATS document
+        $references = $jatsDocument->getReferences();
+        
+        // Create an HTML document to handle formatting
+        $htmlDoc = new \JATSParser\HTML\Document($jatsDocument);
+        // Set the references with the desired citation style
+
+		$locale_key = $context->getPrimaryLocale();
+        $formattedLocaleKey = str_replace('_', '-', $locale_key);
+		$citationStyle = $plugin->getSetting($context->getId(), 'citationStyle');
+
+        $htmlDoc->setReferences($citationStyle, $formattedLocaleKey, false);
+        
+        // Get raw formatted references
+        $formattedRefs = $htmlDoc->getRawReferences();
+
+		error_log(print_r($formattedRefs, true));
+
+
+		if (!is_array($formattedRefs) || empty($formattedRefs)) return $htmlString;
 		$htmlString .= "\n";
 		
 		// Add container with semantic class instead of inline styles
@@ -647,16 +673,14 @@ class JatsParserPlugin extends GenericPlugin {
 		$containerTag = in_array($citationStyle, $numberedCitations) ? 'ol' : 'div';
 		$htmlString .= '<' . $containerTag . ' id="references" class="citation-list" data-style="' . $citationStyle . '">';
 		$htmlString .= "\n";
-		
-		$referenceIdPrefix = 'parser_';
-		$i = 0;
-		foreach ($citationStrings as $citationString) {
+
+		foreach ($formattedRefs as $id => $reference) {
 			// Format the citation string, applying the URL formatting
-			$formattedCitation = $this->_formatUrlsInText($citationString);
+			$formattedCitation = $this->_formatUrlsInText($reference);
 			
 			$htmlString .= "\t";
 			// Apply semantic class to the list item
-			$htmlString .= '<li class="citation-item" id="' . $referenceIdPrefix . $i++ . '">' . $formattedCitation . '</li>';
+			$htmlString .= '<li class="citation-item" id="' . $id . '">' . $formattedCitation . '</li>';
 			$htmlString .= "<br/>\n";
 		}
 		$htmlString .= '</' . $containerTag . '>';
@@ -1231,7 +1255,8 @@ class JatsParserPlugin extends GenericPlugin {
 		$rawCitations = '';
 
 		foreach ($refs as $key => $ref) {
-			$rawCitations .= $ref . "\n";
+			$ref = str_replace(['<i>', '</i>'], '', $ref);
+			$rawCitations .= $ref . "\n\n";
 		}
 
 		$newPublication->setData('citationsRaw', $rawCitations);
