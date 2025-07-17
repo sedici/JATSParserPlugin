@@ -488,8 +488,11 @@ class JatsParserPlugin extends GenericPlugin {
 		$jatsFileId = $newPublication->getData('jatsParser::fullTextFileId', $localeKey);
 		$jatsSubmissionFile = Repo::submissionFile()->get($jatsFileId);
 
+
+
 		if ($jatsSubmissionFile) {
 			import('lib.pkp.classes.file.PrivateFileManager');
+			$fullText = $this->_setSupplImgPath($jatsSubmissionFile, $fullText);
 			$privateFileManager = new PrivateFileManager();
 			$jatsFilePath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $jatsSubmissionFile->getData('path');
 		}
