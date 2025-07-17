@@ -188,8 +188,8 @@ class JatsParserPlugin extends GenericPlugin {
 			'license_url' => $licenseUrl, //
 			'article_title' => $publication->getLocalizedData('title'),
 			'submission' => $submission,
-			'date_submitted' => date('d/m/Y', strtotime($submission->getDateSubmitted())),
-			'date_accepted' => $acceptedDate ? date('d/m/Y', strtotime($acceptedDate)) : '',
+			'date_submitted' => date('Y/m/d', strtotime($submission->getDateSubmitted())),
+			'date_accepted' => $acceptedDate ? date('Y/m/d', strtotime($acceptedDate)) : '',
 			'date_published' => str_replace('-', '/', $submission->getDatePublished()),
 			'journal_data' => $issueIdentification, // Includes volume, number, year of a journal.
 			'user_groups' => $userGroups,
