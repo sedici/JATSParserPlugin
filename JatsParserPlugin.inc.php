@@ -140,6 +140,10 @@ class JatsParserPlugin extends GenericPlugin {
 		if($publication->getData('issueId')){
 			$issue = Repo::issue()->get($publication->getData('issueId'));
 			$issueIdentification = $issue->getIssueIdentification();
+			$issueVolume = $issue->getData('volume');
+			$issueNumber = $issue->getData('number');
+			$issueYear = $issue->getData('year');
+			
 		}
 		
 		$section = Repo::section()->get($publication->getData('sectionId'));
@@ -166,13 +170,18 @@ class JatsParserPlugin extends GenericPlugin {
 			}
 		}
 
-		error_log($journal->getData('licenseUrl'));
 		$licenseUrl = !empty($publication->getData('licenseUrl')) ? $publication->getData('licenseUrl') : $journal->getData('licenseUrl');
 
 		$privateFileManager = new PrivateFileManager();
 		$journalLogosPath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR ."journals" . DIRECTORY_SEPARATOR . $journal->getId() . DIRECTORY_SEPARATOR . $journal->getData('path');
-		
+
+		// Separar por "/"
+		list($anio, $mes, $dia) = explode('/', str_replace('-', '/', $submission->getDatePublished()));
+		// Reordenar como día/mes/año
+		$datePublished = $dia . '/' . $mes . '/' . $anio;
+	
 		$metadata = [
+			'publication_pages' => $publication->getData('pages'), 
 			'section_title' => $section?->getLocalizedTitle(),
 			'citation_style' => $plugin->getSetting($context->getId(), 'citationStyle'),
 			'publication_id' => $publication->getId(),
@@ -189,10 +198,13 @@ class JatsParserPlugin extends GenericPlugin {
 			'license_url' => $licenseUrl, //
 			'article_title' => $publication->getLocalizedData('title'),
 			'submission' => $submission,
-			'date_submitted' => date('Y/m/d', strtotime($submission->getDateSubmitted())),
-			'date_accepted' => $acceptedDate ? date('Y/m/d', strtotime($acceptedDate)) : '',
-			'date_published' => str_replace('-', '/', $submission->getDatePublished()),
+			'date_submitted' => date('d/m/Y', strtotime($submission->getDateSubmitted())),
+			'date_accepted' => $acceptedDate ? date('d/m/Y', strtotime($acceptedDate)) : '',
+			'date_published' => $datePublished,
 			'journal_data' => $issueIdentification, // Includes volume, number, year of a journal.
+			'issue_volume' => $issueVolume ?? '',
+			'issue_number' => $issueNumber ?? '',
+			'issue_year' => $issueYear ?? '',
 			'user_groups' => $userGroups,
 			'contributors' => null,//$publication->getAuthorString($userGroups),
 			'subject' => $publication->getLocalizedData('subject', $localeKey),
@@ -501,6 +513,10 @@ class JatsParserPlugin extends GenericPlugin {
 		$fullText = $this->_setReferences($newPublication, $localeKey, $fullText, $jatsFilePath);
 		$fullText = $this->_setFootnotes($newPublication, $localeKey, $fullText);
 
+		file_put_contents(
+			__DIR__ . '/debug_output_fulltext.html',
+			$fullText
+		);
 		
 		// Convertir a PDF
 		$pdf = $this->pdfCreation($fullText, $newPublication, $request, $localeKey);
