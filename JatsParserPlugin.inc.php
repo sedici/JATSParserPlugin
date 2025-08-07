@@ -32,6 +32,7 @@ use \PKP\components\forms\FormComponent;
 use JATSParser\PDF\TemplateStrategy;
 use APP\facades\Repo;
 use PKP\core\JSONMessage;
+use JATSParser\Body\Document as JATSDocument;
 
 use APP\core\Request;
 use PKP\context\Context;
@@ -39,8 +40,11 @@ use PKP\locale\Locale;
 use PKP\galley\Galley;
 
 use PKP\db\DAORegistry;
+use Mpdf\Mpdf;
 
 define("CREATE_PDF_QUERY", "download=pdf");
+
+
 
 class JatsParserPlugin extends GenericPlugin {
 	
@@ -219,20 +223,80 @@ class JatsParserPlugin extends GenericPlugin {
 	 * @param $issue Issue
 	 * @param
 	 */
-	private function pdfCreation(string $htmlString, Publication $publication, Request $request, string $localeKey): string {
+	private function pdfCreation(string $htmlString, Publication $publication, Request $request, string $localeKey, int $fileId): string {
 		error_log('JATSParserPlugin::pdfCreation() called');
 
 		$metadata = $this->getMetadata($publication, $localeKey, $request, $htmlString);
 		$configuration = new Configuration($metadata);
 
-		error_log('JATSParserPlugin::pdfCreation() - new Configuration');
+		$templateManager = TemplateManager::getManager();
+		// $templateManager->assign('variable', "Prueba");
+		$html = $templateManager->fetch('test.tpl');
 
-		$templateName = 'TemplateOne';
-		$templateStrategy = new TemplateStrategy($templateName, $configuration);
+		$pdf = new Mpdf(['mode' => 'utf-8']); # Versión 8.1.3
+		$pdf->SetAnchor2Bookmark(1);
 
-		error_log('JATSParserPlugin::pdfCreation() - new TemplateStrategy');
-		error_log('JATSParserPlugin::pdfCreation() - return');
-		return $templateStrategy->OutputPdf();
+		$fileMgr = new PrivateFileManager();
+		$submissionFile = Repo::submissionFile()->get($fileId);
+		$jatsDocument = new Document($fileMgr->getBasePath() . DIRECTORY_SEPARATOR . $submissionFile->getData('path'));
+		$citeProc = new HTMLDocument($jatsDocument);
+
+		$citationStyle = $this->getSetting($request->getContext()->getId(), 'citationStyle');
+		$citeProc->setReferences($citationStyle, $localeKey, false);
+
+		$references = $citeProc->getRawReferences();
+
+		$dom = new \DOMDocument('1.0', 'utf-8');
+		$htmlHead = "\n";
+		$htmlHead .= '<head>';
+		$htmlHead .= "\t" . '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>';
+		$htmlHead .= "\n";
+		$htmlHead .= '</head>';
+		$dom->loadHTML($htmlHead . $htmlString);
+		$xpath = new \DOMXPath($dom);
+
+		// Buscar todos los <li> dentro de .references-section
+		$referencesNodes = $xpath->evaluate('//div[contains(@class,"references-section")]//li');
+		foreach ($referencesNodes as $refNode) {
+			$id = $refNode->getAttribute('id');
+			$references[$id] = '<a name="' . $id . '" id="' . $id . '"></a>' . $references[$id] . '<a href="#citation_' . $id . '"> ^' . $id . '</a>';
+		}
+
+		//process all <a> elements with class "bibr" to replace them with {{LINK:refId:linkText}}
+		foreach ($xpath->query('//a[contains(@class, "bibr")]') as $a) {
+			$id = $a->getAttribute('href');
+			$id = trim($id, '#');
+			$id = 'citation_' . $id;
+
+			$newTag = $dom->createElement('a', '');
+			$newTag->setAttribute('name', $id);
+			$newTag->setAttribute('id', $id);
+
+			if($a->nextSibling) {
+				$a->parentNode->insertBefore($newTag, $a->nextSibling);
+			}
+			else {
+				$a->parentNode->appendChild($newTag);
+			}
+		}
+
+		$htmlString = $dom->saveHTML();
+
+		$htmlString = preg_replace('/<div[^>]*class\s*=\s*"[^"]*references-section[^"]*"[^>]*>.*<\/div>/is', '', $htmlString);
+		$pdf->WriteHTML($htmlString);
+
+		foreach($references as $reference) {
+			$pdf->WriteHTML($reference);
+			$pdf->WriteHTML('<br>');
+		}
+
+		foreach($references as $reference) {
+			$htmlString .= $reference . '<br>';
+		}
+
+		file_put_contents(__DIR__ . '/prueba3.html', $htmlString);
+				
+		return $pdf->Output('a', 'S');
 	}
 
 	/**
@@ -486,18 +550,22 @@ class JatsParserPlugin extends GenericPlugin {
 		// Set real path to images, attached to the original JATS XML file
 		$jatsFileId = $newPublication->getData('jatsParser::fullTextFileId', $localeKey);
 		$jatsSubmissionFile = Repo::submissionFile()->get($jatsFileId);
-
+   
 		if ($jatsSubmissionFile) {
+			import('lib.pkp.classes.file.PrivateFileManager');
 			$fullText = $this->_setSupplImgPath($jatsSubmissionFile, $fullText);
+			$privateFileManager = new PrivateFileManager();
+			$jatsFilePath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $jatsSubmissionFile->getData('path');
 		}
 
 		// Set references y footnotes
-		$fullText = $this->_setReferences($newPublication, $localeKey, $fullText);
+		$fullText = $this->_setReferences($newPublication, $localeKey, $fullText, $jatsFilePath);
 		$fullText = $this->_setFootnotes($newPublication, $localeKey, $fullText);
 
-		
+		file_put_contents(__DIR__ . '/prueba.html', $fullText);
+
 		// Convertir a PDF
-		$pdf = $this->pdfCreation($fullText, $newPublication, $request, $localeKey);
+		$pdf = $this->pdfCreation($fullText, $newPublication, $request, $localeKey, $jatsFileId);
 
 		// Crear galley
 		$galley = $this->createGalley($localeKey, $newPublication);
@@ -620,7 +688,7 @@ class JatsParserPlugin extends GenericPlugin {
 	 * @return string
 	 * @brief set references for PDF galley
 	 */
-	private function _setReferences(Publication $publication, string $locale, string $htmlString): string {
+	private function _setReferences(Publication $publication, string $locale, string $htmlString, $jatsPath): string {
 
 		error_log('JATSParserPlugin::_setReferences() called');
 
@@ -629,14 +697,37 @@ class JatsParserPlugin extends GenericPlugin {
 
 		// Use OJS raw citations tokenizer
 		$citationTokenizer = new CitationListTokenizerFilter();
-		$citationStrings = $citationTokenizer->execute($rawCitations);
+		$formattedRefs = $citationTokenizer->execute($rawCitations);
 		
 		$numberedCitations = Configuration::getNumberedReferences();
 		$context = Application::get()->getRequest()->getContext();
 		$plugin = PluginRegistry::getPlugin('generic', 'jatsparserplugin'); /* @var $plugin JATSParserPlugin */
 		$citationStyle = $plugin->getSetting($context->getId(), 'citationStyle');
 		
-		if (!is_array($citationStrings) || empty($citationStrings)) return $htmlString;
+		//Obtain xml jats file
+        // Create a JATSDocument instance
+        $jatsDocument = new JATSDocument($jatsPath);
+        
+        // Get the references from the JATS document
+        $references = $jatsDocument->getReferences();
+        
+        // Create an HTML document to handle formatting
+        $htmlDoc = new \JATSParser\HTML\Document($jatsDocument);
+        // Set the references with the desired citation style
+
+		$locale_key = $context->getPrimaryLocale();
+        $formattedLocaleKey = str_replace('_', '-', $locale_key);
+		$citationStyle = $plugin->getSetting($context->getId(), 'citationStyle');
+
+        $htmlDoc->setReferences($citationStyle, $formattedLocaleKey, false);
+        
+        // Get raw formatted references
+        $formattedRefs = $htmlDoc->getRawReferences();
+
+		error_log(print_r($formattedRefs, true));
+
+
+		if (!is_array($formattedRefs) || empty($formattedRefs)) return $htmlString;
 		$htmlString .= "\n";
 		
 		// Add container with semantic class instead of inline styles
@@ -647,14 +738,14 @@ class JatsParserPlugin extends GenericPlugin {
 		$containerTag = in_array($citationStyle, $numberedCitations) ? 'ol' : 'div';
 		$htmlString .= '<' . $containerTag . ' id="references" class="citation-list" data-style="' . $citationStyle . '">';
 		$htmlString .= "\n";
-		
-		foreach ($citationStrings as $citationString) {
+
+		foreach ($formattedRefs as $id => $reference) {
 			// Format the citation string, applying the URL formatting
-			$formattedCitation = $this->_formatUrlsInText($citationString);
+			$formattedCitation = $this->_formatUrlsInText($reference);
 			
 			$htmlString .= "\t";
 			// Apply semantic class to the list item
-			$htmlString .= '<li class="citation-item">' . $formattedCitation . '</li>';
+			$htmlString .= '<li class="citation-item" id="' . $id . '">' . $formattedCitation . '</li>';
 			$htmlString .= "<br/>\n";
 		}
 		$htmlString .= '</' . $containerTag . '>';
