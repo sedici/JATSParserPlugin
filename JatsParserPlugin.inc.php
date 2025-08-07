@@ -280,8 +280,6 @@ class JatsParserPlugin extends GenericPlugin {
 			}
 		}
 
-		$htmlString = $dom->saveHTML();
-
 		$htmlString = preg_replace('/<div[^>]*class\s*=\s*"[^"]*references-section[^"]*"[^>]*>.*<\/div>/is', '', $htmlString);
 		$pdf->WriteHTML($htmlString);
 
@@ -294,6 +292,13 @@ class JatsParserPlugin extends GenericPlugin {
 			$htmlString .= $reference . '<br>';
 		}
 
+		foreach ($xpath->query('//img') as $img) {
+			$img->setAttribute('src', 'data:image/jpg;base64, ' . $img->getAttribute('src'));
+		}
+
+		$htmlString = $dom->saveHTML();
+
+		#file_put_contents(__DIR__ . '/pruebaimg.html', $html);
 		file_put_contents(__DIR__ . '/prueba3.html', $htmlString);
 				
 		return $pdf->Output('a', 'S');
