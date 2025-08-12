@@ -33,6 +33,7 @@ use JATSParser\PDF\TemplateStrategy;
 use APP\facades\Repo;
 use PKP\core\JSONMessage;
 use JATSParser\Body\Document as JATSDocument;
+use PKP\components\forms\Processors\ReferencesProcessor;
 
 use APP\core\Request;
 use PKP\context\Context;
@@ -678,8 +679,8 @@ class JatsParserPlugin extends GenericPlugin {
         // Get raw formatted references
         $formattedRefs = $htmlDoc->getRawReferences();
 
-		error_log(print_r($formattedRefs, true));
-
+		$refsProcessor = new ReferencesProcessor($formattedRefs);
+		$formattedRefs = $refsProcessor->getNumberedReferences();
 
 		if (!is_array($formattedRefs) || empty($formattedRefs)) return $htmlString;
 		$htmlString .= "\n";

@@ -2,7 +2,9 @@
 
 use JATSParser\Body\Document as JATSDocument;
 use JATSParser\HTML\Reference as HTMLReference;
+use PKP\components\forms\Processors\ReferencesProcessor;
 
+require_once __DIR__ . '/../../Processors/ReferencesProcessor.php';
 require_once __dir__ . '/CitationStyles/ApaCitationTable.php';
 
 class TableHTML {
@@ -138,7 +140,6 @@ class TableHTML {
         $jatsDocument = new JATSDocument($this->absoluteXmlPath);
         
         // Get the references from the JATS document
-        $references = $jatsDocument->getReferences();
         
         // Create an HTML document to handle formatting
         $htmlDoc = new \JATSParser\HTML\Document($jatsDocument);
@@ -146,10 +147,13 @@ class TableHTML {
 
         $formattedLocaleKey = str_replace('_', '-', $this->locale_key);
         $htmlDoc->setReferences($this->citationStyle, $formattedLocaleKey, false);
-        
+
         // Get raw formatted references
         $formattedRefs = $htmlDoc->getRawReferences();
-        
+
+        $refsProcessor = new ReferencesProcessor($formattedRefs);
+        $formattedRefs = $refsProcessor->getNumberedReferences();
+
         // Process each reference - maintain your current DOM-based query for author info
         $nodes = self::$xpath->query("/article/back/ref-list/ref");
         foreach ($nodes as $referenceNode) {
@@ -242,5 +246,4 @@ class TableHTML {
             $item['context'] = str_replace(self::CITATION_MARKER, $styledCitation, $item['context']);
         }
         return $data;
-    }
-}
+}   }

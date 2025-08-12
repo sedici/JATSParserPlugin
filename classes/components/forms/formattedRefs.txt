@@ -1,0 +1,19 @@
+Array
+(
+    [parser_0] => Abad Castelló, M., &amp; Álvarez Baz, A. (2021). Aprendizaje basado en datos y combinaciones léxicas: una propuesta didáctica con cuasisinónimos. <i>MLS Educational Research</i>, <i>2</i>(5), 88-104. https://doi.org/10.29314/mlser.v5i2.562
+    [parser_1] => Aikhenwald, A. (2012). The essence of mirativity. <i>Linguistic Typology</i>, <i>3</i>(16), 435-485. https://doi.org/10.1515/lity-2012-0017
+    [parser_2] => Angelina Oliveira, A. (2024). <i>Producciones escritas de angloparlantes en el marco de exámenes CELU</i>.
+    [parser_10] => Call, J., &amp; Carpenter, M. (2002). Three sources of information in social learning. En K. Dautenhahn &amp; C. Nehaniv (Eds.), <i>Imitation in animals and artifacts</i>. Cambridge, USA: MIT Press.
+    [parser_8] => Fedigan, L. M., &amp; Strum, S. (1999). A brief history of primate studies: national traditions, disciplinary origins, and stages in North American field research. En P. Dolhinow &amp; A. Fuentes (Eds.), <i>The non-human primates.</i> Mountain View USA Mayfield Publishing Company.
+    [parser_3] => González Vázquez, M. (1998). <i>La polisemia de ’poder’ en e/le: acerca de la pertinencia comunicativa de la posibilidad lateral y bilateral</i>.
+    [parser_4] => Grice, P. (1991). Lógica de la conversación. En L. Valdées Villanueva (Ed.), <i>La búsqueda del Significado</i>. Tecnos.
+    [parser_5] => Hoye, L. (2008). Evidentiality in discourse: A pragmatic and empirical account. En J. Romero (Ed.), <i>Pragmatics and corpus linguistics</i>. Mouton de Gruyter.
+    [parser_9] => Matsuzawa, T., &amp; Yamakoshi, G. (1996). Comparison of chimpanzee material culture between Bossou and Nimba, West Africa. En A. Russon, K. Bard, &amp; S. Parkers (Eds.), <i>Reaching into thought</i>. United Kingdom Cambridge University Press.
+    [webpage-ref-0c2f61fda1a47457946b3654a0a8f496] => Messineo , T. (2025). Título de página web. <i>Source de página web</i>.
+    [data-publication-ref-89f800d2893ab446cefab1687452a403] => Messineo, T. (2024). <i>Source datapublic</i>.
+    [newspaper-article-ref-0382cbc84118b025119abd3ceb4b3db9] => Messineo, T. (2024). Newspaper Article. <i>Source Newspaper</i>, <i>2</i>, 1-3.
+    [journal-article-ref-8e4c6f4c056717d22dfe886ad60696e9] => Messineo, T. (2025). Titulo Libro. <i>Alfajor</i>.
+    [journal-article-ref-bf51d53b45a166f27d235b3c9ce68ae1] => Messineo, T. (2025). Titulo libro. <i>Balfajor</i>.
+    [parser_6] => Sperber, D., &amp; Wilson, D. (1991). Sobre la definición de Relevancia. En L. Valdés Villanueva (Ed.), <i>La búsqueda del significado</i>. Tecnos.
+    [parser_7] => Vatrican, A. (2015). La modalidad en la gramática: la capacidad en las construcciones saber y poder infinitivo. <i>Revista Española de Lingüística</i>, <i>2</i>(45), 115-141.
+)
