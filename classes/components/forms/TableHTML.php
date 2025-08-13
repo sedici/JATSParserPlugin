@@ -240,7 +240,7 @@ class TableHTML {
             $escapedCitationText = htmlspecialchars($citationText, ENT_QUOTES, 'UTF-8');
             
             // Apply inline styling directly to the citation with properly escaped content
-            $styledCitation = '<span style="color: #32849C; font-weight: bold; background-color: #f0f8ff; padding: 0 3px; border-radius: 3px;">' 
+            $styledCitation = '<span style="color: #32849c; font-weight: bold; background-color: #f0f8ff; padding: 0 3px; border-radius: 3px;">' 
                 . $escapedCitationText . '</span>';
             
             $item['context'] = str_replace(self::CITATION_MARKER, $styledCitation, $item['context']);
