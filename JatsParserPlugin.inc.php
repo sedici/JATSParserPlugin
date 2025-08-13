@@ -514,11 +514,6 @@ class JatsParserPlugin extends GenericPlugin {
 		$fullText = $this->_setReferences($newPublication, $localeKey, $fullText, $jatsFilePath);
 		$fullText = $this->_setFootnotes($newPublication, $localeKey, $fullText);
 
-		file_put_contents(
-			__DIR__ . '/debug_output_fulltext.html',
-			$fullText
-		);
-		
 		// Convertir a PDF
 		$pdf = $this->pdfCreation($fullText, $newPublication, $request, $localeKey);
 
