@@ -33,11 +33,6 @@ class ReferencesProcessor {
             }
         }
         
-        file_put_contents(
-                __DIR__ . '/test.txt',
-                print_r($groupedByPrefix, true)
-        );
-
         // Procesar cada grupo de referencias con el mismo prefijo
         // Para cada grupo diferente, la secuencia de letras se reinicia
         foreach ($groupedByPrefix as $prefix => $references) {
