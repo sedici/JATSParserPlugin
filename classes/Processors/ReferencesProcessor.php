@@ -17,9 +17,14 @@ class ReferencesProcessor {
         // Extraer prefijo de cada referencia y agrupar
         foreach ($this->refs as $id => $ref) {
             // Extraer el texto hasta el cierre del paréntesis
-            preg_match('/^[^)]*\)/', $ref, $matches);
+            preg_match('/^.*?\(([^).]*)\)/', $ref, $matches);
             if (isset($matches[0])) {
                 $prefix = trim($matches[0]);
+                // Quitar solo (Ed.), (Eds.), (Coord.), (Coords.)
+                $prefix = preg_replace('/\s*\((?:Ed|Eds|Coord|Coords)\.\)?./i', ' ', $prefix);
+                // Normalizar espacios
+                $prefix = preg_replace('/\s{2,}/', ' ', trim($prefix));
+
                 // Agrupar referencias con el mismo prefijo
                 $groupedByPrefix[$prefix][] = ['id' => $id, 'ref' => $ref];
             } else {
@@ -28,6 +33,11 @@ class ReferencesProcessor {
             }
         }
         
+        file_put_contents(
+                __DIR__ . '/test.txt',
+                print_r($groupedByPrefix, true)
+        );
+
         // Procesar cada grupo de referencias con el mismo prefijo
         // Para cada grupo diferente, la secuencia de letras se reinicia
         foreach ($groupedByPrefix as $prefix => $references) {
@@ -42,7 +52,7 @@ class ReferencesProcessor {
                     $ref = $refData['ref'];
                     
                     // Insertar la letra justo antes del paréntesis de cierre
-                    $modifiedRef = preg_replace('/^([^)]*)\)/', '$1' . $letter . ')', $ref);
+                    $modifiedRef = preg_replace('/(^.*?\([^.)]+)\)/', '$1' . $letter . ')', $ref);
                     $numberedRefs[$id] = $modifiedRef;
                     
                     // Avanzar a la siguiente letra para la próxima referencia de este grupo
