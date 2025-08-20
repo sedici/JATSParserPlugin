@@ -166,9 +166,19 @@ class JatsParserPlugin extends GenericPlugin {
 
 		foreach ($decisions as $decision) {
 			if ($decision->getData('stageId') === WORKFLOW_STAGE_ID_EXTERNAL_REVIEW && $decision->getData('decision') === Decision::ACCEPT){
-				$acceptedDate = $decision->getData('dateDecided');
+				$acceptedDate = $decision->getData('dateDecided'); // Get accepted date of accepted revision stage
 				break;
 			}
+
+			if ($decision->getData('stageId') === WORKFLOW_STAGE_ID_EXTERNAL_REVIEW && $decision->getData('decision') === Decision::DECLINE) {
+				$acceptedDate = $decision->getData('dateDecided');
+				break; // Get accepted date of rejected revision stage
+			}
+		}
+
+		//Obtener la fecha de aceptación del envío si se saltea la etapa de revisión
+		if (!$acceptedDate) {
+			$acceptedDate = $submission->getDateStatusModified();
 		}
 
 		$licenseUrl = !empty($publication->getData('licenseUrl')) ? $publication->getData('licenseUrl') : $journal->getData('licenseUrl');
@@ -179,7 +189,7 @@ class JatsParserPlugin extends GenericPlugin {
 		// Separar por "/"
 		list($anio, $mes, $dia) = explode('/', str_replace('-', '/', $submission->getDatePublished()));
 		// Reordenar como día/mes/año
-		$datePublished = $dia . '/' . $mes . '/' . $anio;
+		$datePublished = ($dia && $mes && $anio) ? "$dia/$mes/$anio" : '';
 	
 		$metadata = [
 			'publication_pages' => $publication->getData('pages'), 
