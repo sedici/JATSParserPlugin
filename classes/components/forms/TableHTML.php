@@ -169,7 +169,10 @@ class TableHTML {
                 $year = $yearNode ? $yearNode->nodeValue : "s.f.";
 
                 // Process authors
-                $authorNodes = self::$xpath->query(".//person-group[@person-group-type='author']//name", $elementCitation);
+                $authorNodes = self::$xpath->query(
+                    ".//person-group[@person-group-type='author' or @person-group-type='editor']//name",
+                    $elementCitation
+                );
                 foreach ($authorNodes as $authorNode) {
                     $surnameNode = $authorNode->getElementsByTagName("surname")->item(0);
                     if ($surnameNode) {
@@ -203,7 +206,7 @@ class TableHTML {
                 'authors' => $data
             ];
         }
-        
+
         $this->referencesArray = $referencesArray;
     }
 
