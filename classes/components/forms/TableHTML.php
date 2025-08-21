@@ -169,15 +169,29 @@ class TableHTML {
                 $year = $yearNode ? $yearNode->nodeValue : "s.f.";
 
                 // Process authors
-                $authorNodes = self::$xpath->query(".//person-group[@person-group-type='author']//name", $elementCitation);
-                foreach ($authorNodes as $authorNode) {
-                    $surnameNode = $authorNode->getElementsByTagName("surname")->item(0);
-                    if ($surnameNode) {
-                        $surname = $surnameNode->nodeValue;
-                        if ($surname) {
-                            $data['data_' . $authorsCont]['surname'] = $surname;
-                            $data['data_' . $authorsCont]['year'] = $year;
-                            $authorsCont++;
+                $personGroupNodes = self::$xpath->query(".//person-group", $elementCitation);
+                foreach ($personGroupNodes as $personGroupNode) {
+                    $publicationType = $elementCitation->getAttribute('publication-type');
+                    $personGroupType = $personGroupNode->getAttribute('person-group-type');
+
+                    // rule: save data only if the person-group type is 'author' or 'editor' and publication type is not 'chapter'
+                    $saveData = true;
+                    if ($personGroupType === 'editor' && $publicationType === 'chapter') {
+                        $saveData = false;
+                    }
+
+                    if ($saveData) {
+                        foreach ($personGroupNode->getElementsByTagName("name") as $authorNode) {
+                            $surnameNode = $authorNode->getElementsByTagName("surname")->item(0);
+                            if ($surnameNode) {
+                                $surname = $surnameNode->nodeValue;
+                                if ($surname) {
+                                    $data['data_' . $authorsCont]['surname'] = $surname;
+                                    $data['data_' . $authorsCont]['year'] = $year;
+                                    $data['data_' . $authorsCont]['role'] = $personGroupType; // opcional
+                                    $authorsCont++;
+                                }
+                            }
                         }
                     }
                 }
