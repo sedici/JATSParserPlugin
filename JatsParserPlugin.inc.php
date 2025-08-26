@@ -33,7 +33,8 @@ use JATSParser\PDF\TemplateStrategy;
 use APP\facades\Repo;
 use PKP\core\JSONMessage;
 use JATSParser\Body\Document as JATSDocument;
-
+use JATSParser\TemplateHandler\PDFCreationService;
+use JATSParser\TemplateHandler\PDFProcessingService;
 use APP\core\Request;
 use PKP\context\Context;
 use PKP\locale\Locale;
@@ -106,7 +107,7 @@ class JatsParserPlugin extends GenericPlugin {
 			parent::getActions($request, $verb)
 		);
 	}
- 	/**
+	/**
 	 * @copydoc Plugin::manage()
 	 */
 	function manage($args, $request) {
@@ -214,7 +215,6 @@ class JatsParserPlugin extends GenericPlugin {
 		error_log('JATSParserPlugin::getMetadata() - metadata return');
 		return $metadata;
 	}
-	
 
 	/**
 	 * @param $article Submission
@@ -228,80 +228,38 @@ class JatsParserPlugin extends GenericPlugin {
 
 		$metadata = $this->getMetadata($publication, $localeKey, $request, $htmlString);
 		$configuration = new Configuration($metadata);
+		$templateManager = new \Smarty(); # Con esta instancia se pueden settear las rutas que se desee de Smarty, así no usamos la global de OJS.
+		$templateManager->setTemplateDir(__DIR__ . '/templates'); # La ruta es .../jatsParser/templates
+		$processingService = new PDFProcessingService();
+		$pdfCreationService = new PDFCreationService($templateManager, $processingService);
 
-		$templateManager = TemplateManager::getManager();
-		// $templateManager->assign('variable', "Prueba");
-		$html = $templateManager->fetch('test.tpl');
+		$templateDir = $templateManager->getTemplateDir()[0];
 
-		$pdf = new Mpdf(['mode' => 'utf-8']); # Versión 8.1.3
+		$pdf = new Mpdf([
+			'mode' => 'utf-8',
+			'PDFA' => true,
+			'PDFAauto' => true,
+		]); # Versión 8.1.3. Los genero así para que la salida sea un PDF/A válido
 		$pdf->SetAnchor2Bookmark(1);
 
 		$fileMgr = new PrivateFileManager();
 		$submissionFile = Repo::submissionFile()->get($fileId);
 		$jatsDocument = new Document($fileMgr->getBasePath() . DIRECTORY_SEPARATOR . $submissionFile->getData('path'));
 		$citeProc = new HTMLDocument($jatsDocument);
+		$dom = new \DOMDocument('1.0', 'utf-8'); ### CARGAR EL HTML DE HTMLSTRING XD
+		$xpath = new \DOMXPath($dom);
 
 		$citationStyle = $this->getSetting($request->getContext()->getId(), 'citationStyle');
 		$citeProc->setReferences($citationStyle, $localeKey, false);
 
-		$references = $citeProc->getRawReferences();
+		# Ruta actual de los TPL > /data/public_ojs/templates > Ruta que agarra por default el fetch. | Estoy trabajando sobre el directorio SUMARC
+		$builtPDF = $pdfCreationService->buildPDF($templateDir, $pdf, $htmlString, $xpath, $dom, $citeProc); # Verifico que todos los archivos necesarios para la plantilla existan, por ahora almaceno los errores en un .txt
+		# La variable metadata tiene ya la gran mayoría de metadatos habidos y por haber en OJS. Puedo editar para sumar lo que me falta y armar una doc de eso.
+		# Ese mismo array es el que tengo que inyectarle a todas las plantillas para que se puedan acceder a los metadatos desde el configurador
 
-		$dom = new \DOMDocument('1.0', 'utf-8');
-		$htmlHead = "\n";
-		$htmlHead .= '<head>';
-		$htmlHead .= "\t" . '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>';
-		$htmlHead .= "\n";
-		$htmlHead .= '</head>';
-		$dom->loadHTML($htmlHead . $htmlString);
-		$xpath = new \DOMXPath($dom);
+		return $builtPDF->output('a', 'S');
 
-		// Buscar todos los <li> dentro de .references-section
-		$referencesNodes = $xpath->evaluate('//div[contains(@class,"references-section")]//li');
-		foreach ($referencesNodes as $refNode) {
-			$id = $refNode->getAttribute('id');
-			$references[$id] = '<a name="' . $id . '" id="' . $id . '"></a>' . $references[$id] . '<a href="#citation_' . $id . '"> ^' . $id . '</a>';
-		}
-
-		//process all <a> elements with class "bibr" to replace them with {{LINK:refId:linkText}}
-		foreach ($xpath->query('//a[contains(@class, "bibr")]') as $a) {
-			$id = $a->getAttribute('href');
-			$id = trim($id, '#');
-			$id = 'citation_' . $id;
-
-			$newTag = $dom->createElement('a', '');
-			$newTag->setAttribute('name', $id);
-			$newTag->setAttribute('id', $id);
-
-			if($a->nextSibling) {
-				$a->parentNode->insertBefore($newTag, $a->nextSibling);
-			}
-			else {
-				$a->parentNode->appendChild($newTag);
-			}
-		}
-
-		$htmlString = preg_replace('/<div[^>]*class\s*=\s*"[^"]*references-section[^"]*"[^>]*>.*<\/div>/is', '', $htmlString);
-		$pdf->WriteHTML($htmlString);
-
-		foreach($references as $reference) {
-			$pdf->WriteHTML($reference);
-			$pdf->WriteHTML('<br>');
-		}
-
-		foreach($references as $reference) {
-			$htmlString .= $reference . '<br>';
-		}
-
-		foreach ($xpath->query('//img') as $img) {
-			$img->setAttribute('src', 'data:image/jpg;base64, ' . $img->getAttribute('src'));
-		}
-
-		$htmlString = $dom->saveHTML();
-
-		#file_put_contents(__DIR__ . '/pruebaimg.html', $html);
-		file_put_contents(__DIR__ . '/prueba3.html', $htmlString);
-				
-		return $pdf->Output('a', 'S');
+		#file_put_contents(__DIR__ . '/prueba3.html', $htmlString);
 	}
 
 	/**
@@ -567,8 +525,6 @@ class JatsParserPlugin extends GenericPlugin {
 		$fullText = $this->_setReferences($newPublication, $localeKey, $fullText, $jatsFilePath);
 		$fullText = $this->_setFootnotes($newPublication, $localeKey, $fullText);
 
-		file_put_contents(__DIR__ . '/prueba.html', $fullText);
-
 		// Convertir a PDF
 		$pdf = $this->pdfCreation($fullText, $newPublication, $request, $localeKey, $jatsFileId);
 
@@ -710,24 +666,24 @@ class JatsParserPlugin extends GenericPlugin {
 		$citationStyle = $plugin->getSetting($context->getId(), 'citationStyle');
 		
 		//Obtain xml jats file
-        // Create a JATSDocument instance
-        $jatsDocument = new JATSDocument($jatsPath);
-        
-        // Get the references from the JATS document
-        $references = $jatsDocument->getReferences();
-        
-        // Create an HTML document to handle formatting
-        $htmlDoc = new \JATSParser\HTML\Document($jatsDocument);
-        // Set the references with the desired citation style
+		// Create a JATSDocument instance
+		$jatsDocument = new JATSDocument($jatsPath);
+		
+		// Get the references from the JATS document
+		$references = $jatsDocument->getReferences();
+		
+		// Create an HTML document to handle formatting
+		$htmlDoc = new \JATSParser\HTML\Document($jatsDocument);
+		// Set the references with the desired citation style
 
 		$locale_key = $context->getPrimaryLocale();
-        $formattedLocaleKey = str_replace('_', '-', $locale_key);
+		$formattedLocaleKey = str_replace('_', '-', $locale_key);
 		$citationStyle = $plugin->getSetting($context->getId(), 'citationStyle');
 
-        $htmlDoc->setReferences($citationStyle, $formattedLocaleKey, false);
-        
-        // Get raw formatted references
-        $formattedRefs = $htmlDoc->getRawReferences();
+		$htmlDoc->setReferences($citationStyle, $formattedLocaleKey, false);
+		
+		// Get raw formatted references
+		$formattedRefs = $htmlDoc->getRawReferences();
 
 		error_log(print_r($formattedRefs, true));
 
@@ -906,10 +862,16 @@ class JatsParserPlugin extends GenericPlugin {
 				case 'editPublication':
 					error_log('JATSParserPlugin::_setSupplImgPath() Request editPublication');
 					// API Handler cannot process $op, $path or $anchor in url()
-					$image = file_get_contents($privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $dependentFile->getData('path'));
-					error_log('JATSParserPlugin::_setSupplImgPath() - image path: ' . $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $dependentFile->getData('path'));
+					$imgPath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $dependentFile->getData('path');
+					$image = file_get_contents($imgPath);
+					error_log('JATSParserPlugin::_setSupplImgPath() - image path: ' . $imgPath);
+					
+					$finfo = finfo_open(FILEINFO_MIME_TYPE);
+					$mimeType = finfo_file($finfo, $imgPath);
+					finfo_close($finfo);
+					
 					$imageBase64 = base64_encode($image);
-					$filePath = '@' . $imageBase64; // Format, supported by TCPDF
+					$filePath = 'data:' . $mimeType . ';base64,@' . $imageBase64;
 					break;
 			}
 
@@ -1134,8 +1096,8 @@ class JatsParserPlugin extends GenericPlugin {
 							'name' => $assocFile->getData('name'),
 							'caption' => $assocFile->getData('caption'),
 							'copyrightOwner' => $assocFile->getData('copyrightOwner'),
-                            'credit' => $assocFile->getData('credit'),
-                            'terms' =>$assocFile->getData('terms'),
+							'credit' => $assocFile->getData('credit'),
+							'terms' =>$assocFile->getData('terms'),
 						]);
 						Services::get('submissionFile')->add($assocSubmissionFile, $request);
 					}

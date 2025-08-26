@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<catalog>
+  <template_name>REDIC</template_name>
+  <build>
+    <item id="1">frontpage</item>
+    <item id="2">body</item>
+    <item id="3">references</item>
+  </build>
+  <header>
+    <file>header.tpl</file>
+    <role>header</role>
+  </header>
+  <footer>
+    <file>footer.tpl</file>
+    <role>footer</role>
+  </footer>
+  <frontpage>
+    <file>frontpage.tpl</file>
+    <uses />
+  </frontpage>
+  <body>
+    <file>body.tpl</file>
+    <uses>
+      <use>header</use>
+      <use>footer</use>
+    </uses>
+  </body>
+  <references>
+    <file>references.tpl</file>
+    <uses>
+      <use>footer</use>
+    </uses>
+  </references>
+</catalog>
