@@ -139,7 +139,6 @@ class JatsParserPlugin extends GenericPlugin {
 		}
 
 		$privateFileManager = new PrivateFileManager();
-
 		$journalLogosPath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR ."journals" . DIRECTORY_SEPARATOR . $journal->getId() . DIRECTORY_SEPARATOR . $journal->getData('path');
 
 		$metadata = [
@@ -159,8 +158,8 @@ class JatsParserPlugin extends GenericPlugin {
 			'license_url' => $publication->getData('licenseUrl'),
 			'article_title' => $publication->getLocalizedData('title'),
 			'submission' => $submission,
-			'date_submitted' => date('d/m/Y', strtotime($submission->getDateSubmitted())),
-			'date_accepted' => date('d/m/Y', strtotime($acceptedDate)),
+			'date_submitted' => date('Y/m/d', strtotime($submission->getDateSubmitted())),
+			'date_accepted' => $acceptedDate ? date('Y/m/d', strtotime($acceptedDate)) : '',
 			'date_published' => str_replace('-', '/', $submission->getDatePublished()),
 			'journal_data' => ($issue !== null && $issue->getIssueIdentification()) ? $issue->getIssueIdentification() : "", // Includes volume, number, year of a journal.
 			'user_groups' => $userGroups,
@@ -174,7 +173,8 @@ class JatsParserPlugin extends GenericPlugin {
 			'journal_url' => $request->getBaseUrl() . '/' . $journal->getPath(),
 			'titles' => $publication->getData('title'),
 			'subtitles' => $publication->getData('subtitle'),
-			'editorial' => $context->getLocalizedData('institution')
+			'editorial' => $context->getLocalizedData('institution'),
+			'prefixes' => $publication->getData('prefix')
 		];
 	
 		return $metadata;
