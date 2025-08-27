@@ -2,7 +2,9 @@
 
 use JATSParser\Body\Document as JATSDocument;
 use JATSParser\HTML\Reference as HTMLReference;
+use PKP\components\forms\Processors\ReferencesProcessor;
 
+require_once __DIR__ . '/../../Processors/ReferencesProcessor.php';
 require_once __dir__ . '/CitationStyles/ApaCitationTable.php';
 
 class TableHTML {
@@ -138,7 +140,6 @@ class TableHTML {
         $jatsDocument = new JATSDocument($this->absoluteXmlPath);
         
         // Get the references from the JATS document
-        $references = $jatsDocument->getReferences();
         
         // Create an HTML document to handle formatting
         $htmlDoc = new \JATSParser\HTML\Document($jatsDocument);
@@ -146,10 +147,13 @@ class TableHTML {
 
         $formattedLocaleKey = str_replace('_', '-', $this->locale_key);
         $htmlDoc->setReferences($this->citationStyle, $formattedLocaleKey, false);
-        
+
         // Get raw formatted references
         $formattedRefs = $htmlDoc->getRawReferences();
-        
+
+        $refsProcessor = new ReferencesProcessor($formattedRefs);
+        $formattedRefs = $refsProcessor->getNumberedReferences();
+
         // Process each reference - maintain your current DOM-based query for author info
         $nodes = self::$xpath->query("/article/back/ref-list/ref");
         foreach ($nodes as $referenceNode) {
@@ -165,15 +169,29 @@ class TableHTML {
                 $year = $yearNode ? $yearNode->nodeValue : "s.f.";
 
                 // Process authors
-                $authorNodes = self::$xpath->query(".//person-group[@person-group-type='author']//name", $elementCitation);
-                foreach ($authorNodes as $authorNode) {
-                    $surnameNode = $authorNode->getElementsByTagName("surname")->item(0);
-                    if ($surnameNode) {
-                        $surname = $surnameNode->nodeValue;
-                        if ($surname) {
-                            $data['data_' . $authorsCont]['surname'] = $surname;
-                            $data['data_' . $authorsCont]['year'] = $year;
-                            $authorsCont++;
+                $personGroupNodes = self::$xpath->query(".//person-group", $elementCitation);
+                foreach ($personGroupNodes as $personGroupNode) {
+                    $publicationType = $elementCitation->getAttribute('publication-type');
+                    $personGroupType = $personGroupNode->getAttribute('person-group-type');
+
+                    // rule: save data only if the person-group type is 'author' or 'editor' and publication type is not 'chapter'
+                    $saveData = true;
+                    if ($personGroupType === 'editor' && $publicationType === 'chapter') {
+                        $saveData = false;
+                    }
+
+                    if ($saveData) {
+                        foreach ($personGroupNode->getElementsByTagName("name") as $authorNode) {
+                            $surnameNode = $authorNode->getElementsByTagName("surname")->item(0);
+                            if ($surnameNode) {
+                                $surname = $surnameNode->nodeValue;
+                                if ($surname) {
+                                    $data['data_' . $authorsCont]['surname'] = $surname;
+                                    $data['data_' . $authorsCont]['year'] = $year;
+                                    $data['data_' . $authorsCont]['role'] = $personGroupType; // opcional
+                                    $authorsCont++;
+                                }
+                            }
                         }
                     }
                 }
@@ -236,11 +254,10 @@ class TableHTML {
             $escapedCitationText = htmlspecialchars($citationText, ENT_QUOTES, 'UTF-8');
             
             // Apply inline styling directly to the citation with properly escaped content
-            $styledCitation = '<span style="color: #0066cc; font-weight: bold; background-color: #f0f8ff; padding: 0 3px; border-radius: 3px;">' 
+            $styledCitation = '<span style="color: #32849c; font-weight: bold; background-color: #f0f8ff; padding: 0 3px; border-radius: 3px;">' 
                 . $escapedCitationText . '</span>';
             
             $item['context'] = str_replace(self::CITATION_MARKER, $styledCitation, $item['context']);
         }
         return $data;
-    }
-}
+}   }

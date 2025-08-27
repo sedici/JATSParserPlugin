@@ -133,7 +133,7 @@ class ApaStylesheet extends GenericStylesheet {
             .citation-row > td[rowspan]:first-child, /* Context cell (first td with rowspan in a citation row) */
             .citation-row > td[rowspan].select-wrapper-cell /* Style Options cell (td with rowspan and select-wrapper-cell class) */
             {
-                border-bottom: 3px solid #000000; /* 
+                border-bottom: 3px solid #000000;
             }
 
             </style>';
