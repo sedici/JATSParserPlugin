@@ -144,7 +144,6 @@ class JatsParserPlugin extends GenericPlugin {
 		$decisions = $editDecisionDao->getEditorDecisions($submission->getId());
 	
 		$acceptedDate = null;
-		error_log(print_r($decisions, true));
 
 		foreach ($decisions as $decision) {
 			// Tomar cualquier aceptación, incluyendo submission stage
