@@ -127,23 +127,44 @@ class JatsParserPlugin extends GenericPlugin {
 		$submission = Services::get('submission')->get($publication->getData('submissionId')); /* @var $submission Submission */
 		$context = $request->getContext(); /* @var $context Journal */
 		$journal = $request->getContext();
-		$issue = $issueDao->getById($publication->getData('issueId'), $context->getId());
+
+		$issueIdentification = "";
+		if($publication->getData('issueId')){
+			$issue = $issueDao->getById($publication->getData('issueId'), $context->getId());
+			$issueIdentification = $issue->getIssueIdentification();
+			$issueVolume = $issue->getData('volume');
+			$issueNumber = $issue->getData('number');
+			$issueYear = $issue->getData('year');
+
+		}
+
 		$userGroups = $userGroupDao->getByContextId($journal->getId())->toArray();
 		$plugin = PluginRegistry::getPlugin('generic', 'jatsparserplugin');
 
 		$decisions = $editDecisionDao->getEditorDecisions($submission->getId());
 	
 		$acceptedDate = null;
+		error_log(print_r($decisions, true));
+
 		foreach ($decisions as $decision) {
-			if ($decision['stageId'] == 3 && $decision['decision'] == 1) {
+			// Tomar cualquier aceptación, incluyendo submission stage
+			if ($decision['decision'] == SUBMISSION_EDITOR_DECISION_ACCEPT) {
 				$acceptedDate = $decision['dateDecided'];
+				break; // si querés la primera aceptación
 			}
 		}
 
 		$privateFileManager = new PrivateFileManager();
 		$journalLogosPath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR ."journals" . DIRECTORY_SEPARATOR . $journal->getId() . DIRECTORY_SEPARATOR . $journal->getData('path');
 
+		// Separar por "/"
+		list($anio, $mes, $dia) = explode('/', str_replace('-', '/', $submission->getDatePublished()));
+		
+		// Reordenar como día/mes/año
+		$datePublished = ($dia && $mes && $anio) ? "$dia/$mes/$anio" : '';
+	
 		$metadata = [
+			'publication_pages' => $publication->getData('pages'), 
 			'section_title' => $sectionDao->getById($publication->getData('sectionId'), $context->getId())->getLocalizedTitle(),
 			'citation_style' => $plugin->getSetting($context->getId(), 'citationStyle'),
 			'publication_id' => $publication->getId(),
@@ -160,10 +181,13 @@ class JatsParserPlugin extends GenericPlugin {
 			'license_url' => $publication->getData('licenseUrl'),
 			'article_title' => $publication->getLocalizedData('title'),
 			'submission' => $submission,
-			'date_submitted' => date('Y/m/d', strtotime($submission->getDateSubmitted())),
-			'date_accepted' => $acceptedDate ? date('Y/m/d', strtotime($acceptedDate)) : '',
-			'date_published' => str_replace('-', '/', $submission->getDatePublished()),
+			'date_submitted' => date('d/m/Y', strtotime($submission->getDateSubmitted())),
+			'date_accepted' => $acceptedDate ? date('d/m/Y', strtotime($acceptedDate)) : '',
+			'date_published' => $datePublished,
 			'journal_data' => ($issue !== null && $issue->getIssueIdentification()) ? $issue->getIssueIdentification() : "", // Includes volume, number, year of a journal.
+			'issue_volume' => $issueVolume ?? '',
+			'issue_number' => $issueNumber ?? '',
+			'issue_year' => $issueYear ?? '',
 			'user_groups' => $userGroups,
 			'contributors' => $publication->getAuthorString($userGroups),
 			'subject' => $publication->getLocalizedData('subject', $localeKey),
@@ -182,8 +206,7 @@ class JatsParserPlugin extends GenericPlugin {
 		return $metadata;
 	}
 	
-
-	/**
+   	/**
 	 * @param $article Submission
 	 * @param $request PKPRequest
 	 * @param $htmlDocument HTMLDocument
