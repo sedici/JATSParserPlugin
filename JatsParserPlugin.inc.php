@@ -246,14 +246,16 @@ class JatsParserPlugin extends GenericPlugin {
 		$submissionFile = Repo::submissionFile()->get($fileId);
 		$jatsDocument = new Document($fileMgr->getBasePath() . DIRECTORY_SEPARATOR . $submissionFile->getData('path'));
 		$citeProc = new HTMLDocument($jatsDocument);
-		$dom = new \DOMDocument('1.0', 'utf-8'); ### CARGAR EL HTML DE HTMLSTRING XD
+		$dom = new \DOMDocument('1.0', 'utf-8');
+		$htmlHead = "<head><meta http-equiv='Content-Type' content='text/html'; charset=utf-8/></head>";
+		$dom->loadHTML($htmlHead . $htmlString);
 		$xpath = new \DOMXPath($dom);
 
 		$citationStyle = $this->getSetting($request->getContext()->getId(), 'citationStyle');
 		$citeProc->setReferences($citationStyle, $localeKey, false);
 
 		# Ruta actual de los TPL > /data/public_ojs/templates > Ruta que agarra por default el fetch. | Estoy trabajando sobre el directorio SUMARC
-		$builtPDF = $pdfCreationService->buildPDF($templateDir, $pdf, $htmlString, $xpath, $dom, $citeProc); # Verifico que todos los archivos necesarios para la plantilla existan, por ahora almaceno los errores en un .txt
+		$builtPDF = $pdfCreationService->buildPDF($templateDir, $pdf, $htmlString, $xpath, $dom, $citeProc, $configuration); # Verifico que todos los archivos necesarios para la plantilla existan, por ahora almaceno los errores en un .txt
 		# La variable metadata tiene ya la gran mayoría de metadatos habidos y por haber en OJS. Puedo editar para sumar lo que me falta y armar una doc de eso.
 		# Ese mismo array es el que tengo que inyectarle a todas las plantillas para que se puedan acceder a los metadatos desde el configurador
 
@@ -863,15 +865,16 @@ class JatsParserPlugin extends GenericPlugin {
 					error_log('JATSParserPlugin::_setSupplImgPath() Request editPublication');
 					// API Handler cannot process $op, $path or $anchor in url()
 					$imgPath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $dependentFile->getData('path');
-					$image = file_get_contents($imgPath);
-					error_log('JATSParserPlugin::_setSupplImgPath() - image path: ' . $imgPath);
+					// $image = file_get_contents($imgPath);
+					// error_log('JATSParserPlugin::_setSupplImgPath() - image path: ' . $imgPath);
 					
-					$finfo = finfo_open(FILEINFO_MIME_TYPE);
-					$mimeType = finfo_file($finfo, $imgPath);
-					finfo_close($finfo);
+					// $finfo = finfo_open(FILEINFO_MIME_TYPE);
+					// $mimeType = finfo_file($finfo, $imgPath);
+					// finfo_close($finfo);
 					
-					$imageBase64 = base64_encode($image);
-					$filePath = 'data:' . $mimeType . ';base64,@' . $imageBase64;
+					// #$imageBase64 = base64_encode($image);
+					// #$filePath = 'data:' . $mimeType . ';base64,@' . $imageBase64; # Dejo todo esto comentado por si se desea volver a usar Base64
+					$filePath = $imgPath;
 					break;
 			}
 
