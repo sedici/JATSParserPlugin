@@ -247,7 +247,7 @@ class JatsParserPlugin extends GenericPlugin {
 		$jatsDocument = new Document($fileMgr->getBasePath() . DIRECTORY_SEPARATOR . $submissionFile->getData('path'));
 		$citeProc = new HTMLDocument($jatsDocument);
 		$dom = new \DOMDocument('1.0', 'utf-8');
-		$htmlHead = "<head><meta http-equiv='Content-Type' content='text/html'; charset=utf-8/></head>";
+		$htmlHead = "<!DOCTYPE html><head><meta http-equiv='Content-Type' content='text/html'; charset=utf-8/></head>";
 		$dom->loadHTML($htmlHead . $htmlString);
 		$xpath = new \DOMXPath($dom);
 
@@ -255,7 +255,8 @@ class JatsParserPlugin extends GenericPlugin {
 		$citeProc->setReferences($citationStyle, $localeKey, false);
 
 		# Ruta actual de los TPL > /data/public_ojs/templates > Ruta que agarra por default el fetch. | Estoy trabajando sobre el directorio SUMARC
-		$builtPDF = $pdfCreationService->buildPDF($templateDir, $pdf, $htmlString, $xpath, $dom, $citeProc, $configuration); # Verifico que todos los archivos necesarios para la plantilla existan, por ahora almaceno los errores en un .txt
+		$builtPDF = $pdfCreationService->buildPDF($templateDir, $pdf, $htmlString, $xpath, $dom, $citeProc, $configuration, $metadata);
+		
 		# La variable metadata tiene ya la gran mayoría de metadatos habidos y por haber en OJS. Puedo editar para sumar lo que me falta y armar una doc de eso.
 		# Ese mismo array es el que tengo que inyectarle a todas las plantillas para que se puedan acceder a los metadatos desde el configurador
 
