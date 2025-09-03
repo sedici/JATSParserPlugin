@@ -11,22 +11,30 @@
  */
 
 require_once __DIR__ . '/JATSParser/vendor/autoload.php';
+require_once __DIR__ . '/JATSParser/src/JATSParser/PDF/PDFConfig/Configuration.php';
+require_once __DIR__ . '/JATSParser/src/JATSParser/PDF/PDFConfig/Translations.php';
+require_once __DIR__ . '/JATSParser/src/JATSParser/PDF/TemplateStrategy.php';
 
 import('lib.pkp.classes.plugins.GenericPlugin');
 import('plugins.generic.jatsParser.classes.JATSParserDocument');
 import('plugins.generic.jatsParser.classes.components.forms.PublicationJATSUploadForm');
 import('lib.pkp.classes.citation.Citation');
 import('lib.pkp.classes.file.PrivateFileManager');
+import('lib.pkp.classes.file.PKPPublicFileManager');
 
+use JATSParser\PDF\PDFConfig\Translations;
+use JATSParser\PDF\PDFConfig\Configuration;
 use JATSParser\Body\Document;
-use JATSParser\PDF\TCPDFDocument;
 use JATSParser\HTML\Document as HTMLDocument;
 use \PKP\components\forms\FormComponent;
+use JATSParser\PDF\TemplateStrategy;
+use JATSParser\Body\Document as JATSDocument;
+use PKP\components\forms\Processors\ReferencesProcessor;
 
 define("CREATE_PDF_QUERY", "download=pdf");
 
 class JatsParserPlugin extends GenericPlugin {
-
+	
 	function register($category, $path, $mainContextId = null) {
 		if (parent::register($category, $path, $mainContextId)) {
 
@@ -109,179 +117,109 @@ class JatsParserPlugin extends GenericPlugin {
 		return parent::manage($args, $request);
 	}
 
-	/**
+	//Get an array of OJS metadata to be used in the PDF generation
+	private function getMetadata($publication, $localeKey, $request, $htmlString) {
+		$editDecisionDao = DAORegistry::getDAO('EditDecisionDAO');
+		$userGroupDao = DAORegistry::getDAO('UserGroupDAO');
+		$issueDao = DAORegistry::getDAO('IssueDAO');
+		$sectionDao = DAORegistry::getDAO('SectionDAO');
+
+		$submission = Services::get('submission')->get($publication->getData('submissionId')); /* @var $submission Submission */
+		$context = $request->getContext(); /* @var $context Journal */
+		$journal = $request->getContext();
+
+		$issueIdentification = "";
+		if($publication->getData('issueId')){
+			$issue = $issueDao->getById($publication->getData('issueId'), $context->getId());
+			$issueIdentification = $issue->getIssueIdentification();
+			$issueVolume = $issue->getData('volume');
+			$issueNumber = $issue->getData('number');
+			$issueYear = $issue->getData('year');
+
+		}
+
+		$userGroups = $userGroupDao->getByContextId($journal->getId())->toArray();
+		$plugin = PluginRegistry::getPlugin('generic', 'jatsparserplugin');
+
+		$decisions = $editDecisionDao->getEditorDecisions($submission->getId());
+	
+		$acceptedDate = null;
+
+		foreach ($decisions as $decision) {
+			// Tomar cualquier aceptación, incluyendo submission stage
+			if ($decision['decision'] == SUBMISSION_EDITOR_DECISION_ACCEPT) {
+				$acceptedDate = $decision['dateDecided'];
+				break; // si querés la primera aceptación
+			}
+		}
+
+		$privateFileManager = new PrivateFileManager();
+		$journalLogosPath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR ."journals" . DIRECTORY_SEPARATOR . $journal->getId() . DIRECTORY_SEPARATOR . $journal->getData('path');
+
+		// Separar por "/"
+		list($anio, $mes, $dia) = explode('/', str_replace('-', '/', $submission->getDatePublished()));
+		
+		// Reordenar como día/mes/año
+		$datePublished = ($dia && $mes && $anio) ? "$dia/$mes/$anio" : '';
+	
+		$metadata = [
+			'publication_pages' => $publication->getData('pages'), 
+			'section_title' => $sectionDao->getById($publication->getData('sectionId'), $context->getId())->getLocalizedTitle(),
+			'citation_style' => $plugin->getSetting($context->getId(), 'citationStyle'),
+			'publication_id' => $publication->getId(),
+			'doi' => $publication->getData('pub-id::doi'),
+			'journal_id' => $journal->getId(),
+			'authors' => $publication->getData('authors'),
+			'online_issn' => $journal->getData('onlineIssn'),
+			'journal_title' => $journal->getLocalizedData('name'),
+			'journal_issue' => $publication->getData('issueId'),
+			'journal_logos_path' => $journalLogosPath,
+			'locale_key' => $localeKey,
+			'journal_thumbnail' => $journal->getLocalizedData('journalThumbnail'),
+			'full_title' => $publication->getLocalizedFullTitle($localeKey),
+			'license_url' => $publication->getData('licenseUrl'),
+			'article_title' => $publication->getLocalizedData('title'),
+			'submission' => $submission,
+			'date_submitted' => date('d/m/Y', strtotime($submission->getDateSubmitted())),
+			'date_accepted' => $acceptedDate ? date('d/m/Y', strtotime($acceptedDate)) : '',
+			'date_published' => $datePublished,
+			'journal_data' => ($issue !== null && $issue->getIssueIdentification()) ? $issue->getIssueIdentification() : "", // Includes volume, number, year of a journal.
+			'issue_volume' => $issueVolume ?? '',
+			'issue_number' => $issueNumber ?? '',
+			'issue_year' => $issueYear ?? '',
+			'user_groups' => $userGroups,
+			'contributors' => $publication->getAuthorString($userGroups),
+			'subject' => $publication->getLocalizedData('subject', $localeKey),
+			'abstract_texts' => $publication->getData('abstract'), // Returns an array like this: ['es_ES' => 'Resumen', 'en_US' => 'Abstract']
+			'translations_config' => Translations::getTranslations(),
+			'keywords_texts' => $publication->getData('keywords'),
+			'plugin_path' => $this->getPluginPath(),
+			'html_string' => $htmlString,
+			'journal_url' => $request->getBaseUrl() . '/' . $journal->getPath(),
+			'titles' => $publication->getData('title'),
+			'subtitles' => $publication->getData('subtitle'),
+			'editorial' => $context->getLocalizedData('institution'),
+			'prefixes' => $publication->getData('prefix')
+		];
+	
+		return $metadata;
+	}
+	
+   	/**
 	 * @param $article Submission
 	 * @param $request PKPRequest
 	 * @param $htmlDocument HTMLDocument
 	 * @param $issue Issue
 	 * @param
 	 */
-	private function pdfCreation(string $htmlString, Publication $publication, Request $request, string $localeKey): string
-	{
-		// HTML preparation
-		$context = $request->getContext(); /* @var $context Journal */
-		$submission = Services::get('submission')->get($publication->getData('submissionId')); /* @var $submission Submission */
-		$issueDao = DAORegistry::getDAO('IssueDAO');
-		$issue = $issueDao->getById($publication->getData('issueId'), $context->getId());
+	private function pdfCreation(string $htmlString, Publication $publication, Request $request, string $localeKey): string {
+		$metadata = $this->getMetadata($publication, $localeKey, $request, $htmlString);
+		$configuration = new Configuration($metadata);
 
-		//$this->imageUrlReplacement($xmlGalley, $xpath);
-		//$this->ojsCitationsExtraction($article, $templateMgr, $htmlDocument, $request);
+		$templateName = 'TemplateOne';
+		$templateStrategy = new TemplateStrategy($templateName, $configuration);
 
-		// extends TCPDF object
-		$pdfDocument = new TCPDFDocument();
-
-		$pdfDocument->setTitle($publication->getLocalizedFullTitle($localeKey));
-
-		// get the logo
-		$journal = $request->getContext();
-		$thumb = $journal->getLocalizedData('journalThumbnail');
-		if (!empty($thumb)) {
-			$journalFilesPath = __DIR__ . '/../../../' . Config::getVar('files', 'public_files_dir') . '/journals/' . $journal->getId() . '/'; // TCPDF accepts only relative path
-			$pdfHeaderLogo = $journalFilesPath . $thumb['uploadName'];
-		} else {
-			$pdfHeaderLogo = __DIR__ . "/JATSParser/logo/logo.jpg";
-		}
-
-		$pdfDocument->SetCreator(PDF_CREATOR);
-		$userGroupDao = DAORegistry::getDAO('UserGroupDAO'); /* @var $userGroupDao UserGroupDAO */
-		$userGroups = $userGroupDao->getByContextId($context->getId())->toArray();
-		$pdfDocument->SetAuthor($publication->getAuthorString($userGroups));
-		$pdfDocument->SetSubject($publication->getLocalizedData('subject', $localeKey));
-
-		$articleDataString = '';
-
-		if ($issue && $issueIdentification = $issue->getIssueIdentification()) {
-			$articleDataString .= $issueIdentification;
-		}
-
-		if ($pages = $publication->getLocalizedData('subject', $localeKey)) {
-			$articleDataString .= ", ". $pages;
-		}
-
-		if ($doi = $publication->getData('pub-id::doi')) {
-			$articleDataString .= "\n" . __('plugins.pubIds.doi.readerDisplayName', null, $localeKey) . ': ' . $doi;
-		}
-
-		$pdfDocument->SetHeaderData($pdfHeaderLogo, PDF_HEADER_LOGO_WIDTH, $journal->getName($localeKey), $articleDataString);
-
-		$pdfDocument->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
-		$pdfDocument->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
-		$pdfDocument->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
-		$pdfDocument->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
-		$pdfDocument->SetHeaderMargin(PDF_MARGIN_HEADER);
-		$pdfDocument->SetFooterMargin(PDF_MARGIN_FOOTER);
-		$pdfDocument->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
-		$pdfDocument->setImageScale(PDF_IMAGE_SCALE_RATIO);
-
-		$pdfDocument->AddPage();
-
-		// Article title
-
-		$pdfDocument->SetFillColor(255, 255, 255);
-		$pdfDocument->SetFont('dejavuserif', 'B', 20);
-		$pdfDocument->MultiCell('', '', $publication->getLocalizedFullTitle($localeKey), 0, 'L', 1, 1, '' ,'', true);
-		$pdfDocument->Ln(6);
-
-		// Article's authors
-		$authors = $publication->getData('authors');
-		if (count($authors) > 0) {
-			/* @var $author Author */
-			foreach ($authors as $author) {
-				$pdfDocument->SetFont('dejavuserif', 'I', 10);
-
-				// Calculating the line height for author name and affiliation
-				$authorName = htmlspecialchars($author->getGivenName($localeKey)) . ' ' . htmlspecialchars($author->getFamilyName($localeKey));
-				$affiliation = htmlspecialchars($author->getAffiliation($localeKey));
-
-				$authorLineWidth = 60;
-				$authorNameStringHeight = $pdfDocument->getStringHeight($authorLineWidth, $authorName);
-
-				$affiliationLineWidth = 110;
-				$afilliationStringHeight = $pdfDocument->getStringHeight(110, $affiliation);
-
-				$authorNameStringHeight > $afilliationStringHeight ? $cellHeight = $authorNameStringHeight : $cellHeight = $afilliationStringHeight;
-
-				// Writing affiliations into cells
-				$pdfDocument->MultiCell($authorLineWidth, 0, $authorName, 0, 'L', 1, 0, 19, '', true, 0, false, true, 0, "T", true);
-				$pdfDocument->SetFont('dejavuserif', '', 10);
-				$pdfDocument->MultiCell($affiliationLineWidth, $cellHeight, $affiliation, 0, 'L', 1, 1, '', '', true, 0, false, true, 0, "T", true);
-			}
-			$pdfDocument->Ln(6);
-		}
-
-		// Abstract
-		if ($abstract = $publication->getLocalizedData('abstract', $localeKey)) {
-			$pdfDocument->setCellPaddings(5, 5, 5, 5);
-			$pdfDocument->SetFillColor(248, 248, 255);
-			$pdfDocument->SetFont('dejavuserif', '', 10);
-			$pdfDocument->SetLineStyle(array('width' => 0.5, 'cap' => 'butt', 'join' => 'miter', 'dash' => 4, 'color' => array(255, 140, 0)));
-			$pdfDocument->writeHTMLCell('', '', '', '', $abstract, 'B', 1, 1, true, 'J', true);
-			$pdfDocument->Ln(4);
-		}
-
-		// Text (goes from JATSParser
-		$pdfDocument->setCellPaddings(0, 0, 0, 0);
-		$pdfDocument->SetFont('dejavuserif', '', 10);
-
-		$htmlString .= "\n" . '<style>' . "\n" . file_get_contents($this->getPluginPath() . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . 'styles' . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'pdfGalley.css') . '</style>';
-		$htmlString = $this->_prepareForPdfGalley($htmlString);
-		$pdfDocument->writeHTML($htmlString, true, false, true, false, '');
-
-		return $pdfDocument->Output('article.pdf', 'S');
-	}
-
-	/**
-	 * @param string $htmlString
-	 * @return string Preprocessed HTML string for TCPDF
-	 */
-	private function _prepareForPdfGalley(string $htmlString): string {
-
-		$dom = new DOMDocument('1.0', 'utf-8');
-		$htmlHead = "\n";
-		$htmlHead .= '<head>';
-		$htmlHead .= "\t" . '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>';
-		$htmlHead .= "\n";
-		$htmlHead .= '</head>';
-		$dom->loadHTML($htmlHead . $htmlString);
-
-		// set style for figures and table
-		$xpath = new \DOMXPath($dom);
-
-		$tableNodes = $xpath->evaluate('//table');
-		foreach ($tableNodes as $tableNode) {
-			$tableNode->setAttribute('border', '1');
-			$tableNode->setAttribute('cellpadding', '2');
-		}
-
-		$captionNodes = $xpath->evaluate('//figure/p[@class="caption"]|//table/caption');
-		foreach ($captionNodes as $captionNode) {
-			$captionParts = $xpath->evaluate('span[@class="label"]|span[@class="title"]', $captionNode);
-			foreach ($captionParts as $captionPart) {
-				$emptyTextNode = $dom->createTextNode(' ');
-				$captionPart->appendChild($emptyTextNode);
-			}
-		}
-
-		// TCPDF doesn't recognize display property, insert div
-		$tableCaptions = $xpath->evaluate('//table/caption');
-		foreach ($tableCaptions as $tableCaption) {
-			/* @var $tableNode \DOMNode */
-			$tableNode = $tableCaption->parentNode;
-			$divNode = $dom->createElement('div');
-			$divNode->setAttribute('class', 'caption');
-			$nextToTableNode = $tableNode->nextSibling;
-			if ($nextToTableNode) {
-				$tableNode->parentNode->insertBefore($divNode, $nextToTableNode);
-			}
-			$divNode->appendChild($tableCaption);
-		}
-
-		// Remove redundant whitespaces before caption label
-		$modifiedHtmlString = $dom->saveHTML();
-		$modifiedHtmlString = preg_replace('/<caption>\s*/', '<br>' . '<caption>', $modifiedHtmlString);
-		$modifiedHtmlString = preg_replace('/<p class="caption">\s*/', '<p class="caption">', $modifiedHtmlString);
-
-		return $modifiedHtmlString;
+		return $templateStrategy->OutputPdf();
 	}
 
 	/**
@@ -312,6 +250,7 @@ class JatsParserPlugin extends GenericPlugin {
 		}';
 		$schema->properties->{'jatsParser::fullTextFileId'} = json_decode($propId);
 		$schema->properties->{'jatsParser::fullText'} = json_decode($propText);
+		$schema->properties->{'jatsParser::citationTableData'} = json_decode($propText);
 	}
 
 	/**
@@ -421,6 +360,38 @@ class JatsParserPlugin extends GenericPlugin {
 	}
 
 	/**
+	 * @param Journal $context Journal
+	 * @return string
+	 * @brief Retrieve citation style format that should be supported by citeproc-php
+	 * use own format defined in settings if set
+	 * use CitationStyleLanguagePlugin if set
+	 * use vancouver style otherwise
+	 */
+	function getCitationStyle(Journal $context): string {
+
+		$contextId = $context->getId();
+
+		$citationStyle = $this->getSetting($contextId, 'citationStyle');
+
+		if ($citationStyle) return $citationStyle;
+
+		$pluginSettingsDAO = DAORegistry::getDAO('PluginSettingsDAO');
+		$cslPluginSettings = $pluginSettingsDAO->getPluginSettings($contextId, 'CitationStyleLanguagePlugin');
+
+		if ($cslPluginSettings &&
+			array_key_exists('enabled', $cslPluginSettings) &&
+			$cslPluginSettings['enabled'] &&
+			array_key_exists('primaryCitationStyle', $cslPluginSettings) &&
+			$cslPrimaryCitStyle = $cslPluginSettings['primaryCitationStyle']
+		) $citationStyle = $cslPrimaryCitStyle;
+
+		if ($citationStyle) return $citationStyle;
+
+		$lastCslKey = array_key_last(self::getSupportedCitationStyles());
+		return self::getSupportedCitationStyles()[$lastCslKey]['id']; // vancouver
+	}
+
+	/**
 	 * @param string $hookname
 	 * @param array $args
 	 * @return bool
@@ -478,6 +449,10 @@ class JatsParserPlugin extends GenericPlugin {
 			$jatsSubmissionFile = Services::get('submissionFile')->get($jatsFileId);
 			if ($jatsSubmissionFile) {
 				$fullText = $this->_setSupplImgPath($jatsSubmissionFile, $fullText);
+				
+				import('lib.pkp.classes.file.PrivateFileManager');
+				$privateFileManager = new PrivateFileManager();
+				$jatsFilePath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $jatsSubmissionFile->getData('path');
 			}
 
 			// Add required locale components
@@ -485,8 +460,11 @@ class JatsParserPlugin extends GenericPlugin {
 			AppLocale::registerLocaleFile($localeKey, 'plugins/pubIds/doi/locale/' . $localeKey . '/locale.po');
 
 			// Set references
-			$fullText = $this->_setReferences($newPublication, $localeKey, $fullText);
+			$fullText = $this->_setReferences($newPublication, $localeKey, $fullText, $jatsFilePath);
 
+			// Set footnotes
+			$fullText = $this->_setFootnotes($newPublication, $localeKey, $fullText);
+			
 			// Finally, convert and receive TCPDF output as a binary string
 			$pdf = $this->pdfCreation($fullText, $newPublication, $request, $localeKey);
 
@@ -583,81 +561,96 @@ class JatsParserPlugin extends GenericPlugin {
 	 * @return string
 	 * @brief set references for PDF galley
 	 */
-	private function _setReferences(Publication $publication, string $locale, string $htmlString): string {
-		$rawCitations = $publication->getData('citationsRaw');
+	private function _setReferences(Publication $publication, string $locale, string $htmlString, $jatsPath): string {
+		$rawCitations = $publication->getData('citationsRaw'); //References
 		if (empty($rawCitations)) return $htmlString;
 
 		// Use OJS raw citations tokenizer
 		import('lib.pkp.classes.citation.CitationListTokenizerFilter');
 		$citationTokenizer = new CitationListTokenizerFilter();
-		$citationStrings = $citationTokenizer->execute($rawCitations);
+		$formattedRefs = $citationTokenizer->execute($rawCitations);
+		
+		$numberedCitations = Configuration::getNumberedReferences();
+		$context = Application::get()->getRequest()->getContext();
+		$plugin = PluginRegistry::getPlugin('generic', 'jatsparserplugin'); /* @var $plugin JATSParserPlugin */
+		$citationStyle = $plugin->getSetting($context->getId(), 'citationStyle');
+		
+		//Obtain xml jats file
+        // Create a JATSDocument instance
+        $jatsDocument = new JATSDocument($jatsPath);
+        
+        // Get the references from the JATS document
+        $references = $jatsDocument->getReferences();
+        
+        // Create an HTML document to handle formatting
+        $htmlDoc = new \JATSParser\HTML\Document($jatsDocument);
+        // Set the references with the desired citation style
 
-		if (!is_array($citationStrings) || empty($citationStrings)) return $htmlString;
-		$htmlString .= '<h2 class="article-section-title" id="reference-title">' . __('submission.citations', null, $locale) . '</h2>';
+		$locale_key = $context->getPrimaryLocale();
+        $formattedLocaleKey = str_replace('_', '-', $locale_key);
+		$citationStyle = $plugin->getSetting($context->getId(), 'citationStyle');
+
+        $htmlDoc->setReferences($citationStyle, $formattedLocaleKey, false);
+        
+        // Get raw formatted references
+        $formattedRefs = $htmlDoc->getRawReferences();
+
+		$refsProcessor = new ReferencesProcessor($formattedRefs);
+		$formattedRefs = $refsProcessor->getNumberedReferences();
+
+		if (!is_array($formattedRefs) || empty($formattedRefs)) return $htmlString;
 		$htmlString .= "\n";
-		$htmlString .= '<ol id="references">';
+		
+		// Add container with semantic class instead of inline styles
+		$htmlString .= "\n<div class=\"references-section\">";
+		$htmlString .= '<h2>' . __('plugins.generic.jatsParser.article.references.title') . '</h2>';
+		
+		// Add container for the references with citation style as data attribute
+		$containerTag = in_array($citationStyle, $numberedCitations) ? 'ol' : 'div';
+		$htmlString .= '<' . $containerTag . ' id="references" class="citation-list" data-style="' . $citationStyle . '">';
 		$htmlString .= "\n";
-		foreach ($citationStrings as $citationString) {
+
+		foreach ($formattedRefs as $id => $reference) {
+			// Format the citation string, applying the URL formatting
+			$formattedCitation = $this->_formatUrlsInText($reference);
+			
 			$htmlString .= "\t";
-			$htmlString .= '<li>' . $citationString . '</li>';
-			$htmlString .= "\n";
+			// Apply semantic class to the list item
+			$htmlString .= '<li class="citation-item" id="' . $id . '">' . $formattedCitation . '</li>';
+			$htmlString .= "<br/>\n";
 		}
-		$htmlString .= '</ol>';
+		$htmlString .= '</' . $containerTag . '>';
+		
+		// Close the container
+		$htmlString .= '</div>';
 
+		error_log('JATSParserPlugin::_setReferences() - return');
 		return $htmlString;
 	}
 
 	/**
-	 * @param Journal $context Journal
+	 * @param string $text => The text of the reference to be formatted.
 	 * @return string
-	 * @brief Retrieve citation style format that should be supported by citeproc-php
-	 * use own format defined in settings if set
-	 * use CitationStyleLanguagePlugin if set
-	 * use vancouver style otherwise
+	 * @brief Detect and format URLs in the given reference text with a specific style.
 	 */
-	function getCitationStyle(Journal $context): string {
-
-		$contextId = $context->getId();
-
-		$citationStyle = $this->getSetting($contextId, 'citationStyle');
-
-		if ($citationStyle) return $citationStyle;
-
-		$pluginSettingsDAO = DAORegistry::getDAO('PluginSettingsDAO');
-		$cslPluginSettings = $pluginSettingsDAO->getPluginSettings($contextId, 'CitationStyleLanguagePlugin');
-
-		if ($cslPluginSettings &&
-			array_key_exists('enabled', $cslPluginSettings) &&
-			$cslPluginSettings['enabled'] &&
-			array_key_exists('primaryCitationStyle', $cslPluginSettings) &&
-			$cslPrimaryCitStyle = $cslPluginSettings['primaryCitationStyle']
-		) $citationStyle = $cslPrimaryCitStyle;
-
-		if ($citationStyle) return $citationStyle;
-
-		$lastCslKey = array_key_last(self::getSupportedCitationStyles());
-		return self::getSupportedCitationStyles()[$lastCslKey]['id']; // vancouver
-	}
-
-	/**
-	 * @param HTMLDocument $htmlDocument
-	 * @param Publication $newPublication
-	 * @return void
-	 * @brief saves parsed citeproc references as raw citations
-	 */
-	private function _importCitations(HTMLDocument $htmlDocument, Publication $newPublication): void {
-		$refs = $htmlDocument->getRawReferences();
-		$publicationId = $newPublication->getId();
-		$citationDao = DAORegistry::getDAO('CitationDAO'); /** @var $citationDao CitationDAO */
-
-		$citationDao->deleteByPublicationId($publicationId);
-		$rawCitations = '';
-
-		foreach ($refs as $key => $ref) {
-			$rawCitations .= $ref . "\n";
-		}
-
-		$newPublication->setData('citationsRaw', $rawCitations);
+	private function _formatUrlsInText(string $text): string {
+		// Regular expression to detect URLs that start with http://, https://, or ftp://
+		$urlPattern = '/(https?|ftp):\/\/[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|\/))/';
+		
+		// Detect URLs that start with www. too
+		$wwwPattern = '/(?<![\w.])www\.[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|\/))/';
+		
+		// Search and replace URLs with semantic classes instead of inline styles
+		$text = preg_replace_callback($urlPattern, function($matches) {
+			return '<span class="citation-url">' . $matches[0] . '</span>';
+		}, $text);
+		
+		// Search and replace URLs that start with www. with semantic classes
+		$text = preg_replace_callback($wwwPattern, function($matches) {
+			return '<span class="citation-url">' . $matches[0] . '</span>';
+		}, $text);
+		
+		return $text;
 	}
 
 	/**
@@ -1037,4 +1030,115 @@ class JatsParserPlugin extends GenericPlugin {
 		]));
 
 	}
+
+	/**
+	 * @param Publication $publication
+	 * @param string $locale
+	 * @param string $htmlString
+	 * @return string
+	 * @brief set footnotes for PDF galley
+	 */
+	private function _setFootnotes(Publication $publication, string $locale, string $htmlString): string {
+		// Get the JATS file ID for this locale
+		$jatsFileId = $publication->getData('jatsParser::fullTextFileId', $locale);
+		if (!$jatsFileId) return $htmlString;
+		
+		$submissionFile = Services::get('submissionFile')->get($jatsFileId);
+		if (!$submissionFile) return $htmlString;
+		
+		// Get the path to the JATS XML file
+		import('lib.pkp.classes.file.PrivateFileManager');
+		$fileMgr = new PrivateFileManager();
+		$jatsFilePath = $fileMgr->getBasePath() . DIRECTORY_SEPARATOR . $submissionFile->getData('path');
+		
+		// Load the JATS XML document
+		$dom = new DOMDocument();
+		$dom->load($jatsFilePath);
+		$xpath = new DOMXPath($dom);
+		
+		// Get all footnotes from the fn-group in the back section
+		$footnotes = [];
+		$fnGroups = $xpath->query('//back/fn-group/fn');
+		
+		if ($fnGroups->length === 0) {
+			return $htmlString; // No footnotes found
+		}
+		
+		// Add footnotes container with semantic class instead of inline styles
+		$htmlString .= "\n<div class=\"footnotes-container\">";
+		$htmlString .= '<h2>' . __('plugins.generic.jatsParser.article.footnotes.title') . '</h2>';
+		
+		// Process each footnote
+		foreach ($fnGroups as $fn) {
+			$fnId = $fn->getAttribute('id');
+			$label = '';
+			
+			// Get the footnote label
+			$labelNodes = $xpath->query('.//label', $fn);
+			if ($labelNodes->length > 0) {
+				$label = $labelNodes->item(0)->nodeValue;
+			}
+			
+			// Get the footnote content
+			$content = '';
+			$pNodes = $xpath->query('.//p', $fn);
+			if ($pNodes->length > 0) {
+				foreach ($pNodes as $p) {
+					// Process xrefs in the paragraph before getting HTML content
+					$xrefs = $xpath->query('.//xref', $p);
+					foreach ($xrefs as $xref) {
+						// Get xref attributes
+						$xrefId = $xref->getAttribute('id');
+						$rid = $xref->getAttribute('rid');
+						$refType = $xref->getAttribute('ref-type');
+						
+						// Create a new anchor element to replace the xref
+						$anchor = $dom->createElement('a');
+						$anchor->setAttribute('id', $xrefId);
+						$anchor->setAttribute('href', '#' . $rid);
+						$anchor->setAttribute('data-ref-type', $refType);
+						$anchor->setAttribute('class', 'citation-link');
+						
+						// Copy the text content
+						$anchor->nodeValue = $xref->nodeValue;
+						
+						// Replace xref with anchor
+						$xref->parentNode->replaceChild($anchor, $xref);
+					}
+					
+					// Get HTML content of the modified paragraph
+					$contentFragment = $dom->saveHTML($p);
+					// Remove the paragraph tags to get just the inner content
+					$content .= preg_replace('/<\/?p[^>]*>/', '', $contentFragment);
+				}
+			}
+			
+			// Format the footnote using semantic classes instead of inline styles
+			$htmlString .= '<div class="footnote-item" id="fn-' . htmlspecialchars($fnId) . '">';
+			$htmlString .= '<span class="footnote-label">' . htmlspecialchars($label) . ' </span>';
+			$htmlString .= '<span class="footnote-content">' . $content . '</span>';
+			$htmlString .= '</div>';
+		}
+		
+		$htmlString .= '</div>';
+		
+		return $htmlString;
+	}
+
+	private function _importCitations(HTMLDocument $htmlDocument, Publication $newPublication): void {
+		$refs = $htmlDocument->getRawReferences();
+		$publicationId = $newPublication->getId();
+		$citationDao = DAORegistry::getDAO('CitationDAO'); /** @var $citationDao CitationDAO */
+
+		$citationDao->deleteByPublicationId($publicationId);
+		$rawCitations = '';
+
+		foreach ($refs as $key => $ref) {
+			$ref = str_replace(['<i>', '</i>'], '', $ref);
+			$rawCitations .= $ref . "\n\n";
+		}
+
+		$newPublication->setData('citationsRaw', $rawCitations);
+	}
+
 }

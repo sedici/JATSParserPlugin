@@ -1,5 +1,12 @@
 <?php
 
+require_once __DIR__ . "/TableHTML.php";
+require_once __dir__ . '/../../daos/CustomPublicationSettingsDAO.inc.php';
+
+import('lib.pkp.classes.file.PrivateFileManager');
+
+use JATSParser\PDF\PDFConfig\Configuration;
+use PKP\components\forms\TableHTML;
 use PKP\components\forms\FieldHTML;
 use \PKP\components\forms\FormComponent;
 use \PKP\components\forms\FieldOptions;
@@ -34,6 +41,8 @@ class PublicationJATSUploadForm extends FormComponent {
 
 		$options = [];
 		$pdfOptions = [];
+		$submissionFilesById = []; // Array to store submission files by ID for easy lookup later
+		
 		foreach ($locales as $value) {
 			$locale = $value['key'];
 			$lang = [];
@@ -48,6 +57,8 @@ class PublicationJATSUploadForm extends FormComponent {
 					'label' => $subName
 				);
 
+				// Store submission file by ID for later lookup
+				$submissionFilesById[$submissionFile->getId()] = $submissionFile;
 			}
 
 			$lang[] = array(
@@ -71,6 +82,7 @@ class PublicationJATSUploadForm extends FormComponent {
 		$plugin = PluginRegistry::getPlugin('generic', 'jatsparserplugin'); /* @var $plugin JATSParserPlugin */
 		$context = Application::get()->getRequest()->getContext();
 		$convertToPdf = $plugin->getSetting($context->getId(), 'convertToPdf');
+		$citationStyle = $plugin->getSetting($context->getId(), 'citationStyle');
 
 		if (!empty($options)) {
 			$this->addField(new FieldOptions('jatsParser::fullTextFileId', [
@@ -88,6 +100,45 @@ class PublicationJATSUploadForm extends FormComponent {
 					'isMultilingual' => true,
 					'options' => $pdfOptions,
 				]));
+			}
+		
+			$supportedCitationStyles = Configuration::getSupportedCustomCitationStyles();
+
+			//checking if the citation style is supported (array of supported citation styles is not empty and the citation style is in the array)
+			if ($supportedCitationStyles && in_array(strtolower($citationStyle), $supportedCitationStyles)) {
+				$fileMgr = new PrivateFileManager();
+				
+				// Get the current selected file ID for the primary locale
+				$locale_key = $context->getPrimaryLocale();
+				$selectedFileId = isset($values[$locale_key]) ? $values[$locale_key] : null;
+				
+				// Get the correct submission file and its path based on the selected file ID
+				$relativeFilePath = null;
+				if ($selectedFileId && isset($submissionFilesById[$selectedFileId])) {
+					$selectedFile = $submissionFilesById[$selectedFileId];
+					$relativeFilePath = $selectedFile->getData('path');
+				} else if (!empty($submissionFiles)) {
+					// Fallback to the first file if no selection
+					$firstFile = reset($submissionFiles);
+					$relativeFilePath = $firstFile->getData('path');
+				}
+				
+				if ($relativeFilePath) {
+					$absolutePath = $fileMgr->getBasePath() . DIRECTORY_SEPARATOR . $relativeFilePath;
+					
+					$customPublicationSettingsDao = new CustomPublicationSettingsDAO();
+					$customCitationData = $customPublicationSettingsDao->getSetting($publication->getId(), 'jatsParser::citationTableData', $locale_key);
+					
+					$tableHTML = new TableHTML($citationStyle, $absolutePath, $customCitationData, $publication, $locale_key);
+					$html = $tableHTML->getHtml();
+
+
+
+					$this->addField(new FieldHTML("citationTable", array(
+						'label' => __('plugins.generic.jatsParser.publication.jats.citationStyle.label'),
+						'description' => $html, 
+					)));
+				}
 			}
 		} else {
 			$this->addField(new FieldHTML("addProductionReadyFiles", array(

@@ -112,3 +112,48 @@ msgstr "Format in-text links to references?"
 
 msgid "plugins.generic.jatsParser.settings.convert.pdf"
 msgstr "Enable PDF conversion"
+
+msgid "plugins.generic.jatsParser.pdf.abstract"
+msgstr "Abstract"
+
+msgid "plugins.generic.jatsParser.publication.jats.citationStyle.label"
+msgstr "Citation Table"
+
+msgid "plugins.generic.jatsParser.citationtable.error.emptyoption"
+msgstr "Error: You can't save an empty citation value"
+
+msgid "plugins.generic.citationtable.citations.notfound"
+msgstr "No citations were found in the article."
+
+msgid "plugins.generic.jatsParser.citationtable.titlecontext"
+msgstr "Context"
+
+msgid "plugins.generic.jatsParser.citationtable.titlecontext"
+msgstr "Contexto"
+
+msgid "plugins.generic.jatsParser.citationtable.titlereferences"
+msgstr "References"
+
+msgid "plugins.generic.jatsParser.citationtable.titlecitationstyle"
+msgstr "Style of Citation"
+
+msgid "plugins.generic.jatsParser.citationtable.savebuttontext"
+msgstr "Save Citations"
+
+msgid "plugins.generic.jatsParser.citationtable.customtext"
+msgstr "Other"
+
+msgid "plugins.generic.jatsParser.citationtable.citationstyle.twoauthors.separator"
+msgstr "&"
+
+msgid "plugins.generic.jatsParser.article.footnotes.title"
+msgstr "Footnotes"
+
+msgid "plugins.generic.jatsParser.article.references.title"
+msgstr "References"
+
+msgid "plugins.generic.jatsParser.figure.title"
+msgstr "Figure"
+
+msgid "plugins.generic.jatsParser.table.title"
+msgstr "Table"
