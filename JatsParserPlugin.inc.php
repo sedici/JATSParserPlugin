@@ -144,6 +144,10 @@ class JatsParserPlugin extends GenericPlugin {
 		if($publication->getData('issueId')){
 			$issue = Repo::issue()->get($publication->getData('issueId'));
 			$issueIdentification = $issue->getIssueIdentification();
+			$issueVolume = $issue->getData('volume');
+			$issueNumber = $issue->getData('number');
+			$issueYear = $issue->getData('year');
+			
 		}
 		
 		$section = Repo::section()->get($publication->getData('sectionId'));
@@ -165,18 +169,33 @@ class JatsParserPlugin extends GenericPlugin {
 
 		foreach ($decisions as $decision) {
 			if ($decision->getData('stageId') === WORKFLOW_STAGE_ID_EXTERNAL_REVIEW && $decision->getData('decision') === Decision::ACCEPT){
-				$acceptedDate = $decision->getData('dateDecided');
+				$acceptedDate = $decision->getData('dateDecided'); // Get accepted date of accepted revision stage
 				break;
+			}
+
+			if ($decision->getData('stageId') === WORKFLOW_STAGE_ID_EXTERNAL_REVIEW && $decision->getData('decision') === Decision::DECLINE) {
+				$acceptedDate = $decision->getData('dateDecided');
+				break; // Get accepted date of rejected revision stage
 			}
 		}
 
-		error_log($journal->getData('licenseUrl'));
+		//Obtener la fecha de aceptación del envío si se saltea la etapa de revisión
+		if (!$acceptedDate) {
+			$acceptedDate = $submission->getDateStatusModified();
+		}
+
 		$licenseUrl = !empty($publication->getData('licenseUrl')) ? $publication->getData('licenseUrl') : $journal->getData('licenseUrl');
 
 		$privateFileManager = new PrivateFileManager();
 		$journalLogosPath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR ."journals" . DIRECTORY_SEPARATOR . $journal->getId() . DIRECTORY_SEPARATOR . $journal->getData('path');
-		
+
+		// Separar por "/"
+		list($anio, $mes, $dia) = explode('/', str_replace('-', '/', $submission->getDatePublished()));
+		// Reordenar como día/mes/año
+		$datePublished = ($dia && $mes && $anio) ? "$dia/$mes/$anio" : '';
+	
 		$metadata = [
+			'publication_pages' => $publication->getData('pages'), 
 			'section_title' => $section?->getLocalizedTitle(),
 			'citation_style' => $plugin->getSetting($context->getId(), 'citationStyle'),
 			'publication_id' => $publication->getId(),
@@ -195,8 +214,11 @@ class JatsParserPlugin extends GenericPlugin {
 			'submission' => $submission,
 			'date_submitted' => date('d/m/Y', strtotime($submission->getDateSubmitted())),
 			'date_accepted' => $acceptedDate ? date('d/m/Y', strtotime($acceptedDate)) : '',
-			'date_published' => str_replace('-', '/', $submission->getDatePublished()),
+			'date_published' => $datePublished,
 			'journal_data' => $issueIdentification, // Includes volume, number, year of a journal.
+			'issue_volume' => $issueVolume ?? '',
+			'issue_number' => $issueNumber ?? '',
+			'issue_year' => $issueYear ?? '',
 			'user_groups' => $userGroups,
 			'contributors' => null,//$publication->getAuthorString($userGroups),
 			'subject' => $publication->getLocalizedData('subject', $localeKey),
@@ -259,7 +281,8 @@ class JatsParserPlugin extends GenericPlugin {
 		
 		# La variable metadata tiene ya la gran mayoría de metadatos habidos y por haber en OJS. Puedo editar para sumar lo que me falta y armar una doc de eso.
 		# Ese mismo array es el que tengo que inyectarle a todas las plantillas para que se puedan acceder a los metadatos desde el configurador
-
+		file_put_contents(__DIR__ . '/metadata.json', json_encode($metadata));
+		file_put_contents(__DIR__ . '/keywords.json', json_encode($metadata['keywords_texts']));
 		return $builtPDF->output('a', 'S');
 
 		#file_put_contents(__DIR__ . '/prueba3.html', $htmlString);

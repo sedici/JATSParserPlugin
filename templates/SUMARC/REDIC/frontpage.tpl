@@ -148,7 +148,7 @@
         </div>
         <div class="journal-info">
             <div class="journal-info-line">{$journal_title}</div>
-            <div class="journal-info-line">Vol. {$journal_data.volume} No. {$journal_data.number} ({$journal_data.year})</div>
+            <div class="journal-info-line">Vol. {$issue_volume} No. {$issue_number} ({$issue_year})</div>
             <div class="journal-info-line">ISSN {$journal_issn}</div>
             <div class="journal-info-line"><a href="{$journal_url}">{$journal_url}</a></div>
             <div class="journal-info-line">Recibido: {$date_submitted} - Aceptado: {$date_accepted} - Publicado: {$date_published}</div>
@@ -157,7 +157,7 @@
 
     <div class="article-body">
         <h1 class="article-title">{$article_title}</h1>
-        <h2 class="article-subtitle">{$subtitles.es_ES}</h2>
+        <h2 class="article-subtitle">{$subtitles.es}</h2>
 
         <div class="author-info">
             {foreach from=$authors item=author}
@@ -169,22 +169,30 @@
 
         <div class="abstract-section">
             <div class="abstract-title">Resumen |</div>
-            <div class="abstract-text">{$abstract_texts.es_ES}</div>
+            <div class="abstract-text">{$abstract_texts.es}</div>
         </div>
 
         <div class="abstract-section">
             <div class="abstract-title">Abstract |</div>
-            <div class="abstract-text">{$abstract_texts.en_US}</div>
+            <div class="abstract-text">{$abstract_texts.en}</div>
         </div>
 
         <div class="keywords-container">
             <div class="keywords-label">Palabras clave |</div>
-            <div class="keywords-list">{$keywords_texts.es_ES|@join:", "}</div>
+            <div class="keywords-list">
+                {foreach from=$keywords_texts.es item=keyword name=keywords}
+                    <span class="keyword">{$keyword}</span>{if !$smarty.foreach.keywords.last}, {/if}
+                {/foreach}
+            </div>
         </div>
-        
+
         <div class="keywords-container">
             <div class="keywords-label">Keywords |</div>
-            <div class="keywords-list">{$keywords_texts.en_US|@join:", "}</div>
+            <div class="keywords-list">
+                {foreach from=$keywords_texts.en item=keyword name=keywords}
+                    <span class="keyword">{$keyword}</span>{if !$smarty.foreach.keywords.last}, {/if}
+                {/foreach}
+            </div>
         </div>
 
         <div class="license-info">
