@@ -562,8 +562,8 @@ class JatsParserPlugin extends GenericPlugin {
 	 * @brief set references for PDF galley
 	 */
 	private function _setReferences(Publication $publication, string $locale, string $htmlString, $jatsPath): string {
-		$rawCitations = $publication->getData('citationsRaw'); //References
-		if (empty($rawCitations)) return $htmlString;
+#		$rawCitations = $publication->getData('citationsRaw'); //References
+#		if (empty($rawCitations)) return $htmlString;
 
 		// Use OJS raw citations tokenizer
 		import('lib.pkp.classes.citation.CitationListTokenizerFilter');
@@ -609,7 +609,7 @@ class JatsParserPlugin extends GenericPlugin {
 		$containerTag = in_array($citationStyle, $numberedCitations) ? 'ol' : 'div';
 		$htmlString .= '<' . $containerTag . ' id="references" class="citation-list" data-style="' . $citationStyle . '">';
 		$htmlString .= "\n";
-
+		
 		foreach ($formattedRefs as $id => $reference) {
 			// Format the citation string, applying the URL formatting
 			$formattedCitation = $this->_formatUrlsInText($reference);
