@@ -652,12 +652,12 @@ class JatsParserPlugin extends GenericPlugin {
 
 		error_log('JATSParserPlugin::_setReferences() called');
 
-		$rawCitations = $publication->getData('citationsRaw'); //References
-		if (empty($rawCitations)) return $htmlString;
+#		$rawCitations = $publication->getData('citationsRaw'); //References
+#		if (empty($rawCitations)) return $htmlString;
 
 		// Use OJS raw citations tokenizer
-		$citationTokenizer = new CitationListTokenizerFilter();
-		$formattedRefs = $citationTokenizer->execute($rawCitations);
+#		$citationTokenizer = new CitationListTokenizerFilter();
+#		$formattedRefs = $citationTokenizer->execute($rawCitations);
 		
 		$numberedCitations = Configuration::getNumberedReferences();
 		$context = Application::get()->getRequest()->getContext();
