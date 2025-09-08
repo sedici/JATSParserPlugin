@@ -562,13 +562,13 @@ class JatsParserPlugin extends GenericPlugin {
 	 * @brief set references for PDF galley
 	 */
 	private function _setReferences(Publication $publication, string $locale, string $htmlString, $jatsPath): string {
-		$rawCitations = $publication->getData('citationsRaw'); //References
-		if (empty($rawCitations)) return $htmlString;
+#		$rawCitations = $publication->getData('citationsRaw'); //References
+#		if (empty($rawCitations)) return $htmlString;
 
 		// Use OJS raw citations tokenizer
-		import('lib.pkp.classes.citation.CitationListTokenizerFilter');
-		$citationTokenizer = new CitationListTokenizerFilter();
-		$formattedRefs = $citationTokenizer->execute($rawCitations);
+#		import('lib.pkp.classes.citation.CitationListTokenizerFilter');
+#		$citationTokenizer = new CitationListTokenizerFilter();
+#		$formattedRefs = $citationTokenizer->execute($rawCitations);
 		
 		$numberedCitations = Configuration::getNumberedReferences();
 		$context = Application::get()->getRequest()->getContext();
