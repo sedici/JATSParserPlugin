@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', function() {
     // Modal open/close
     var openBtn = document.getElementById('openCitationModalBtn');
@@ -28,6 +27,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // 1. Delegación para los eventos 'change' de .citation-select (incluyendo los que se añadan dinámicamente, aunque no debería ser el caso aquí, es buena práctica)
     // Adjuntamos el oyente al formulario completo, ya que los selects están dentro de él.
     var citationForm = document.getElementById('citationForm'); // Obtenemos el formulario una sola vez
+
+    // Spinner de "guardando" junto al botón de enviar
+    var submitBtn = citationForm ? citationForm.querySelector('button[type="submit"], input[type="submit"]') : null;
+    var savingSpinner = null;
+    // Inyectar estilos del spinner una vez
+    if (!document.getElementById('citation-saving-style')) {
+        var style = document.createElement('style');
+        style.id = 'citation-saving-style';
+        style.textContent = `
+.citation-saving-spinner{margin-left:8px;width:16px;height:16px;border:2px solid rgba(0,0,0,.2);border-top-color:rgba(0,0,0,.7);border-radius:50%;display:inline-block;vertical-align:middle;animation:citation-spin 1s linear infinite}
+.citation-saving-disabled{opacity:.6;cursor:not-allowed}
+@keyframes citation-spin{to{transform:rotate(360deg)}}`;
+        document.head.appendChild(style);
+    }
+    if (submitBtn) {
+        savingSpinner = document.createElement('span');
+        savingSpinner.className = 'citation-saving-spinner';
+        savingSpinner.style.display = 'none';
+        submitBtn.insertAdjacentElement('afterend', savingSpinner);
+    }
 
     if (citationForm) { // Asegurarse de que el formulario existe
         citationForm.addEventListener('change', function(event) {
@@ -108,10 +127,22 @@ document.addEventListener('DOMContentLoaded', function() {
             var errorMsg = document.getElementById('citationErrorMessage');
             if (hasEmptyCustomFields) {
                 if (errorMsg) errorMsg.style.display = 'block';
+                // Asegurar que el spinner no se muestre si hay error de validación
+                if (submitBtn && savingSpinner) {
+                    savingSpinner.style.display = 'none';
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('citation-saving-disabled');
+                }
                 e.preventDefault(); // Previene el envío del formulario
                 return false;
             } else {
                 if (errorMsg) errorMsg.style.display = 'none';
+                // Mostrar ruedita y deshabilitar el botón mientras se envía/guarda
+                if (submitBtn && savingSpinner) {
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('citation-saving-disabled');
+                    savingSpinner.style.display = 'inline-block';
+                }
             }
         });
     }
