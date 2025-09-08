@@ -566,9 +566,9 @@ class JatsParserPlugin extends GenericPlugin {
 #		if (empty($rawCitations)) return $htmlString;
 
 		// Use OJS raw citations tokenizer
-		import('lib.pkp.classes.citation.CitationListTokenizerFilter');
-		$citationTokenizer = new CitationListTokenizerFilter();
-		$formattedRefs = $citationTokenizer->execute($rawCitations);
+#		import('lib.pkp.classes.citation.CitationListTokenizerFilter');
+#		$citationTokenizer = new CitationListTokenizerFilter();
+#		$formattedRefs = $citationTokenizer->execute($rawCitations);
 		
 		$numberedCitations = Configuration::getNumberedReferences();
 		$context = Application::get()->getRequest()->getContext();
