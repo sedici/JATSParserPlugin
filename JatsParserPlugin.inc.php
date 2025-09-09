@@ -281,8 +281,6 @@ class JatsParserPlugin extends GenericPlugin {
 		
 		# La variable metadata tiene ya la gran mayoría de metadatos habidos y por haber en OJS. Puedo editar para sumar lo que me falta y armar una doc de eso.
 		# Ese mismo array es el que tengo que inyectarle a todas las plantillas para que se puedan acceder a los metadatos desde el configurador
-		file_put_contents(__DIR__ . '/metadata.json', json_encode($metadata));
-		file_put_contents(__DIR__ . '/keywords.json', json_encode($metadata['keywords_texts']));
 		return $builtPDF->output('a', 'S');
 
 		#file_put_contents(__DIR__ . '/prueba3.html', $htmlString);
