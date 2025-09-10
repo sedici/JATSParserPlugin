@@ -186,13 +186,21 @@ class JatsParserPlugin extends GenericPlugin {
 
 		$licenseUrl = !empty($publication->getData('licenseUrl')) ? $publication->getData('licenseUrl') : $journal->getData('licenseUrl');
 
-		$privateFileManager = new PrivateFileManager();
-		$journalLogosPath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR ."journals" . DIRECTORY_SEPARATOR . $journal->getId() . DIRECTORY_SEPARATOR . $journal->getData('path');
+		$logoDir = Core::getBaseDir() . "/public/journals/" . $journal->getId() . "/";
+
+		foreach ($journal->getSetting('pageHeaderLogoImage') as $key => $value) {
+				$logo[$key] = $logoDir . $value['uploadName'];
+		}
 
 		// Separar por "/"
 		list($anio, $mes, $dia) = explode('/', str_replace('-', '/', $submission->getDatePublished()));
 		// Reordenar como día/mes/año
 		$datePublished = ($dia && $mes && $anio) ? "$dia/$mes/$anio" : '';
+
+		$authors = array_values(iterator_to_array($publication->getData('authors')));
+		$simplifiedAuthors = array_map(function ($author) {
+			return $author->_data; // Extrae solo el contenido de '_data', así es más sencillo el acceso desde todos lados
+		}, $authors);
 	
 		$metadata = [
 			'publication_pages' => $publication->getData('pages'), 
@@ -201,11 +209,11 @@ class JatsParserPlugin extends GenericPlugin {
 			'publication_id' => $publication->getId(),
 			'doi' => $publication->getDoi(),
 			'journal_id' => $journal->getId(),
-			'authors' => $publication->getData('authors'),
+			'authors' => $simplifiedAuthors,
 			'online_issn' => $journal->getData('onlineIssn'), //no se imprime
 			'journal_title' => $journal->getLocalizedData('name'),
 			'journal_issue' => $publication->getData('issueId'),
-			'journal_logos_path' => $journalLogosPath,
+			'journal_logos_path' => $logo,
 			'locale_key' => $localeKey,
 			'journal_thumbnail' => $journal->getLocalizedData('journalThumbnail'),
 			'full_title' => $publication->getLocalizedFullTitle($localeKey),
@@ -223,7 +231,7 @@ class JatsParserPlugin extends GenericPlugin {
 			'contributors' => null,//$publication->getAuthorString($userGroups),
 			'subject' => $publication->getLocalizedData('subject', $localeKey),
 			'abstract_texts' => $publication->getData('abstract'), // Returns an array like this: ['es_ES' => 'Resumen', 'en_US' => 'Abstract']
-			'translations_config' => Translations::getTranslations(),
+			'translations' => Translations::getTranslations(),
 			'keywords_texts' => $publication->getData('keywords'),
 			'plugin_path' => $this->getPluginPath(),
 			'html_string' => $htmlString,
