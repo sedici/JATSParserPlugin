@@ -1,4 +1,3 @@
-
 /* BASIC STRUCTURE */
 .citation-form-container .citation-table {
     border: 1px solid #ddd;
@@ -189,3 +188,10 @@
 .citation-row > td[rowspan].select-wrapper-cell {
     border-bottom: 3px solid #000000;
 }
+
+/* Tabs header */
+.citation-tabs { display:flex; gap:8px; margin:10px 0 15px; }
+.citation-tab-button { background:#e9eef5; color:#2c3e50; border:1px solid #cfd8dc; border-radius:4px; padding:6px 10px; cursor:pointer; }
+.citation-tab-button.is-active { background:#0168d3; color:#fff; border-color:#0168d3; }
+.citation-tab-panel { display:none; animation: fadeIn .15s ease-in; }
+.citation-tab-panel.is-active { display:block; }

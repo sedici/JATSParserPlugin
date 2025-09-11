@@ -149,11 +149,17 @@ msgstr "Contexto"
 msgid "plugins.generic.jatsParser.citationtable.titlereferences"
 msgstr "Referencias"
 
+msgid "plugins.generic.jatsParser.citationtable.titlefigsandtables"
+msgstr "Tablas y Figuras"
+
+msgid "plugins.generic.jatsParser.citationtable.figandtables.titles"
+msgstr "Títulos"
+
 msgid "plugins.generic.jatsParser.citationtable.titlecitationstyle"
 msgstr "Estilo de Cita"
 
 msgid "plugins.generic.jatsParser.citationtable.savebuttontext"
-msgstr "Guardar Citas"
+msgstr "Guardar"
 
 msgid "plugins.generic.jatsParser.citationtable.customtext"
 msgstr "Otro"
