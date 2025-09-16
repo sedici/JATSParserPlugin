@@ -61,29 +61,25 @@
     }
 
     .frontpage-article-title {
-        font-size: 28px;
         font-weight: bold;
         color: rgb(49, 132, 155);
         text-align: left;
-        margin-top: 30px;
+        margin-top: 25px;
         margin-bottom: 0px;
     }
 
     .frontpage-article-subtitle {
-        font-size: 16px;
         font-weight: bold;
         color: rgb(49, 132, 155);
         text-align: left;
         margin-top: 0px;
-        margin-bottom: 10px;
     }
 
     .frontpage-article-lang-title {
-        font-size: 16px;
         font-weight: normal;
         color: rgb(49, 132, 155);
         text-align: left;
-        margin-bottom: 5px;
+        margin-bottom: 20px;
     }
 
     .frontpage-author-info {
@@ -93,7 +89,7 @@
     }
 
     .frontpage-orcid-logo {
-        height: 1em; /* Ajusta la altura del logo al tamaño del texto */
+        height: 1em;
         vertical-align: middle;
         margin-right: 5px;
     }
@@ -105,27 +101,28 @@
     }
     
     .frontpage-author-name-colored {
-        font-size: 7.5pt;
+        font-size: 9pt;
         font-weight: bold;
         color: #555;
     }
 
-    .frontpage-author-contact, .frontpage-author-affiliation {
+    .frontpage-author-contact {
         font-size: 7.5pt;
         color: #555;
         margin-top: 2px;
+        margin-bottom: 2px;
     }
     
-    .frontpage-affiliation-colored {
-        color: #000; /* Negro sólido */
+    .frontpage-affiliation {
+        color: #000;
+        text-decoration: bold;
     }
 
     .frontpage-abstract-section {
         font-size: 7.5pt;
-        margin-bottom: 25px;
         display: flex;
         flex-direction: row;
-        flex-wrap: wrap; /* Permite que el texto se envuelva si es necesario */
+        flex-wrap: wrap;
         align-items: flex-start;
         gap: 5px;
     }
@@ -144,7 +141,6 @@
     }
 
     .frontpage-keywords-container {
-        margin-top: 15px;
         margin-bottom: 15px;
         font-size: 7.5pt;
         line-height: 1.5;
@@ -240,16 +236,16 @@
                         <hr class="frontpage-hr">
                     </td>
                     <td style="width: 20%; text-align: right;">
-                        <img src="https://media.discordapp.net/attachments/1290089303879323690/1414985947015282698/af0ad727-1507-48a0-acbe-6a5cf8fb28e0.png?ex=68c2389a&is=68c0e71a&hm=fcb4f14d8fba220d89793ac3889e462a2c2a6361d126db780c5e7756e4cdb794&=&format=webp&quality=lossless" class="frontpage-unlp-logo">
+                        <img src="https://media.discordapp.net/attachments/1290089303879323690/1414985947015282698/af0ad727-1507-48a0-acbe-6a5cf8fb28e0.png?ex=68ca219a&is=68c8d01a&hm=2b26f9bb698ec64c5eb6086d5b8c9171f4a94d4b4a3599db31dd4722bc6c1ea1&=&format=webp&quality=lossless" class="frontpage-unlp-logo">
                     </td>
                 </tr>
             </table>
         </header>
 
         <div class="frontpage-article-body">
-            <h2 class="frontpage-article-title">{$article_title}</h1>
-            <h3 class="frontpage-article-subtitle">{$subtitles.es}</h2>
-            <h3 class="frontpage-article-lang-title"><span>{$titles.en}</span>. <span>{$subtitles.en}</span></h2>
+            <h3 class="frontpage-article-title">{$article_title}</h3>
+            <h4 class="frontpage-article-subtitle">{$subtitles.es}</h4>
+            <h5 class="frontpage-article-lang-title"><span>{$titles.en}</span>. <span>{$subtitles.en}</span></h5>
 
             <div class="frontpage-author-info">
                 {foreach from=$authors item=author}
@@ -264,7 +260,7 @@
                         </tr>
                     </table>
                     <div class="frontpage-author-contact"><a href="mailto:{$author.email}" class="frontpage-anchor">{$author.email}</a></div>
-                    <div class="frontpage-author-affiliation frontpage-affiliation-colored">{$author.affiliation.es}</div>
+                    <div class="frontpage-author-affiliation">{$author.affiliation.es}</div>
                 {/foreach}
             </div>
 
@@ -274,10 +270,6 @@
                 <span class="frontpage-abstract-title">{$translations.es.abstract} |</span> <span class="frontpage-abstract-text">{$abstract_texts.es}</span>
             </div>
 
-            <div class="frontpage-abstract-section">
-                <span class="frontpage-abstract-title">{$translations.en.abstract} |</span> <span class="frontpage-abstract-text">{$abstract_texts.en}</span>
-            </div>
-
             <div class="frontpage-keywords-container">
                 <span class="frontpage-keywords-label">{$translations.es.keywords} |</span>
                 <span class="frontpage-keywords-list">
@@ -285,6 +277,10 @@
                         <span class="frontpage-keyword">{$keyword}</span>{if !$smarty.foreach.keywords.last}, {/if}
                     {/foreach}
                 </span>
+            </div>
+
+            <div class="frontpage-abstract-section">
+                <span class="frontpage-abstract-title">{$translations.en.abstract} |</span> <span class="frontpage-abstract-text">{$abstract_texts.en}</span>
             </div>
 
             <div class="frontpage-keywords-container">
@@ -309,5 +305,3 @@
         </div>
     </div>
 </div>
-
-<pagebreak/>
