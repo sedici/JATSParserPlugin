@@ -1,3 +1,21 @@
+{function name=getMetadata pre='' search='' post=''}
+    {if isset($search) && $search}
+        {$pre nofilter}
+        {$search}
+        {$post nofilter}
+    {/if}
+{/function}
+
+{function name=getLinkedMetadata preOne='' preTwo='' search='' post=''}
+    {if isset($search) && $search}
+        {$preOne nofilter}
+        {$search}
+        {$preTwo nofilter}
+        {$search}
+        {$post nofilter}
+    {/if}
+{/function}
+
 <style>
     .frontpage-body {
         font-family: 'Philosopher', sans-serif;
@@ -219,7 +237,7 @@
                     </td>
                     <td style="vertical-align: middle; text-align: left;">
                         <div class="frontpage-journal-info">
-                            <div class="frontpage-journal-info-line">{$journal_title}</div>
+                            {getMetadata pre="<div class='frontpage-journal-info-line'>" search=$journal_title post="</div>"}
                             <div class="frontpage-journal-info-line">Vol. {$issue_volume} No. {$issue_number} ({$issue_year})</div>
                             <div class="frontpage-journal-info-line"><a href="{$doi}" class="frontpage-anchor">{$doi}</a></div>
                             <div class="frontpage-journal-info-line">ISSN {$online_issn}</div>
@@ -259,7 +277,7 @@
                             </td>
                         </tr>
                     </table>
-                    <div class="frontpage-author-contact"><a href="mailto:{$author.email}" class="frontpage-anchor">{$author.email}</a></div>
+                    <div class="frontpage-author-contact">{getLinkedMetadata preOne="<a href='mailto:'" preTwo="class='frontpage-anchor'>" search=$author.email post="</a>"}</div>
                     <div class="frontpage-author-affiliation">{$author.affiliation.es}</div>
                 {/foreach}
             </div>

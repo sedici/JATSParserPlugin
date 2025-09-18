@@ -16,7 +16,9 @@
   </footer>
   <frontpage>
     <file>frontpage.tpl</file>
-    <uses />
+    <uses>
+      <use>footer</use>
+    </uses>
   </frontpage>
   <body>
     <file>body.tpl</file>
@@ -28,6 +30,7 @@
   <references>
     <file>references.tpl</file>
     <uses>
+      <use>header</use>
       <use>footer</use>
     </uses>
   </references>

@@ -269,6 +269,8 @@ class JatsParserPlugin extends GenericPlugin {
 			'mode' => 'utf-8',
 			'PDFA' => true,
 			'PDFAauto' => true,
+			'margin_top' => 25,
+			'margin_bottom' => 25 
 		]); # Versión 8.1.3. Los genero así para que la salida sea un PDF/A válido
 		$pdf->SetAnchor2Bookmark(1);
 
