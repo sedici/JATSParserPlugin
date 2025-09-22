@@ -1,10 +1,17 @@
+{include file='./baseFunctions.tpl'}
+
 <style>
   a {
     text-decoration: none;
     font-family: 'Philosopher', sans-serif;
     color: #007bff;
   }
-  h2, p {
+  h2, h3, h4, h5, h1, p {
     font-family: 'Philosopher', sans-serif;
   }
+  .table {
+    border: 1px solid #333;
+    border-collapse: collapse;
+  }
+
 </style>

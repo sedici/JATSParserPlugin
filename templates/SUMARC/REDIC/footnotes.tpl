@@ -26,6 +26,4 @@
   }
 </style>
 
-<pagebreak />
-
-<h2>Referencias</h2>
+<h2>Footnotes</h2>

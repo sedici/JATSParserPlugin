@@ -5,6 +5,7 @@
     <item id="1">frontpage</item>
     <item id="2">body</item>
     <item id="3">references</item>
+    <item id="4">footnotes</item>
   </build>
   <header>
     <file>header.tpl</file>
@@ -34,4 +35,11 @@
       <use>footer</use>
     </uses>
   </references>
+  <footnotes>
+    <file>footnotes.tpl</file>
+    <uses>
+      <use>header</use>
+      <use>footer</use>
+    </uses>
+  </footnotes>
 </catalog>

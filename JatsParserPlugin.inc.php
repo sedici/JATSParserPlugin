@@ -270,7 +270,7 @@ class JatsParserPlugin extends GenericPlugin {
 			'PDFA' => true,
 			'PDFAauto' => true,
 			'margin_top' => 25,
-			'margin_bottom' => 25 
+			'margin_bottom' => 15 
 		]); # Versión 8.1.3. Los genero así para que la salida sea un PDF/A válido
 		$pdf->SetAnchor2Bookmark(1);
 
@@ -292,8 +292,6 @@ class JatsParserPlugin extends GenericPlugin {
 		# La variable metadata tiene ya la gran mayoría de metadatos habidos y por haber en OJS. Puedo editar para sumar lo que me falta y armar una doc de eso.
 		# Ese mismo array es el que tengo que inyectarle a todas las plantillas para que se puedan acceder a los metadatos desde el configurador
 		return $builtPDF->output('a', 'S');
-
-		#file_put_contents(__DIR__ . '/prueba3.html', $htmlString);
 	}
 
 	/**
