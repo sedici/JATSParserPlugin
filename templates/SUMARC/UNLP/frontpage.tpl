@@ -22,8 +22,8 @@
                         <div class="frontpage-journal-info">
                             {call name="getMetadata" pre="<div class='frontpage-journal-info-line'>" search={$journal_title} post="</div>"}
                             <div class="frontpage-journal-info-line">
-                                {call name="getMetadata" pre="Vol." search={$issue_volume}}
-                                {call name="getMetadata" pre="No." search={$issue_number}}
+                                {call name="getMetadata" pre="{$translations.es.volume} " search={$issue_volume}}
+                                {call name="getMetadata" pre="{$translations.es.number} " search={$issue_number}}
                                 {call name="getMetadata" pre="(" search={$issue_year} post=")"}
                             </div>
                             <div class="frontpage-journal-info-line">
@@ -34,9 +34,9 @@
                                 {call name="getLinkedMetadata" preOne="<a href='" preTwo="'class='frontpage-anchor'>" search={$journal_url} post="</a>"}
                             </div>
                             <div class="frontpage-journal-info-line">
-                                {call name="getMetadata" pre="Recibido: " search={$date_submitted} post=" - "}
-                                {call name="getMetadata" pre="Aceptado: " seach={$date_accepted} post=" - "}
-                                {call name="getMetadata" pre="Publicado: " search={$date_published}}
+                                {call name="getMetadata" pre="{$translations.es.received}: " search={$date_submitted} post=" - "}
+                                {call name="getMetadata" pre="{$translations.es.accepted}: " seach={$date_accepted} post=" - "}
+                                {call name="getMetadata" pre="{$translations.es.published}: " search={$date_published}}
                             </div>
                         </div>
                     </td>

@@ -8,7 +8,7 @@
                 {call name="getMetadata" search={$section_title|upper}}
             </td>
             <td style="color: black; text-align: right; font-family: 'Arial', sans-serif;">
-                Numerito
+                <pagenumber />
             </td>
         </tr>
     </table>
