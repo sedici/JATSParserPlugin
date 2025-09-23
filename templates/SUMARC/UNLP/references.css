@@ -1,12 +1,9 @@
-{include file='./baseFunctions.tpl'}
-
-<style>
   .footnotes-container, .references-section {
     font-family: 'Philosopher', sans-serif;
   }
 
   li {
-    margin-bottom: 10px;
+    margin-bottom: 20px;
   }
 
   a {
@@ -24,6 +21,3 @@
     color: black;
     font-family: 'Philosopher', sans-serif;
   }
-</style>
-
-<h2>Footnotes</h2>

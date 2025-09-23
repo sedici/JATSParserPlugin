@@ -1,9 +1,6 @@
 {include file='./baseFunctions.tpl'}
 
-<footer style="
-    width: 100%;
-    font-size: 9pt;
-">
+<footer style="width: 100%; font-size: 9pt;">
     <hr>
     <table width="100%">
         <tr>
