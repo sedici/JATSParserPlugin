@@ -1,5 +1,7 @@
 {include file='./baseFunctions.tpl'}
 
 <style>
-  {include file='./body.css'}
+  {include file={$body}}
 </style>
+
+<pagebreak supress="off" />

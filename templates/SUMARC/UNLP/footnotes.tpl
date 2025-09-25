@@ -1,7 +1,7 @@
 {include file='./baseFunctions.tpl'}
 
 <style>
-  {include file='./footnotes.css'}
+  {include file={$footnotes}}
 </style>
 
 <h2>Notas</h2>

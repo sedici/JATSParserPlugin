@@ -1,7 +1,7 @@
 {include file='./baseFunctions.tpl'}
 
 <style>
-  {include file='./references.css'}
+  {include file={$references}}
 </style>
 
 <pagebreak />

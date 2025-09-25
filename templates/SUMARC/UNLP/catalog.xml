@@ -8,12 +8,30 @@
     <item id="4">footnotes</item>
   </build>
   <media>
-    <item id="1">frontpage.css</item>
-    <item id="2">body.css</item>
-    <item id="3">references.css</item>
-    <item id="4">footnotes.css</item>
-    <item id="5">journal_logo.png</item>
-    <item id="6">institution_logo.png</item>
+    <item id="1">
+      <name>frontpage</name>
+      <file>frontpage.css</file>
+    </item>
+    <item id="2">
+      <name>body</name>
+      <file>body.css</file>
+    </item>
+    <item id="3">
+      <name>references</name>
+      <file>references.css</file>
+    </item>
+    <item id="4">
+      <name>footnotes</name>
+      <file>footnotes.css</file>
+    </item>
+    <item id="5">
+        <name>journalLogo</name>
+        <file>journal_logo.png</file>
+    </item>
+    <item id="6">
+      <name>institutionLogo</name>
+      <file>institution_logo.png</file>
+    </item>
   </media>
   <header>
     <file>header.tpl</file>

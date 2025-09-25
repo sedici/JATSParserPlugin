@@ -19,3 +19,12 @@
         {$preTwo nofilter}{$searchTwo}{$postTwo nofilter}
     {/if}
 {/function}
+
+{function name="getImage" pre='' search='' post=''}
+    {if !isset($search) || !$search}
+        {assign var="imgSrc" value=$images.not_found}
+    {else}
+        {assign var="imgSrc" value=$search}
+    {/if}
+    {$pre nofilter}{$imgSrc}{$post nofilter}
+{/function}

@@ -1,7 +1,7 @@
 {include file='./baseFunctions.tpl'}
 
 <style>
-    {include file='./frontpage.css'}
+    {include file={$frontpage}}
 </style>
 
 <div class="frontpage-body">
@@ -9,16 +9,16 @@
         <header class="frontpage-journal-header">
             <table style="width: 100%; border-collapse: collapse; padding-left= 0px;">
                 <tr>
-                    <td style="vertical-align: right;">
+                    <td style="vertical-align: right; padding-right: 0px;">
                         <div class="frontpage-journal-logos">
-                            {call name="getMetadata" 
+                            {call name="getImage" 
                                 pre="<img src='"
-                                search={$journal_logos_path.es}
+                                search={$journalLogo}
                                 post="' class='frontpage-journal-logo'>"
                             }
                         </div>
                     </td>
-                    <td style="vertical-align: middle; text-align: left;">
+                    <td style="vertical-align: middle; text-align: left; padding-left: 0px; padding-right: 130px;">
                         <div class="frontpage-journal-info">
                             {call name="getMetadata" pre="<div class='frontpage-journal-info-line'>" search={$journal_title} post="</div>"}
                             <div class="frontpage-journal-info-line">
@@ -49,7 +49,7 @@
                         <hr class="frontpage-hr">
                     </td>
                     <td style="width: 20%; text-align: right;">
-                        <img src="https://cdn.discordapp.com/attachments/1290089303879323690/1414985947015282698/af0ad727-1507-48a0-acbe-6a5cf8fb28e0.png?ex=68d20a9a&is=68d0b91a&hm=acab17166e7fc93d7061e40525de96927486c500d97070ee81c51ca0c247168a&" class="frontpage-unlp-logo">
+                        {call name='getImage' pre="<img src='" search={$institutionLogo} post="'class='frontpage-unlp-logo'>"}
                     </td>
                 </tr>
             </table>
@@ -99,7 +99,7 @@
                 {call name="getMetadata" pre="<span class='frontpage-keywords-label'>" search={$translations.es.keywords} post=" |</span>"}
                 <span class="frontpage-keywords-list">
                     {foreach from=$keywords_texts.es item=keyword name=keywords}
-                        {call name="getMetadata" pre="<span class='frontpage-keyword'>" search={$keyword} post="</span>"}{if !$smarty.foreach.keywords.last}, {/if}
+                        {call name="getMetadata" pre="<span class='frontpage-keyword'>" search={$keyword} post="</span>{if !$smarty.foreach.keywords.last}, {/if}"}
                     {/foreach}
                 </span>
             </div>
@@ -113,7 +113,7 @@
                 {call name="getMetadata" pre="<span class='frontpage-keywords-label'>" search={$translations.en.keywords} post=" |</span>"}
                 <span class="frontpage-keywords-list">
                     {foreach from=$keywords_texts.en item=keyword name=keywords}
-                        {call name="getMetadata" pre="<span class='frontpage-keyword'>" search={$keyword} post="</span>"}{if !$smarty.foreach.keywords.last}, {/if}
+                        {call name="getMetadata" pre="<span class='frontpage-keyword'>" search={$keyword} post="</span>{if !$smarty.foreach.keywords.last}, {/if}"}
                     {/foreach}
                 </span>
             </div>
