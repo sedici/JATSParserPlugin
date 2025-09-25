@@ -105,7 +105,7 @@
 }
 
 .frontpage-author-contact {
-    font-family: 'Philosopher', sans-serif;
+    font-family: 'Philosopher';
     font-size: 8.5pt;
     color: #555;
     margin-top: 2px;
@@ -113,20 +113,17 @@
 }
 
 .frontpage-affiliation {
-    font-family: "Arial";
-    font-size: 9px;
+    font-family: "Philosopher";
+    font-size: 8px;
     color: #000;
-    text-decoration: bold;
 }
 
 .frontpage-abstract-section {
-    font-family: "Georgia", sans-serif;
-    font-size: 10pt;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     align-items: flex-start;
-    gap: 5px;
+    margin-bottom: 7px;
 }
 
 .frontpage-abstract-title {
@@ -138,7 +135,7 @@
 }
 
 .frontpage-abstract-text {
-    font-size: 8pt;
+    font-size: 10pt;
     color: #333;
     text-align: justify;
 }

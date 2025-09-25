@@ -1,8 +1,9 @@
-.footnotes-container, .references-section {
-  font-family: 'Philosopher', sans-serif;
+.footnotes-container {
+  font-family: 'Philosopher';
 }
 
 li {
+  font-size: 12px;
   margin-bottom: 20px;
 }
 
@@ -13,11 +14,13 @@ a {
 
 ul {
   list-style-type: none;
+  margin: 0;
+  padding: 0;
 }
 
 h2 {
   text-decoration: bold;
-  text-size: 16px;
+  font-size: 14px;
   color: black;
-  font-family: 'Philosopher', sans-serif;
+  font-family: 'Philosopher';
 }

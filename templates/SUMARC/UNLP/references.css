@@ -1,23 +1,26 @@
-  .footnotes-container, .references-section {
-    font-family: 'Philosopher', sans-serif;
-  }
+.references-section {
+  font-family: 'Philosopher';
+}
 
-  li {
-    margin-bottom: 20px;
-  }
+li {
+  font-size: 12px;
+  margin-bottom: 20px;
+}
 
-  a {
-    text-decoration: bold;
-    color: rgb(61, 145, 191);
-  }
+a {
+  text-decoration: bold;
+  color: rgb(61, 145, 191);
+}
 
-  ul {
-    list-style-type: none;
-  }
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
 
-  h2 {
-    text-decoration: bold;
-    text-size: 16px;
-    color: black;
-    font-family: 'Philosopher', sans-serif;
-  }
+h2 {
+  text-decoration: bold;
+  font-size: 14px;
+  color: black;
+  font-family: 'Philosopher';
+}
