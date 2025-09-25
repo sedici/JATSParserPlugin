@@ -1,10 +1,13 @@
 a {
   text-decoration: none;
-  font-family: 'Philosopher', sans-serif;
+  font-family: 'FreeSerif', sans-serif;
   color: #007bff;
 }
+p {
+  font-size: 11px;
+}
 h2, h3, h4, h5, h1, p {
-  font-family: 'Philosopher', sans-serif;
+  font-family: 'FreeSerif', sans-serif;
 }
 .table {
   border: 1px solid #333;

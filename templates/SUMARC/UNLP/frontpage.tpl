@@ -7,7 +7,7 @@
 <div class="frontpage-body">
     <div class="frontpage-container">
         <header class="frontpage-journal-header">
-            <table style="width: 100%; border-collapse: collapse; padding-left= 0px;">
+            <table class="frontpage-logo-info-table">
                 <tr>
                     <td style="vertical-align: right; padding-right: 0px;">
                         <div class="frontpage-journal-logos">
@@ -18,7 +18,7 @@
                             }
                         </div>
                     </td>
-                    <td style="vertical-align: middle; text-align: left; padding-left: 0px; padding-right: 130px;">
+                    <td style="vertical-align: middle; text-align: left; padding-left: 0px; padding-right: 140px;">
                         <div class="frontpage-journal-info">
                             {call name="getMetadata" pre="<div class='frontpage-journal-info-line'>" search={$journal_title} post="</div>"}
                             <div class="frontpage-journal-info-line">
@@ -43,13 +43,13 @@
                 </tr>
             </table>
             
-            <table style="width: 100%; border-collapse: collapse; margin-top: 10px; position: relative;">
+            <table style="width: 100%; border-collapse: collapse; margin-top: 0px; position: relative;">
                 <tr>
                     <td style="width: 80%;">
                         <hr class="frontpage-hr">
                     </td>
                     <td style="width: 20%; text-align: right;">
-                        {call name='getImage' pre="<img src='" search={$institutionLogo} post="'class='frontpage-unlp-logo'>"}
+                        {call name='getImage' pre="<img src='" search={$institutionLogo} post="'class='frontpage-institution-logo'>"}
                     </td>
                 </tr>
             </table>
@@ -88,7 +88,7 @@
                 {/foreach}
             </div>
 
-            <hr>
+            <hr class="frontpage-author-hr">
 
             <div class="frontpage-abstract-section">
                 {call name="getMetadata" pre="<span class='frontpage-abstract-title'>" search={$translations.es.abstract} post=" | </span>"}
