@@ -4,6 +4,8 @@
     {include file={$frontpage}}
 </style>
 
+<margin-top size="20mm" />
+
 <div class="frontpage-body">
     <div class="frontpage-container">
         <header class="frontpage-journal-header">
@@ -18,7 +20,7 @@
                             }
                         </div>
                     </td>
-                    <td style="vertical-align: middle; text-align: left; padding-left: 0px; padding-right: 140px;">
+                    <td class="frontpage-journal-info-cell">
                         <div class="frontpage-journal-info">
                             {call name="getMetadata" pre="<div class='frontpage-journal-info-line'>" search={$journal_title} post="</div>"}
                             <div class="frontpage-journal-info-line">

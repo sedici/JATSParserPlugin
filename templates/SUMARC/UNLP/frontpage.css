@@ -49,11 +49,22 @@
     text-align: left;
     vertical-align: top;   
     padding-bottom: 10px;
+    padding-left: 10px;
+    margin-bottom: 10px;
 }
 
 .frontpage-journal-info-line {
-    margin-bottom: 10px;
-    padding-bottom: 10px;
+    margin-bottom: 10px !important;
+    padding-bottom: 10px !important;
+}
+
+.frontpage-journal-info-cell {
+    vertical-align: middle;
+    text-align: left;
+    margin-right: 140px;
+    padding-right: 140px;
+    margin-bottom: 10px !important;
+    padding-bottom: 10px !important;
 }
 
 .frontpage-journal-info a {
@@ -190,7 +201,7 @@
 
 .frontpage-license-image {
     max-width: auto;
-    max-height: 30px;
+    max-height: 20px;
     margin-right: 10px;
 }
 
