@@ -130,7 +130,6 @@ class JatsParserPlugin extends GenericPlugin {
 
 	//Get an array of OJS metadata to be used in the PDF generation
 	private function getMetadata($publication, $localeKey, $request, $htmlString) {
-		error_log('JATSParserPlugin::getMetadata() called');
 	
 		//$submission = Services::get('submission')->get($publication->getData('submissionId')); /* @var $submission Submission */
 		$submission = Repo::submission()->get($publication->getData('submissionId'));
@@ -231,7 +230,6 @@ class JatsParserPlugin extends GenericPlugin {
 			'prefixes' => $publication->getData('prefix')
 		];
 
-		error_log('JATSParserPlugin::getMetadata() - metadata return');
 		return $metadata;
 	}
 	
@@ -244,18 +242,12 @@ class JatsParserPlugin extends GenericPlugin {
 	 * @param
 	 */
 	private function pdfCreation(string $htmlString, Publication $publication, Request $request, string $localeKey): string {
-		error_log('JATSParserPlugin::pdfCreation() called');
-
 		$metadata = $this->getMetadata($publication, $localeKey, $request, $htmlString);
 		$configuration = new Configuration($metadata);
-
-		error_log('JATSParserPlugin::pdfCreation() - new Configuration');
 
 		$templateName = 'TemplateOne';
 		$templateStrategy = new TemplateStrategy($templateName, $configuration);
 
-		error_log('JATSParserPlugin::pdfCreation() - new TemplateStrategy');
-		error_log('JATSParserPlugin::pdfCreation() - return');
 		return $templateStrategy->OutputPdf();
 	}
 
@@ -268,7 +260,6 @@ class JatsParserPlugin extends GenericPlugin {
 	 * ]]
 	 */
 	public function addToSchema($hookName, $args) {
-		error_log('JATSParserPlugin::addToSchema() called');
 		$schema = $args[0];
 		$propId = '{
 			"type": "integer",
@@ -296,7 +287,6 @@ class JatsParserPlugin extends GenericPlugin {
 	 * @param array $args [string, TemplateManager]
 	 */
 	function publicationTemplateData(string $hookname, array $args): void {
-		error_log('JATSParserPlugin::publicationTemplateData() called');
 		/**
 		 * @var $templateMgr TemplateManager
 		 * @var $submission Submission
@@ -377,12 +367,10 @@ class JatsParserPlugin extends GenericPlugin {
 	 * @brief Handle associated files of the full-text, only images are supported
 	 */
 	function loadFullTextAssocHandler($hookName, $args) {
-		error_log('JATSParserPlugin::loadFullTextAssocHandler() called');
 		$page = $args[0];
 		$op = $args[1];
 
 		if ($page == 'article' && $op == 'downloadFullTextAssoc') {
-			error_log('JATSParserPlugin::loadFullTextAssocHandler() - loading FullTextArticleHandler');
 			define('HANDLER_CLASS', 'FullTextArticleHandler');
 			define('JATSPARSER_PLUGIN_NAME', $this->getName());
 			require_once($this->getPluginPath() . '/FullTextArticleHandler.inc.php');
@@ -402,7 +390,6 @@ class JatsParserPlugin extends GenericPlugin {
 	 * @return bool
 	 */
 	function editPublicationFullText(string $hookname, array $args) {
-		error_log('JATSParserPlugin::editPublicationFullText() called');
 		$newPublication = $args[0];
 		$params = $args[2];
 		if (!array_key_exists('jatsParser::fullTextFileId', $params)) return false;
@@ -432,7 +419,6 @@ class JatsParserPlugin extends GenericPlugin {
 	 * use vancouver style otherwise
 	 */
 	function getCitationStyle(Journal $context): string {
-		error_log('JATSParserPlugin::getCitationStyle() called');	
 		$contextId = $context->getId();
 
 		$citationStyle = $this->getSetting($contextId, 'citationStyle');
@@ -462,7 +448,6 @@ class JatsParserPlugin extends GenericPlugin {
 	 * @brief modify citationsRaw property based on parsed citations from JATS XML
 	 */
 	function editPublicationReferences(string $hookname, array $args) {
-		error_log('JATSParserPlugin::editPublicationReferences() called');
 		$newPublication = $args[0]; /* @var $newPublication Publication */
 		$params = $args[2];
 		if (!array_key_exists('jatsParser::references', $params)) return false;
@@ -490,8 +475,6 @@ class JatsParserPlugin extends GenericPlugin {
 	}
 
 	function createPdfGalley(string $hookname, array $args) {
-	
-	error_log('JATSParserPlugin::createPdfGalley() called');
 		
 	$newPublication = $args[0]; /* @var $newPublication Publication */
 	$params = $args[2];
@@ -567,8 +550,7 @@ class JatsParserPlugin extends GenericPlugin {
 	 * @brief create an empty galley
 	 */
 	function createGalley(string $galleyLocale, Publication $publication): int {
-		error_log('JATSParserPlugin::createGalley() called');
-
+		
 		//$articleGalleyDao = DAORegistry::getDAO('ArticleGalleyDAO'); /* @var $articleGalleyDao ArticleGalleyDAO */
 		$articleGalley = Repo::galley()->newDataObject();
 		$articleGalley->setLocale($galleyLocale);
@@ -637,7 +619,6 @@ class JatsParserPlugin extends GenericPlugin {
 
 		//$submissionFile = Repo::submissionFile()->get($submissionFileId);
 		unlink($tmpFile); // remove temporary file
-		error_log('JATSParserPlugin::_setPdfSubmissionFile() - returning submissionFile');
 		return $submissionFile;
 	}
 
@@ -649,8 +630,6 @@ class JatsParserPlugin extends GenericPlugin {
 	 * @brief set references for PDF galley
 	 */
 	private function _setReferences(Publication $publication, string $locale, string $htmlString, $jatsPath): string {
-
-		error_log('JATSParserPlugin::_setReferences() called');
 
 #		$rawCitations = $publication->getData('citationsRaw'); //References
 #		if (empty($rawCitations)) return $htmlString;
@@ -713,7 +692,6 @@ class JatsParserPlugin extends GenericPlugin {
 		// Close the container
 		$htmlString .= '</div>';
 
-		error_log('JATSParserPlugin::_setReferences() - return');
 		return $htmlString;
 	}
 
@@ -761,7 +739,6 @@ class JatsParserPlugin extends GenericPlugin {
 	 * @brief Displays full-text on article landing page
 	 */
 	function displayFullText(string $hookname, array $args) {
-		error_log('JATSParserPlugin::displayFullText() called');
 		$templateMgr =& $args[1];
 		$output =& $args[2];
 		$publication = $templateMgr->getTemplateVars('publication');
@@ -782,9 +759,7 @@ class JatsParserPlugin extends GenericPlugin {
 			$submissionFileId = $publication->getData('jatsParser::fullTextFileId', $currentLocale);
 			//$submissionFile = Services::get('submissionFile')->get($submissionFileId);
 			$submissionFile = Repo::submissionFile()->get($submissionFileId);
-			error_log('JATSParserPlugin::displayFullText() - submissionFileId: ' . $submissionFileId);
 		} else {
-			error_log('JATSParserPlugin::displayFullText() - currentLocale not found in fullTexts: ' . $currentLocale);
 			$locales = PKP\facades\Locale::getLocales();
 			$msg = __('plugins.generic.jatsParser.article.fulltext.availableLocale');
 			if (count($fullTexts) > 1) {
@@ -811,7 +786,6 @@ class JatsParserPlugin extends GenericPlugin {
 
 		$templateMgr->assign('fullText', $html);
 		$output .= $templateMgr->fetch($this->getTemplateResource('articleMainView.tpl'));
-		error_log('JATSParserPlugin::displayFullText() - output');
 		return false;
 	}
 
@@ -822,8 +796,6 @@ class JatsParserPlugin extends GenericPlugin {
 	 * @brief Substitute path to attached images for full-text HTML
 	 */
 	function _setSupplImgPath(SubmissionFile $submissionFile, string $htmlString): string {
-
-		error_log('JATSParserPlugin::_setSupplImgPath() called');
 
 		$dependentFilesIterator = Repo::submissionFile()
 			->getCollector()
@@ -849,20 +821,15 @@ class JatsParserPlugin extends GenericPlugin {
 			if ($genre->getCategory() !== GENRE_CATEGORY_ARTWORK) continue; // only art works are supported
 			if (!in_array($dependentFile->getData('mimetype'), self::getSupportedSupplFileTypes())) continue; // check if MIME type is supported
 
-			error_log('JATSParserPlugin::_setSupplImgPath() - dependentFile: ' . $dependentFile->getData('fileId'));
 			$submissionId = $submissionFile->getData('submissionId');
 
 			switch ($request->getRequestedOp()) {
 				case 'view':
-					error_log('JATSParserPlugin::_setSupplImgPath() Request View');
 					$filePath = $request->url(null, 'article', 'downloadFullTextAssoc', array($submissionId, $dependentFile->getData('assocId'), $dependentFile->getData('fileId')));
-					error_log('JATSParserPlugin::_setSupplImgPath() - image path: ' . $filePath);
 					break;
 				case 'editPublication':
-					error_log('JATSParserPlugin::_setSupplImgPath() Request editPublication');
 					// API Handler cannot process $op, $path or $anchor in url()
 					$image = file_get_contents($privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $dependentFile->getData('path'));
-					error_log('JATSParserPlugin::_setSupplImgPath() - image path: ' . $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $dependentFile->getData('path'));
 					$imageBase64 = base64_encode($image);
 					$filePath = '@' . $imageBase64; // Format, supported by TCPDF
 					break;
@@ -890,8 +857,6 @@ class JatsParserPlugin extends GenericPlugin {
 			);
 		}
 
-
-		error_log('JATSParserPlugin::_setSupplImgPath() return 200');
 		return $htmlString;
 	}
 
@@ -958,7 +923,6 @@ class JatsParserPlugin extends GenericPlugin {
 	 * @brief theme-specific styles for galley and article landing page
 	 */
 	function themeSpecificStyles(string $hookname, array $args) {
-		error_log('JATSParserPlugin::themeSpecificStyles() called');
 		$templateMgr = $args[0];
 		$template = $args[1];
 
@@ -1002,7 +966,6 @@ class JatsParserPlugin extends GenericPlugin {
 	 * @brief iterate through all submissions and add full-text from  galleys
 	 */
 	public function importGalleys() {
-		error_log('JATSParserPlugin::importGalleys() called');
 
 		//$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO'); /* @var $submissionFileDao SubmissionFileDAO */
 		$submissionFileDao = Repo::submissionFile()->dao; /* @var $submissionFileDao SubmissionFileDAO */
@@ -1110,7 +1073,6 @@ class JatsParserPlugin extends GenericPlugin {
 	 * @param $form FormComponent The form object
 	 */
 	public function addCitationsFormFields(string $hookName, FormComponent $form): void {
-		error_log('JATSParserPlugin::addCitationsFormFields() called');
 		if ($form->id !== 'citations' || !empty($form->errors)) return;
 
 		$path = parse_url($form->action)['path'];
@@ -1125,8 +1087,6 @@ class JatsParserPlugin extends GenericPlugin {
 		}
 
 		if (!$publicationId) return;
-
-		error_log('JATSParserPlugin::addCitationsFormFields() called for publicationId: ' . $publicationId);
 
 		//$publication = Services::get('publication')->get($publicationId);
 		$publication = Repo::publication()
@@ -1180,15 +1140,12 @@ class JatsParserPlugin extends GenericPlugin {
 	 */
 	private function _setFootnotes(Publication $publication, string $locale, string $htmlString): string {
 
-		error_log('JATSParserPlugin::_setFootnotes() called');
-
 		// Get the JATS file ID for this locale
 		$jatsFileId = $publication->getData('jatsParser::fullTextFileId', $locale);
 		if (!$jatsFileId) return $htmlString;
 		
 		//$submissionFile = Services::get('submissionFile')->get($jatsFileId);
 		$submissionFile = Repo::submissionFile()->get($jatsFileId);
-		error_log('JATSParserPlugin::_setFootnotes() - submissionFile');
 		
 		if (!$submissionFile) return $htmlString;
 		
