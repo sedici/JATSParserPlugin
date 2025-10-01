@@ -1,0 +1,162 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2021-03-01T09:34:26+00:00\n"
+"PO-Revision-Date: 2021-03-01T09:34:26+00:00\n"
+"Language: \n"
+
+msgid "plugins.generic.jatsParser.displayName"
+msgstr "Plugin JATSParser"
+
+msgid "plugins.generic.jatsParser.description"
+msgstr "O plugin transforma XML JATS em HTML e PDF para visualização no site da revista"
+
+msgid "plugins.generic.jatsParser.article.fulltext.availableLocale"
+msgstr "O texto completo do artigo está disponível neste idioma:"
+
+msgid "plugins.generic.jatsParser.article.fulltext.availableLocales"
+msgstr "O texto completo do artigo está disponível nestes idiomas:"
+
+msgid "plugins.generic.jatsParser.workflow.settings"
+msgstr "Configurações do JATS Parser"
+
+msgid "plugins.generic.jatsParser.settings.description"
+msgstr "Menu de configurações do plugin JATSParser"
+
+msgid "plugins.generic.jatsParser.settings.covert.pdf"
+msgstr "Ativar a conversão de JATS XML para PDF"
+
+msgid "plugins.generic.jatsParser.galley.import"
+msgstr "Importação de provas JATS XML"
+
+msgid "plugins.generic.jatsParser.galley.import.description"
+msgstr "Esta opção permite salvar provas JATS XML como texto completo em todas as publicações da revista. A importação é ignorada se uma publicação já tiver texto completo para uma determinada prova. A importação começa imediatamente após salvar o formulário."
+
+msgid "plugins.generic.jatsParser.galley.import.title"
+msgstr "Importar texto completo das provas"
+
+msgid "plugins.generic.jatsParser.publication.jats.fulltext"
+msgstr "Texto completo"
+
+msgid "plugins.generic.jatsParser.publication.jats.fulltext.success"
+msgstr "Upload do texto completo realizado com sucesso"
+
+msgid "plugins.generic.jatsParser.publication.jats.label"
+msgstr "Criar texto completo"
+
+msgid "plugins.generic.jatsParser.publication.jats.description"
+msgstr "Selecione um arquivo pronto para produção em formato JATS XML para criar o texto completo."
+
+msgid "plugins.generic.jatsParser.publication.jats.descriptionEmpty"
+msgstr "A lista de arquivos JATS XML está vazia. Por favor, faça upload do arquivo na etapa de produção e ele aparecerá abaixo para geração do texto completo."
+
+msgid "plugins.generic.jatsParser.publication.jats.references.label"
+msgstr "Recuperar referências do JATS XML?"
+
+msgid "plugins.generic.jatsParser.publication.jats.references.description"
+msgstr "A lista de referências será extraída do JATS XML e salva como parte da publicação. Se já houver referências incluídas na publicação, elas serão substituídas."
+
+msgid "plugins.generic.jatsParser.publication.jats.pdf.label"
+msgstr "Criar prova em PDF?"
+
+msgid "plugins.generic.jatsParser.publication.galley.pdf.label"
+msgstr "PDF"
+
+msgid "plugins.generic.jatsParser.style.acm-sig-proceedings"
+msgstr "ACM"
+
+msgid "plugins.generic.jatsParser.style.acs-nano"
+msgstr "ACS"
+
+msgid "plugins.generic.jatsParser.style.apa"
+msgstr "APA"
+
+msgid "plugins.generic.jatsParser.style.associacao-brasileira-de-normas-tecnicas"
+msgstr "ABNT"
+
+msgid "plugins.generic.jatsParser.style.chicago-author-date"
+msgstr "Chicago"
+
+msgid "plugins.generic.jatsParser.style.harvard-cite-them-right"
+msgstr "Harvard"
+
+msgid "plugins.generic.jatsParser.style.ieee"
+msgstr "IEEE"
+
+msgid "plugins.generic.jatsParser.style.modern-language-association"
+msgstr "MLA"
+
+msgid "plugins.generic.jatsParser.style.turabian-fullnote-bibliography"
+msgstr "Turabian"
+
+msgid "plugins.generic.jatsParser.style.vancouver"
+msgstr "Vancouver"
+
+msgid "plugins.generic.jatsParser.style.custom"
+msgstr "Outros formatos de estilos de citação"
+
+msgid "plugins.generic.jatsParser.style.description"
+msgstr "O formato de estilo para referências processadas pelo plugin. Para outros estilos, consulte o <a target=\"_blank\" href=\"https://github.com/citation-style-language/styles\">repositório CSL</a> para verificar se são suportados."
+
+msgid "plugins.generic.jatsParser.style.label"
+msgstr "ex.: american-medical-association"
+
+msgid "plugins.generic.jatsParser.publication.jats.links.label"
+msgstr "Formatar links no texto para as referências?"
+
+msgid "plugins.generic.jatsParser.settings.convert.pdf"
+msgstr "Ativar conversão para PDF"
+
+msgid "plugins.generic.jatsParser.pdf.abstract"
+msgstr "Resumo"
+
+msgid "plugins.generic.jatsParser.publication.jats.citationStyle.label"
+msgstr "Tabela de citações"
+
+msgid "plugins.generic.jatsParser.citationtable.error.emptyoption"
+msgstr "Erro: Você não pode salvar um valor de citação vazio"
+
+msgid "plugins.generic.citationtable.citations.notfound"
+msgstr "Nenhuma citação foi encontrada no artigo."
+
+msgid "plugins.generic.jatsParser.citationtable.titlecontext"
+msgstr "Contexto"
+
+msgid "plugins.generic.jatsParser.citationtable.titlereferences"
+msgstr "Referências"
+
+msgid "plugins.generic.jatsParser.citationtable.titlefigsandtables"
+msgstr "Tabelas e figuras"
+
+msgid "plugins.generic.jatsParser.citationtable.figandtables.titles"
+msgstr "Títulos"
+
+msgid "plugins.generic.jatsParser.citationtable.titlecitationstyle"
+msgstr "Estilo de citação"
+
+msgid "plugins.generic.jatsParser.citationtable.savebuttontext"
+msgstr "Salvar"
+
+msgid "plugins.generic.jatsParser.citationtable.customtext"
+msgstr "Outro"
+
+msgid "plugins.generic.jatsParser.citationtable.citationstyle.twoauthors.separator"
+msgstr "&"
+
+msgid "plugins.generic.jatsParser.article.footnotes.title"
+msgstr "Notas de rodapé"
+
+msgid "plugins.generic.jatsParser.article.references.title"
+msgstr "Referências"
+
+msgid "plugins.generic.jatsParser.figure.title"
+msgstr "Figura"
+
+msgid "plugins.generic.jatsParser.table.title"
+msgstr "Tabela"
