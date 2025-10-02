@@ -189,7 +189,7 @@ class JatsParserPlugin extends GenericPlugin {
 		list($anio, $mes, $dia) = explode('/', str_replace('-', '/', $submission->getDatePublished()));
 		// Reordenar como día/mes/año
 		$datePublished = ($dia && $mes && $anio) ? "$dia/$mes/$anio" : '';
-	
+
 		$metadata = [
 			'publication_pages' => $publication->getData('pages'), 
 			'section_title' => $section?->getLocalizedTitle(),
@@ -203,6 +203,7 @@ class JatsParserPlugin extends GenericPlugin {
 			'journal_issue' => $publication->getData('issueId'),
 			'journal_logos_path' => $journalLogosPath,
 			'locale_key' => $localeKey,
+			'article_locale_key' => $publication->getData('locale'),
 			'journal_thumbnail' => $journal->getLocalizedData('journalThumbnail'),
 			'full_title' => $publication->getLocalizedFullTitle($localeKey),
 			'license_url' => $licenseUrl, //
