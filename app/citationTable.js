@@ -1,14 +1,14 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Modal open/close
-    var openBtn = document.getElementById('openCitationModalBtn');
-    var modal = document.getElementById('citationModal');
-    var closeBtn = modal ? modal.querySelector('.citation-modal-close') : null;
+    let openBtn = document.getElementById('openCitationModalBtn');
+    let modal = document.getElementById('citationModal');
+    let closeBtn = modal ? modal.querySelector('.citation-modal-close') : null;
 
     if (openBtn && modal) {
         openBtn.addEventListener('click', function() {
             modal.style.display = 'block';
             // Activar pestaña por defecto
-            var defaultBtn = document.querySelector('.citation-tab-button.is-active') || document.querySelector('.citation-tab-button');
+            let defaultBtn = document.querySelector('.citation-tab-button.is-active') || document.querySelector('.citation-tab-button');
             if (defaultBtn) defaultBtn.click();
         });
     }
@@ -27,9 +27,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Tabs delegados
     document.addEventListener('click', function(e){
-        var btn = e.target.closest('.citation-tab-button');
+        let btn = e.target.closest('.citation-tab-button');
         if (!btn) return;
-        var target = btn.getAttribute('data-target');
+        let target = btn.getAttribute('data-target');
         if (!target) return;
         document.querySelectorAll('.citation-tab-button').forEach(function(b){
             b.classList.toggle('is-active', b === btn);
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Spinner styles
     if (!document.getElementById('citation-saving-style')) {
-        var style = document.createElement('style');
+        let style = document.createElement('style');
         style.id = 'citation-saving-style';
         style.textContent = `
 .citation-saving-spinner{margin-left:8px;width:16px;height:16px;border:2px solid rgba(0,0,0,.2);border-top-color:rgba(0,0,0,.7);border-radius:50%;display:inline-block;vertical-align:middle;animation:citation-spin 1s linear infinite}
@@ -55,9 +55,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Delegación para selects
     modal.addEventListener('change', function(event){
         if (!event.target.classList.contains('citation-select')) return;
-        var selectElem = event.target;
-        var xrefId = selectElem.id.replace('citationStyle_', '');
-        var inputField = document.getElementById('customInput_' + xrefId);
+        let selectElem = event.target;
+        let xrefId = selectElem.id.replace('citationStyle_', '');
+        let inputField = document.getElementById('customInput_' + xrefId);
         if (selectElem.value !== selectElem.getAttribute('data-original-value')) {
             selectElem.classList.remove('citation-original');
             selectElem.classList.add('citation-modified');
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     modal.addEventListener('input', function(event){
         if (!event.target.classList.contains('custom-input')) return;
-        var inputElem = event.target;
+        let inputElem = event.target;
         if (inputElem.value.trim() === '') {
             inputElem.classList.add('citation-select-error');
         } else {
@@ -100,17 +100,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Submit único
     modal.addEventListener('submit', function(e){
-        var form = e.target.closest('form#citationFormAll');
+        let form = e.target.closest('form#citationFormAll');
         if (!form) return;
-        var submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
-        var savingSpinner = form.querySelector('.citation-saving-spinner');
+        let submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
+        let savingSpinner = form.querySelector('.citation-saving-spinner');
         if (!savingSpinner && submitBtn) {
             savingSpinner = document.createElement('span');
             savingSpinner.className = 'citation-saving-spinner';
             savingSpinner.style.display = 'none';
             submitBtn.insertAdjacentElement('afterend', savingSpinner);
         }
-        var hasEmpty = false;
+        let hasEmpty = false;
         form.querySelectorAll('.custom-input').forEach(function(input){
             if (input.value.trim() === '') {
                 hasEmpty = true;
@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 input.classList.remove('citation-select-error');
             }
         });
-        var errorMsg = document.getElementById('citationErrorMessage');
+        let errorMsg = document.getElementById('citationErrorMessage');
         if (hasEmpty) {
             if (errorMsg) errorMsg.style.display = 'block';
             if (submitBtn && savingSpinner) {
