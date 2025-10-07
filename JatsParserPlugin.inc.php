@@ -265,7 +265,7 @@ class JatsParserPlugin extends GenericPlugin {
 
 		$templateDir = $templateManager->getTemplateDir()[0];
 
-		$pdf = new Mpdf([
+		$pdf = new Mpdf([ # Sacar los márgenes de la config de OJS (cuando exista)
 			'mode' => 'utf-8',
 			'PDFA' => true,
 			'PDFAauto' => true,
