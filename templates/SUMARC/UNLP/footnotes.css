@@ -20,7 +20,8 @@ ul {
 
 h2 {
   text-decoration: bold;
-  font-size: 14px;
   color: black;
   font-family: 'Philosopher';
+  margin-top: 30px;
+  margin-bottom: 20px;
 }

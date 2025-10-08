@@ -18,11 +18,24 @@
 }
 
 .frontpage-logo-info-table {
+    border-collapse: separate;
+    border-spacing: 0 10px;
     width: 100%;
     border-collapse: collapse;
     padding-left: 0px;
     padding-bottom: 0;
     margin-bottom: 0;
+}
+
+.frontpage-journal-info-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.frontpage-journal-info-table {
+    text-align: left;
+    padding: 5px;
+    vertical-align: top;
 }
 
 .frontpage-journal-logos {
@@ -38,33 +51,28 @@
 
 .frontpage-institution-logo {
     width: auto;
-    height: 30px;
+    height: 35px;
 }
 
 .frontpage-journal-info {
     font-family: 'Helvetica', sans-serif;
-    font-size: 6.5pt;
     color: #000000;
     line-height: 1.4;
     text-align: left;
     vertical-align: top;   
-    padding-bottom: 10px;
-    padding-left: 10px;
-    margin-bottom: 10px;
 }
 
-.frontpage-journal-info-line {
-    margin-bottom: 10px !important;
-    padding-bottom: 10px !important;
+.frontpage-journal-info-line{
+    font-family: 'Helvetica', sans-serif;
+    text-align: left;
+    align-content: left;
+    font-size: 7pt;
+    padding-bottom: 3px;
 }
 
 .frontpage-journal-info-cell {
     vertical-align: middle;
     text-align: left;
-    margin-right: 140px;
-    padding-right: 140px;
-    margin-bottom: 10px !important;
-    padding-bottom: 10px !important;
 }
 
 .frontpage-journal-info a {
@@ -131,15 +139,15 @@
 }
 
 .frontpage-author-contact {
-    font-family: 'Philosopher', serif;
-    font-size: 8.5pt;
+    font-family: 'FreeSerif', serif;
+    font-size: 9pt;
     margin-top: 2px;
     margin-bottom: 2px;
 }
 
 .frontpage-author-affiliation {
-    font-family: "Philosopher", serif;
-    font-size: 13px;
+    font-family: "FreeSerif", serif;
+    font-size: 13.5px;
 }
 
 .frontpage-abstract-section {
@@ -160,8 +168,8 @@
 }
 
 .frontpage-abstract-text {
-    font-family: 'Philosopher', serif;
-    font-size: 9.5pt;
+    font-family: 'FreeSerif', serif;
+    font-size: 10pt;
     color: #000000;
     text-align: justify;
 }
@@ -185,7 +193,8 @@
 }
 
 .frontpage-keywords-list {
-    font-family: 'Philosopher', serif;
+    font-family: 'FreeSerif', serif;
+    font-size: 10pt;
     display: inline;
     margin: 0;
     padding: 0;
