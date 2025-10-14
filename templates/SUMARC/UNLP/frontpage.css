@@ -157,6 +157,7 @@
     align-items: flex-start;
     margin-bottom: 7px;
     margin-top: 7px;
+    text-align: justify;
 }
 
 .frontpage-abstract-title {
@@ -171,7 +172,6 @@
     font-family: 'FreeSerif', serif;
     font-size: 10pt;
     color: #000000;
-    text-align: justify;
 }
 
 .frontpage-keywords-container {
@@ -184,6 +184,7 @@
     flex-wrap: wrap;
     align-items: flex-start;
     gap: 5px;
+    text-align: justify;
 }
 
 .frontpage-keywords-label {

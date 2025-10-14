@@ -1307,6 +1307,8 @@ class JatsParserPlugin extends GenericPlugin {
 		}
 		
 		$htmlString .= '</div>';
+
+		file_put_contents(__DIR__ . "/htlm.txt", $htmlString);
 		
 		return $htmlString;
 	}

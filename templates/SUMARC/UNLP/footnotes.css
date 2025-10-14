@@ -1,13 +1,17 @@
+.footnote-label, .footnotes-container, li, a, ul, h2 {
+    text-align: justify;
+}
+
 .footnotes-container {
   font-family: 'Philosopher';
 }
 
 li {
-  font-size: 12px;
+  font-size: 11.5px;
   margin-bottom: 20px;
 }
 
-a {
+a, .footnote-label, ext-link {
   text-decoration: bold;
   color: rgb(61, 145, 191);
 }
