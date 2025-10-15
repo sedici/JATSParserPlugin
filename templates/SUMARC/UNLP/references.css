@@ -1,9 +1,10 @@
-.references-section {
-  font-family: 'Philosopher';
+.references-section, h2, a, ul, span, p, li, ol {
+  font-family: 'FreeSerif';
+  text-align: justify;
 }
 
 li {
-  font-size: 12px;
+  font-size: 14px;
   margin-bottom: 20px;
 }
 
@@ -22,5 +23,4 @@ h2 {
   text-decoration: bold;
   margin-bottom: 20px;
   color: black;
-  font-family: 'Philosopher';
 }

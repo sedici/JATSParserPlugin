@@ -7,7 +7,7 @@ p {
   font-size: 13px;
 }
 
-h2, h3, h4, h5, h1, p, a, span {
+h2, h3, h4, h5, h1, p, a, span, .table, li, ul, ol {
   font-family: 'FreeSerif', sans-serif;
   text-align: justify;
 }
@@ -16,3 +16,14 @@ h2, h3, h4, h5, h1, p, a, span {
   border: 1px solid #333;
   border-collapse: collapse;
 }
+
+.title, .notes, .caption-title, .caption-notes, caption {
+  text-align: justify;
+}
+
+.figure, .table, img, table {
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+
