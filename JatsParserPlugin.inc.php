@@ -29,13 +29,11 @@ use JATSParser\PDF\PDFConfig\Configuration;
 use JATSParser\Body\Document;
 use JATSParser\HTML\Document as HTMLDocument;
 use \PKP\components\forms\FormComponent;
-use JATSParser\PDF\TemplateStrategy;
 use APP\facades\Repo;
 use PKP\core\JSONMessage;
 use JATSParser\Body\Document as JATSDocument;
-use JATSParser\TemplateHandler\PDFCreationService;
-use JATSParser\TemplateHandler\PDFProcessingService;
 use APP\core\Request;
+use JATSParser\TemplateHandler\PDF\PdfOutputStrategy;
 use PKP\context\Context;
 use PKP\locale\Locale;
 use PKP\galley\Galley;
@@ -205,7 +203,7 @@ class JatsParserPlugin extends GenericPlugin {
 		$metadata = [
 			'publication_pages' => $publication->getData('pages'), 
 			'section_title' => $section?->getLocalizedTitle(),
-			'citation_style' => $plugin->getSetting($context->getId(), 'citationStyle'),
+			'citation_style' => $plugin->getSetting($context->getId(), 'citationStyle'), #
 			'publication_id' => $publication->getId(),
 			'doi' => $publication->getDoi(),
 			'journal_id' => $journal->getId(),
@@ -217,7 +215,7 @@ class JatsParserPlugin extends GenericPlugin {
 			'locale_key' => $localeKey,
 			'journal_thumbnail' => $journal->getLocalizedData('journalThumbnail'),
 			'full_title' => $publication->getLocalizedFullTitle($localeKey),
-			'license_url' => $licenseUrl, //
+			'license_url' => $licenseUrl,
 			'article_title' => $publication->getLocalizedData('title'),
 			'submission' => $submission,
 			'date_submitted' => date('d/m/Y', strtotime($submission->getDateSubmitted())),
@@ -227,14 +225,14 @@ class JatsParserPlugin extends GenericPlugin {
 			'issue_volume' => $issueVolume ?? '',
 			'issue_number' => $issueNumber ?? '',
 			'issue_year' => $issueYear ?? '',
-			'user_groups' => $userGroups,
+			# 'user_groups' => $userGroups,
 			'contributors' => null,//$publication->getAuthorString($userGroups),
 			'subject' => $publication->getLocalizedData('subject', $localeKey),
 			'abstract_texts' => $publication->getData('abstract'), // Returns an array like this: ['es_ES' => 'Resumen', 'en_US' => 'Abstract']
 			'translations' => Translations::getTranslations(),
 			'keywords_texts' => $publication->getData('keywords'),
 			'plugin_path' => $this->getPluginPath(),
-			'html_string' => $htmlString,
+			# 'html_string' => $htmlString,
 			'journal_url' => $request->getBaseUrl() . '/' . $journal->getPath(),
 			'titles' => $publication->getData('title'),
 			'subtitles' => $publication->getData('subtitle'),
@@ -258,40 +256,11 @@ class JatsParserPlugin extends GenericPlugin {
 
 		$metadata = $this->getMetadata($publication, $localeKey, $request, $htmlString);
 		$configuration = new Configuration($metadata);
-		$templateManager = new \Smarty(); # Con esta instancia se pueden settear las rutas que se desee de Smarty, así no usamos la global de OJS.
-		$templateManager->setTemplateDir(__DIR__ . '/templates'); # La ruta es .../jatsParser/templates
-		$processingService = new PDFProcessingService();
-		$pdfCreationService = new PDFCreationService($templateManager, $processingService);
-
-		$templateDir = $templateManager->getTemplateDir()[0];
-
-		$pdf = new Mpdf([ # Sacar los márgenes de la config de OJS (cuando exista)
-			'mode' => 'utf-8',
-			'PDFA' => true,
-			'PDFAauto' => true,
-			'margin_top' => 25,
-			'margin_bottom' => 30, 
-		]); # Versión 8.1.3. Los genero así para que la salida sea un PDF/A válido
-		$pdf->SetAnchor2Bookmark(1);
-
 		$fileMgr = new PrivateFileManager();
-		$submissionFile = Repo::submissionFile()->get($fileId);
-		$jatsDocument = new Document($fileMgr->getBasePath() . DIRECTORY_SEPARATOR . $submissionFile->getData('path'));
-		$citeProc = new HTMLDocument($jatsDocument);
-		$dom = new \DOMDocument('1.0', 'utf-8');
-		$htmlHead = "<!DOCTYPE html><head><meta http-equiv='Content-Type' content='text/html'; charset=utf-8/></head>";
-		$dom->loadHTML($htmlHead . $htmlString);
-		$xpath = new \DOMXPath($dom);
+		$journalId = $request->getContext()->getId();
 
-		$citationStyle = $this->getSetting($request->getContext()->getId(), 'citationStyle');
-		$citeProc->setReferences($citationStyle, $localeKey, false);
-
-		# Ruta actual de los TPL > /data/public_ojs/templates > Ruta que agarra por default el fetch. | Estoy trabajando sobre el directorio SUMARC
-		$builtPDF = $pdfCreationService->buildPDF($templateDir, $pdf, $htmlString, $xpath, $dom, $citeProc, $configuration, $metadata);
-		
-		# La variable metadata tiene ya la gran mayoría de metadatos habidos y por haber en OJS. Puedo editar para sumar lo que me falta y armar una doc de eso.
-		# Ese mismo array es el que tengo que inyectarle a todas las plantillas para que se puedan acceder a los metadatos desde el configurador
-		return $builtPDF->output('a', 'S');
+		$outputStrategy = PdfOutputStrategy::class; # Hacer un selector de estrategias para esto :/
+		return $outputStrategy::generateOutput($this, $fileMgr, $journalId, $localeKey, $fileId, $htmlString, $configuration, $metadata);
 	}
 
 	/**

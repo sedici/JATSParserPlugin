@@ -58,7 +58,7 @@
 <figure id="fig2">
   <div class="caption-title"/>
   <div class="figure">
-    <img src="image2.png"/>
+    <img src="/var/ojs-data/journals/1/articles/3/68f65e1aca0ac.png"/>
   </div>
   <figcaption class="caption-notes">
     <span class="notes" style="font-size: 0.85em;"/>
