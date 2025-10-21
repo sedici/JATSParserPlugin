@@ -1,4 +1,4 @@
-{include file='./baseFunctions.tpl'}
+{include file={$baseFunctions}}
 
 <footer style="width: 100%; font-size: 9pt;">
     <hr>

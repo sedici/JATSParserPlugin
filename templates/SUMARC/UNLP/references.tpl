@@ -1,4 +1,4 @@
-{include file='./baseFunctions.tpl'}
+{include file={$baseFunctions}}
 
 <style>
   {include file={$references}}

@@ -1,4 +1,4 @@
-{include file='./baseFunctions.tpl'}
+{include file={$baseFunctions}}
 
 <div style="text-align: center;">
     <div style="font-weight: bold; color: rgb(49, 132, 155); font-size: 0.8em; font-family: 'Helvetica';">

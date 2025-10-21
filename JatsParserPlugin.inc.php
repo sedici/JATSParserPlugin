@@ -225,14 +225,12 @@ class JatsParserPlugin extends GenericPlugin {
 			'issue_volume' => $issueVolume ?? '',
 			'issue_number' => $issueNumber ?? '',
 			'issue_year' => $issueYear ?? '',
-			# 'user_groups' => $userGroups,
 			'contributors' => null,//$publication->getAuthorString($userGroups),
 			'subject' => $publication->getLocalizedData('subject', $localeKey),
 			'abstract_texts' => $publication->getData('abstract'), // Returns an array like this: ['es_ES' => 'Resumen', 'en_US' => 'Abstract']
 			'translations' => Translations::getTranslations(),
 			'keywords_texts' => $publication->getData('keywords'),
 			'plugin_path' => $this->getPluginPath(),
-			# 'html_string' => $htmlString,
 			'journal_url' => $request->getBaseUrl() . '/' . $journal->getPath(),
 			'titles' => $publication->getData('title'),
 			'subtitles' => $publication->getData('subtitle'),
@@ -242,6 +240,18 @@ class JatsParserPlugin extends GenericPlugin {
 
 		error_log('JATSParserPlugin::getMetadata() - metadata return');
 		return $metadata;
+	}
+
+	private function getConfiguration() {
+		$ojsConfiguration = [
+			'margin_top' => '25',
+			'margin_bottom' => '30',
+			'margin_left' => '15',
+			'margin_right' => '15',
+			'selected_template' => 'UNLP',
+		];	
+
+		return $ojsConfiguration;
 	}
 
 	/**
@@ -255,12 +265,15 @@ class JatsParserPlugin extends GenericPlugin {
 		error_log('JATSParserPlugin::pdfCreation() called');
 
 		$metadata = $this->getMetadata($publication, $localeKey, $request, $htmlString);
+		$ojsConfiguration = $this->getConfiguration();
 		$configuration = new Configuration($metadata);
 		$fileMgr = new PrivateFileManager();
 		$journalId = $request->getContext()->getId();
 
-		$outputStrategy = PdfOutputStrategy::class; # Hacer un selector de estrategias para esto :/
-		return $outputStrategy::generateOutput($this, $fileMgr, $journalId, $localeKey, $fileId, $htmlString, $configuration, $metadata);
+		$outputStrategy = PdfOutputStrategy::class; # Lo que hablamos fue que esto quede así hasta que se necesite hace un selector de estrategias, trabajo para otra persona
+		# Pero, esencialmente, sería un selector que te devuelve el FQCN de la estrategia a usar, en este caso PdfOutputStrategy::class retorna algo del estilo JATSParser\TemplateHandler\PDF\PdfOutputStrategy
+		# Nótese que la estrategia a usar debe guardarse en la DB ya que es una configuración que se mantiene, no se selecciona a la hora de escupir el PDF sino desde la config del plugin en OJS. Atte: Leito
+		return $outputStrategy::generateOutput($this, $fileMgr, $journalId, $localeKey, $fileId, $htmlString, $configuration, $metadata, $ojsConfiguration);
 	}
 
 	/**
