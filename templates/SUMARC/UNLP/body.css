@@ -15,6 +15,7 @@ h2, h3, h4, h5, h1, p, a, span, .table, li, ul, ol {
 .table {
   border: 1px solid #333;
   border-collapse: collapse;
+  page-break-inside: avoid; /* Esto es para que las tablas no se corte, sino que pasen de página */
 }
 
 .title, .notes, .caption-title, .caption-notes, caption {

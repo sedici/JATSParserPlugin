@@ -246,3 +246,33 @@
     color: rgb(49, 132, 155);
     text-decoration: none;
 }
+
+.frontpage-logo-cell {
+    vertical-align: right;
+    padding-right: 0px;
+}
+
+.frontpage-header-hr-cell {
+    width: 80%;
+}
+
+.frontpage-institution-logo-cell {
+    width: 20%;
+    text-align: right;
+}
+
+.frontpage-license-info {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.frontpage-license-image {
+    width: 40px;
+    vertical-align: middle;
+}
+
+.frontpage-license-text {
+    vertical-align: middle;
+    padding-left: 10px;
+}

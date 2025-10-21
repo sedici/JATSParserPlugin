@@ -13,7 +13,7 @@
         <header class="frontpage-journal-header">
             <table class="frontpage-logo-info-table">
                 <tr>
-                    <td style="vertical-align: right; padding-right: 0px;">
+                    <td class="frontpage-logo-cell">
                         <div class="frontpage-journal-logos">
                             {call name="getImage" 
                                 pre="<img src='"
@@ -64,14 +64,14 @@
                     </td>
                 </tr>
             </table>
-            
-            <table style="width: 100%; border-collapse: collapse; margin-top: 0px; position: relative;">
+
+            <table class="frontpage-header-table">
                 <tr>
-                    <td style="width: 80%;">
+                    <td class="frontpage-header-hr-cell">
                         <hr class="frontpage-hr">
                     </td>
-                    <td style="width: 20%; text-align: right;">
-                        {call name='getImage' pre="<img src='" search={$institutionLogo} post="'class='frontpage-institution-logo'>"}
+                    <td class="frontpage-institution-logo-cell">
+                        {call name='getImage' pre="<img src='" search={$institutionLogo} post="' class='frontpage-institution-logo'>"}
                     </td>
                 </tr>
             </table>
