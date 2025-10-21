@@ -1,13 +1,13 @@
 {include file={$baseFunctions}}
 
-<footer style="width: 100%; font-size: 9pt;">
-    <hr>
-    <table width="100%">
+<footer class="footer-container">
+    <hr class="footer-hr">
+    <table class="footer-table">
         <tr>
-            <td style="color: rgb(49, 132, 155); text-align: left; font-family: 'Arial', sans-serif;">
+            <td class="footer-section-title">
                 {call name="getMetadata" search={$section_title|upper}}
             </td>
-            <td style="color: black; text-align: right; font-family: 'Arial', sans-serif;">
+            <td class="footer-page-number">
                 <pagenumber />
             </td>
         </tr>

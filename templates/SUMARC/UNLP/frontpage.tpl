@@ -2,6 +2,10 @@
 
 <style>
     {include file={$frontpage}}
+
+    {if isset($extraCSS) && $extraCSS}
+        {include file={$extraCSS}}
+    {/if}
 </style>
 
 <div class="frontpage-body">

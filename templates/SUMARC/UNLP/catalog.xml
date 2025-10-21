@@ -6,6 +6,7 @@
     <item id="2">body</item>
     <item id="3">references</item>
     <item id="4">footnotes</item>
+    <item id="5">importCSS</item>
   </build>
   <media>
     <item id="1">
@@ -25,10 +26,18 @@
       <file>footnotes.css</file>
     </item>
     <item id="5">
+      <name>footer</name>
+      <file>footer.css</file>
+    </item>
+    <item id="6">
+      <name>header</name>
+      <file>header.css</file>
+    </item>
+    <item id="7">
         <name>journalLogo</name>
         <file>journal_logo.png</file>
     </item>
-    <item id="6">
+    <item id="8">
       <name>institutionLogo</name>
       <file>institution_logo.png</file>
     </item>
@@ -68,4 +77,7 @@
       <use>footer</use>
     </uses>
   </footnotes>
+  <importCSS>
+    <file>importCSS.tpl</file>
+  </importCSS>
 </catalog>
