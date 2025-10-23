@@ -33,7 +33,8 @@ use APP\facades\Repo;
 use PKP\core\JSONMessage;
 use JATSParser\Body\Document as JATSDocument;
 use APP\core\Request;
-use JATSParser\TemplateHandler\PDF\PdfOutputStrategy;
+use JATSParser\TemplateHandler\HTML\HTMLOutputStrategy;
+use JATSParser\TemplateHandler\PDF\PDFOutputStrategy;
 use PKP\context\Context;
 use PKP\locale\Locale;
 use PKP\galley\Galley;
@@ -78,10 +79,15 @@ class JatsParserPlugin extends GenericPlugin
 		if($enabled) {
 			$contextId = $this->getCurrentContextId();
 			$fileManager = new PrivateFileManager();
+			$path = $fileManager->getBasePath() . "/journals/$contextId/jatsParser_templates";
 			
-			if(!file_exists($fileManager->getBasePath() . "/journals/$contextId/jatsParser_templates"))
-				mkdir($fileManager->getBasePath() . "/journals/$contextId/jatsParser_templates");
+			if(!file_exists($path))
+				mkdir($path);
 		}
+	}
+
+	public function uploadTemplateFile($template, $file) {
+		#file_put_contents(__DIR__ . "/test.txt", "$template \n $file");
 	}
 
 
@@ -270,7 +276,7 @@ class JatsParserPlugin extends GenericPlugin
 			'margin_bottom' => '30',
 			'margin_left' => '15',
 			'margin_right' => '15',
-			'selected_template' => '',
+			'selected_template' => 'UNLP',
 		];
 
 		return $ojsConfiguration;
@@ -293,9 +299,11 @@ class JatsParserPlugin extends GenericPlugin
 		$fileMgr = new PrivateFileManager();
 		$journalId = $request->getContext()->getId();
 
-		$outputStrategy = PdfOutputStrategy::class; # Lo que hablamos fue que esto quede así hasta que se necesite hace un selector de estrategias, trabajo para otra persona
+		$htmloutput = HTMLOutputStrategy::class; # Sorpresa sorpresa, adapté la estrategia de salida de los PDFs para generar una salida en HTML, es probable que haya que meter algo de mano para que termine de ser funcional, pero el desarrollo está prácticamente hecho. Todo el procesamiento interno ya estaría acomdoado 👍 
+		$outputStrategy = PDFOutputStrategy::class; # Lo que hablamos fue que esto quede así hasta que se necesite hace un selector de estrategias, trabajo para otra persona
 		# Pero, esencialmente, sería un selector que te devuelve el FQCN de la estrategia a usar, en este caso PdfOutputStrategy::class retorna algo del estilo JATSParser\TemplateHandler\PDF\PdfOutputStrategy
 		# Nótese que la estrategia a usar debe guardarse en la DB ya que es una configuración que se mantiene, no se selecciona a la hora de escupir el PDF sino desde la config del plugin en OJS. Atte: Leito
+		file_put_contents(__DIR__ . "/htmlTest.html", $htmloutput::generateOutput($this, $fileMgr, $journalId, $localeKey, $fileId, $htmlString, $configuration, $metadata, $ojsConfiguration));
 		return $outputStrategy::generateOutput($this, $fileMgr, $journalId, $localeKey, $fileId, $htmlString, $configuration, $metadata, $ojsConfiguration);
 	}
 

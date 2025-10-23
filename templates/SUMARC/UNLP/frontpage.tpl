@@ -113,8 +113,10 @@
             <hr class="frontpage-author-hr">
 
             <div class="frontpage-abstract-section">
-                {call name="getMetadata" pre="<span class='frontpage-abstract-title'>" search={$translations.es.abstract} post=" | </span>"}
-                {call name="getMetadata" pre="<span class='frontpage-abstract-text'>" search={$abstract_texts.es} post="</span>"}
+                <span>
+                    {call name="getMetadata" pre="<span class='frontpage-abstract-title'>" search={$translations.es.abstract} post=" | </span>"}
+                    {call name="getMetadata" pre="<span class='frontpage-abstract-text'>" search={$abstract_texts.es} post="</span>"}
+                </span>
             </div>
 
             <div class="frontpage-keywords-container">
@@ -127,8 +129,10 @@
             </div>
 
             <div class="frontpage-abstract-section">
-                {call name="getMetadata" pre="<span class='frontpage-abstract-title'>" search={$translations.en.abstract} post=" | </span>"}
-                {call name="getMetadata" pre="<span class='frontpage-abstract-text'>" search={$abstract_texts.en} post="</span>"}
+                <span>
+                    {call name="getMetadata" pre="<span class='frontpage-abstract-title'>" search={$translations.en.abstract} post=" | </span>"}
+                    {call name="getMetadata" pre="<span class='frontpage-abstract-text'>" search={$abstract_texts.en} post="</span>"}
+                </span>
             </div>
 
             <div class="frontpage-keywords-container">
