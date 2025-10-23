@@ -76,20 +76,15 @@ class JatsParserPlugin extends GenericPlugin
 	{
 		parent::setEnabled($enabled);
 
-		if($enabled) {
+		if ($enabled) {
 			$contextId = $this->getCurrentContextId();
 			$fileManager = new PrivateFileManager();
 			$path = $fileManager->getBasePath() . "/journals/$contextId/jatsParser_templates";
-			
-			if(!file_exists($path))
-				mkdir($path);
+
+			if (!file_exists($path))
+				mkdir($path, 0751, true);
 		}
 	}
-
-	public function uploadTemplateFile($template, $file) {
-		#file_put_contents(__DIR__ . "/test.txt", "$template \n $file");
-	}
-
 
 	/**
 	 * Get the plugin display name.
@@ -127,6 +122,15 @@ class JatsParserPlugin extends GenericPlugin
 					__('manager.plugins.settings'),
 					null
 				),
+				new LinkAction(
+					'pdfSettings',
+					new AjaxModal(
+						$router->url($request, null, null, 'manage', null, array('verb' => 'pdfSettings', 'plugin' => $this->getName(), 'category' => 'generic')),
+						$this->getDisplayName()
+					),
+					__('manager.plugins.pdfSettings'),
+					null
+				),
 			) : array(),
 			parent::getActions($request, $verb)
 		);
@@ -142,6 +146,21 @@ class JatsParserPlugin extends GenericPlugin
 				//AppLocale::requireComponents(LOCALE_COMPONENT_APP_COMMON,  LOCALE_COMPONENT_PKP_MANAGER);
 				$this->import('JatsParserSettingsForm');
 				$form = new JatsParserSettingsForm($this, $context->getId());
+				if ($request->getUserVar('save')) {
+					$form->readInputData();
+					if ($form->validate()) {
+						$form->execute();
+						return new JSONMessage(true);
+					}
+				} else {
+					$form->initData();
+				}
+				return new JSONMessage(true, $form->fetch($request));
+
+			case 'pdfSettings':
+				$context = $request->getContext();
+				$this->import('JatsParserPdfSettingsForm');
+				$form = new JatsParserPdfSettingsForm($this, $context->getId());
 				if ($request->getUserVar('save')) {
 					$form->readInputData();
 					if ($form->validate()) {
@@ -269,17 +288,44 @@ class JatsParserPlugin extends GenericPlugin
 		return $metadata;
 	}
 
-	private function getConfiguration()
+	private function getConfiguration($request)
 	{
+		$context = $request->getContext();
+
 		$ojsConfiguration = [
-			'margin_top' => '25',
-			'margin_bottom' => '30',
-			'margin_left' => '15',
-			'margin_right' => '15',
+			'margin_top' => $this->getSetting($context->getId(), 'pdfTopMargin'),
+			'margin_bottom' => $this->getSetting($context->getId(), 'pdfBottomMargin'),
+			'margin_left' => $this->getSetting($context->getId(), 'pdfLeftMargin'),
+			'margin_right' => $this->getSetting($context->getId(), 'pdfRightMargin'),
 			'selected_template' => 'UNLP',
 		];
 
 		return $ojsConfiguration;
+	}
+
+	public function getAvailablePdfTemplates($request)
+	{
+		$ojsConfiguration = $this->getConfiguration($request);
+		$path = __DIR__ . "/templates/SUMARC/";
+		$items = scandir($path);
+		$templatesDir = [];
+		$templatesDir[] = "";
+
+		foreach ($items as $item) {
+			if ($item != '.' && $item != '..') { # Excluyo . y ..
+				if (is_dir($path . '/' . $item)) {
+					# Agregar el check de que sea una template valida:
+						# - Debe tener un catálogo
+							# - Ese catálogo debe tener un nombre de template definido
+							# - También debe tener por lo menos un artefactor definido
+							# - Ese artefacto definido debe existir
+								# - Adapté el check de archivos como checkTemplateIntegrity, dentro de PDFCreationService
+					$templatesDir[] = $item;
+				}
+			}
+		}
+
+		return $templatesDir;
 	}
 
 	/**
@@ -294,16 +340,18 @@ class JatsParserPlugin extends GenericPlugin
 		error_log('JATSParserPlugin::pdfCreation() called');
 
 		$metadata = $this->getMetadata($publication, $localeKey, $request, $htmlString);
-		$ojsConfiguration = $this->getConfiguration();
+		$ojsConfiguration = $this->getConfiguration($request);
 		$configuration = new Configuration($metadata);
 		$fileMgr = new PrivateFileManager();
 		$journalId = $request->getContext()->getId();
 
-		$htmloutput = HTMLOutputStrategy::class; # Sorpresa sorpresa, adapté la estrategia de salida de los PDFs para generar una salida en HTML, es probable que haya que meter algo de mano para que termine de ser funcional, pero el desarrollo está prácticamente hecho. Todo el procesamiento interno ya estaría acomdoado 👍 
+		# $htmloutput = HTMLOutputStrategy::class; # Sorpresa sorpresa, adapté la estrategia de salida de los PDFs para generar una salida en HTML, es probable que haya que meter algo de mano para que termine de ser funcional, pero el desarrollo está prácticamente hecho. Todo el procesamiento interno ya estaría acomdoado 👍 
+
 		$outputStrategy = PDFOutputStrategy::class; # Lo que hablamos fue que esto quede así hasta que se necesite hace un selector de estrategias, trabajo para otra persona
 		# Pero, esencialmente, sería un selector que te devuelve el FQCN de la estrategia a usar, en este caso PdfOutputStrategy::class retorna algo del estilo JATSParser\TemplateHandler\PDF\PdfOutputStrategy
 		# Nótese que la estrategia a usar debe guardarse en la DB ya que es una configuración que se mantiene, no se selecciona a la hora de escupir el PDF sino desde la config del plugin en OJS. Atte: Leito
-		file_put_contents(__DIR__ . "/htmlTest.html", $htmloutput::generateOutput($this, $fileMgr, $journalId, $localeKey, $fileId, $htmlString, $configuration, $metadata, $ojsConfiguration));
+
+		# file_put_contents(__DIR__ . "/htmlTest.html", $htmloutput::generateOutput($this, $fileMgr, $journalId, $localeKey, $fileId, $htmlString, $configuration, $metadata, $ojsConfiguration));
 		return $outputStrategy::generateOutput($this, $fileMgr, $journalId, $localeKey, $fileId, $htmlString, $configuration, $metadata, $ojsConfiguration);
 	}
 

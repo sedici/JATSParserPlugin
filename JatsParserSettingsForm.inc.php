@@ -13,10 +13,12 @@
  * @brief Form for journal managers to modify jatsParser plugin settings
  */
 import('lib.pkp.classes.form.Form');
+
 use PKP\form\validation\FormValidatorPost;
 use PKP\form\validation\FormValidatorCSRF;
 
-class JatsParserSettingsForm extends Form {
+class JatsParserSettingsForm extends Form
+{
 
 	/** @var int */
 	var $_journalId;
@@ -29,7 +31,8 @@ class JatsParserSettingsForm extends Form {
 	 * @param $plugin JATSParserPlugin
 	 * @param $journalId int
 	 */
-	function __construct($plugin, $journalId) {
+	function __construct($plugin, $journalId)
+	{
 		$this->_journalId = $journalId;
 		$this->_plugin = $plugin;
 
@@ -37,14 +40,14 @@ class JatsParserSettingsForm extends Form {
 
 		$this->addCheck(new FormValidatorPost($this));
 		$this->addCheck(new FormValidatorCSRF($this));
-
 	}
 
 	/**
 	 * Initialize form data.
 	 */
-	function initData() {
-		$contextId = $this->_journalId ;
+	function initData()
+	{
+		$contextId = $this->_journalId;
 		$plugin = $this->_plugin;
 
 		$this->setData('convertToPdf', $plugin->getSetting($contextId, 'convertToPdf'));
@@ -54,15 +57,17 @@ class JatsParserSettingsForm extends Form {
 	/**
 	 * Assign form data to user-submitted data.
 	 */
-	function readInputData() {
-		$this->readUserVars(array('convertToPdf', 'citationStyle', 'customStyleInput', 'galleysImport', 'testFileInput'));
+	function readInputData()
+	{
+		$this->readUserVars(array('convertToPdf', 'citationStyle', 'customStyleInput', 'galleysImport'));
 	}
 
 	/**
 	 * Fetch the form.
 	 * @copydoc Form::fetch()
 	 */
-	function fetch($request, $template = null, $display = false) {
+	function fetch($request, $template = null, $display = false)
+	{
 		$templateMgr = TemplateManager::getManager($request);
 		$templateMgr->assign([
 			'pluginName' => $this->_plugin->getName(),
@@ -74,9 +79,10 @@ class JatsParserSettingsForm extends Form {
 	/**
 	 * Save settings.
 	 */
-	function execute(...$functionArgs) {
+	function execute(...$functionArgs)
+	{
 		$plugin = $this->_plugin;
-		$contextId = $this->_journalId ;
+		$contextId = $this->_journalId;
 
 		$convertToPdf = $this->getData('convertToPdf');
 		if (!$convertToPdf) {
@@ -98,35 +104,7 @@ class JatsParserSettingsForm extends Form {
 		if ($importGalleys = $this->getData('galleysImport')) {
 			$plugin->importGalleys();
 		}
-
-		// Handle uploaded test file (use $_FILES directly)
-		if (!empty($_FILES['testFileInput']) && $_FILES['testFileInput']['error'] === UPLOAD_ERR_OK) {
-			$uploaded = $_FILES['testFileInput'];
-			$originalName = basename($uploaded['name']);
-			$tmpPath = $uploaded['tmp_name'];
-
-			// Ensure plugin tmp directory exists
-			$pluginPath = $plugin->getPluginPath();
-			$tmpDir = $pluginPath . DIRECTORY_SEPARATOR . 'tmp';
-			if (!is_dir($tmpDir)) {
-				mkdir($tmpDir, 0755, true);
-			}
-
-			$targetPath = $tmpDir . DIRECTORY_SEPARATOR . $originalName;
-			if (move_uploaded_file($tmpPath, $targetPath)) {
-				// Call plugin method with the file path
-				if (method_exists($plugin, 'uploadTemplateFile')) {
-					$plugin->uploadTemplateFile('UNLP', $targetPath);
-				}
-			} else {
-				error_log('Failed to move uploaded file to ' . $targetPath);
-			}
-		} else {
-			if (!empty($_FILES['testFileInput'])) {
-				error_log('Upload error code: ' . $_FILES['testFileInput']['error']);
-			}
-		}
-
+	
 		parent::execute(...$functionArgs);
 	}
 }

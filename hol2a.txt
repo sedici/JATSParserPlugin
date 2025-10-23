@@ -1,0 +1,1 @@
+/app/plugins/generic/jatsParser/templates/SUMARC/
