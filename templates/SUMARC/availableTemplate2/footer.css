@@ -1,0 +1,25 @@
+.footer-container {
+    width: 100%;
+    font-size: 9pt;
+}
+
+.footer-hr {
+    border: none;
+    border-top: 1px solid black;
+}
+
+.footer-table {
+    width: 100%;
+}
+
+.footer-section-title {
+    color: rgb(49, 132, 155);
+    text-align: left;
+    font-family: 'Arial', sans-serif;
+}
+
+.footer-page-number {
+    color: black;
+    text-align: right;
+    font-family: 'Arial', sans-serif;
+}

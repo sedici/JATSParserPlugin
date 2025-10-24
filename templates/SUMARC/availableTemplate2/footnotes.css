@@ -1,0 +1,31 @@
+.footnote-label, .footnotes-container, li, a, ul, h2 {
+  text-align: justify;
+  font-family: 'FreeSerif';
+}
+
+.footnote-label {
+  text-decoration: bold;
+  font-size: 14px;
+}
+
+li {
+  font-size: 12.5px;
+  margin-bottom: 20px;
+}
+
+a, .footnote-label {
+  color: rgb(61, 145, 191);
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+h2 {
+  text-decoration: bold;
+  color: black;
+  margin-top: 30px;
+  margin-bottom: 20px;
+}

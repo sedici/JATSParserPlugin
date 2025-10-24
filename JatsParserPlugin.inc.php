@@ -34,6 +34,7 @@ use PKP\core\JSONMessage;
 use JATSParser\Body\Document as JATSDocument;
 use APP\core\Request;
 use JATSParser\TemplateHandler\HTML\HTMLOutputStrategy;
+use JATSParser\TemplateHandler\PDF\PDFCreationService;
 use JATSParser\TemplateHandler\PDF\PDFOutputStrategy;
 use PKP\context\Context;
 use PKP\locale\Locale;
@@ -293,11 +294,11 @@ class JatsParserPlugin extends GenericPlugin
 		$context = $request->getContext();
 
 		$ojsConfiguration = [
-			'margin_top' => $this->getSetting($context->getId(), 'pdfTopMargin'),
-			'margin_bottom' => $this->getSetting($context->getId(), 'pdfBottomMargin'),
-			'margin_left' => $this->getSetting($context->getId(), 'pdfLeftMargin'),
-			'margin_right' => $this->getSetting($context->getId(), 'pdfRightMargin'),
-			'selected_template' => 'UNLP',
+			'margin_top' => $this->getSetting($context->getId(), 'pdfTopMargin') ?? 25,
+			'margin_bottom' => $this->getSetting($context->getId(), 'pdfBottomMargin') ?? 30,
+			'margin_left' => $this->getSetting($context->getId(), 'pdfLeftMargin') ?? 15,
+			'margin_right' => $this->getSetting($context->getId(), 'pdfRightMargin') ?? 15,
+			'selected_template' => $this->getSetting($context->getId(), 'selectedTemplate') ?? '',
 		];
 
 		return $ojsConfiguration;
@@ -305,22 +306,19 @@ class JatsParserPlugin extends GenericPlugin
 
 	public function getAvailablePdfTemplates($request)
 	{
-		$ojsConfiguration = $this->getConfiguration($request);
 		$path = __DIR__ . "/templates/SUMARC/";
 		$items = scandir($path);
 		$templatesDir = [];
 		$templatesDir[] = "";
+		$fileManager = new PrivateFileManager();
+		$journalId = $request->getContext()->getId();
 
 		foreach ($items as $item) {
 			if ($item != '.' && $item != '..') { # Excluyo . y ..
 				if (is_dir($path . '/' . $item)) {
-					# Agregar el check de que sea una template valida:
-						# - Debe tener un catálogo
-							# - Ese catálogo debe tener un nombre de template definido
-							# - También debe tener por lo menos un artefactor definido
-							# - Ese artefacto definido debe existir
-								# - Adapté el check de archivos como checkTemplateIntegrity, dentro de PDFCreationService
-					$templatesDir[] = $item;
+					if(PDFCreationService::checkTemplateIntegrity($item, $this, $fileManager, $journalId)) {
+						$templatesDir[] = $item;
+					}
 				}
 			}
 		}
@@ -1389,9 +1387,6 @@ class JatsParserPlugin extends GenericPlugin
 		}
 
 		$htmlString .= '</div>';
-
-		file_put_contents(__DIR__ . "/htlm.txt", $htmlString);
-
 		return $htmlString;
 	}
 

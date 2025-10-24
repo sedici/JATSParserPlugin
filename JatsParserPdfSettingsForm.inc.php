@@ -33,11 +33,12 @@ class JatsParserPdfSettingsForm extends Form
 		$this->setData('pdfBottomMargin', $plugin->getSetting($contextId, 'pdfBottomMargin'));
 		$this->setData('pdfLeftMargin', $plugin->getSetting($contextId, 'pdfLeftMargin'));
 		$this->setData('pdfRightMargin', $plugin->getSetting($contextId, 'pdfRightMargin'));
+		$this->setData('selectedTemplate', $plugin->getSetting($contextId, 'selectedTemplate'));
 	}
 
 	function readInputData()
 	{
-		$this->readUserVars(array('fileInput', 'pdfTopMargin', 'pdfBottomMargin', 'pdfLeftMargin', 'pdfRightMargin'));
+		$this->readUserVars(array('fileInput', 'pdfTopMargin', 'pdfBottomMargin', 'pdfLeftMargin', 'pdfRightMargin', 'selectedTemplate'));
 	}
 
 	function fetch($request, $template = null, $display = false)
@@ -65,6 +66,7 @@ class JatsParserPdfSettingsForm extends Form
 		$plugin->updateSettings($contextId, 'pdfRightMargin', $this->getData('pdfRightMargin'));
 		$plugin->updateSettings($contextId, 'pdfLeftMargin', $this->getData('pdfLeftMargin'));
 		$plugin->updateSettings($contextId, 'pdfBottomMargin', $this->getData('pdfBottomMargin'));
+		$plugin->updateSettings($contextId, 'selectedTemplate', $this->getData('selectedTemplate'));
 
 		# Subir archivos para las templates
 		$inputName = 'fileInput';

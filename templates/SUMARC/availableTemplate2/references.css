@@ -1,0 +1,26 @@
+.references-section, h2, a, ul, span, p, li, ol {
+  font-family: 'FreeSerif';
+  text-align: justify;
+}
+
+li {
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+a, .citation-url{
+  text-decoration: bold;
+  color: rgb(61, 145, 191);
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+h2 {
+  text-decoration: bold;
+  margin-bottom: 20px;
+  color: black;
+}

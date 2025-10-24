@@ -1,0 +1,26 @@
+.header-container {
+    text-align: center;
+}
+
+.header-metadata {
+    font-weight: bold;
+    color: rgb(49, 132, 155);
+    font-size: 0.8em;
+    font-family: 'Helvetica';
+}
+
+.header-doi-link {
+    color: rgb(49, 132, 155);
+    text-decoration: none;
+    font-size: 0.8em;
+    word-break: break-all;
+    font-family: 'Helvetica';
+}
+
+.header-linked-metadata {
+    color: rgb(49, 132, 155);
+    text-decoration: none;
+    font-size: 1em;
+    word-break: break-all;
+    font-family: 'Philosopher', sans-serif;
+}
