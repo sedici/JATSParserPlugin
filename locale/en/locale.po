@@ -157,3 +157,33 @@ msgstr "Figure"
 
 msgid "plugins.generic.jatsParser.table.title"
 msgstr "Table"
+
+msgid "plugins.generic.jatsParser.file.not.found"
+msgstr "Missing files for the selected template"
+
+msgid "plugins.generic.jatsParser.template.config"
+msgstr "Templates configuration"
+
+msgid "plugins.generic.jatsParser.margins.config"
+msgstr "Margins configuration (millimeters)"
+
+msgid "plugins.generic.jatsParser.files.config"
+msgstr "Files configuration"
+
+msgid "plugins.generic.jatsParser.top.margin"
+msgstr "Top margin"
+
+msgid "plugins.generic.jatsParser.bottom.margin"
+msgstr "Bottom margin"
+
+msgid "plugins.generic.jatsParser.left.margin"
+msgstr "Left margin"
+
+msgid "plugins.generic.jatsParser.right.margin"
+msgstr "Right margin"
+
+msgid "plugins.generic.jatsParser.empty.template"
+msgstr "No template selected"
+
+msgig "plugins.generic.jatsParser.pdf.config.button"
+msgstr "PDF Templates Configuration"

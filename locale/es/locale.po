@@ -175,3 +175,33 @@ msgstr "Figura"
 
 msgid "plugins.generic.jatsParser.table.title"
 msgstr "Tabla"
+
+msgid "plugins.generic.jatsParser.file.not.found"
+msgstr "Faltan archivos para la plantilla seleccionada"
+
+msgid "plugins.generic.jatsParser.template.config"
+msgstr "Configuración de la plantilla"
+
+msgid "plugins.generic.jatsParser.margins.config"
+msgstr "Configuración de márgenes (milímetros)"
+
+msgid "plugins.generic.jatsParser.files.config"
+msgstr "Configuración de archivos"
+
+msgid "plugins.generic.jatsParser.top.margin"
+msgstr "Margen superior"
+
+msgid "plugins.generic.jatsParser.bottom.margin"
+msgstr "Margen inferior"
+
+msgid "plugins.generic.jatsParser.left.margin"
+msgstr "Margen izquierdo"
+
+msgid "plugins.generic.jatsParser.right.margin"
+msgstr "Margen derecho"
+
+msgid "plugins.generic.jatsParser.empty.template"
+msgstr "No se ha seleccionado una plantilla"
+
+msgig "plugins.generic.jatsParser.pdf.config.button"
+msgstr "Configuración para las plantillas PDF"

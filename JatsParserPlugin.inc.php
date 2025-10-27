@@ -308,8 +308,13 @@ class JatsParserPlugin extends GenericPlugin
 	{
 		$path = __DIR__ . "/templates/SUMARC/";
 		$items = scandir($path);
+		
 		$templatesDir = [];
-		$templatesDir[] = "";
+		$templatesDir[] = [
+			'id' => 'vacio', # Esto debería cambiarlo por un texto traído desde los archivos de traucciones (locale) 
+			'title' => 'vacio'
+		];
+
 		$fileManager = new PrivateFileManager();
 		$journalId = $request->getContext()->getId();
 
@@ -317,7 +322,10 @@ class JatsParserPlugin extends GenericPlugin
 			if ($item != '.' && $item != '..') { # Excluyo . y ..
 				if (is_dir($path . '/' . $item)) {
 					if(PDFCreationService::checkTemplateIntegrity($item, $this, $fileManager, $journalId)) {
-						$templatesDir[] = $item;
+						$templatesDir[] = [
+							'id' => $item,
+							'title' => $item,
+						];
 					}
 				}
 			}

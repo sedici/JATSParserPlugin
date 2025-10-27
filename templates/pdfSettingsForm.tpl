@@ -1,39 +1,44 @@
 <script>
-  $(function() {ldelim}
-		$('#jatsParserSettingsForm').pkpHandler('$.pkp.controllers.form.AjaxFormHandler');
-    {rdelim});
+	$(function() {ldelim}
+		$('#jatsParserPdfSettingsForm').pkpHandler('$.pkp.controllers.form.AjaxFormHandler');
+		{rdelim});
 </script>
 
 <form class="pkp_form" id="jatsParserPdfSettingsForm" method="post" action="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="pdfSettings" save=true}" enctype="multipart/form-data">
 	{csrf}
 	{include file="controllers/notification/inPlaceNotification.tpl" notificationId="jatsParserSettingsFormNotification"}
 
-	{fbvFormArea id="templateForm" title="Configuración de plantillas PDF"}
-			{fbvFormSection list=true}
-					{fbvElement type="select"
-							id="selectedTemplate"
-							label="Plantilla de Conversión JATS a PDF"
-							required="true"
-							value=$selectedTemplateValue|escape
-							from=$templates
-							translate=false
-							size=$templates|@count
-					}
-			{/fbvFormSection}
+	{fbvFormArea id="templateForm" title="plugins.generic.jatsParser.template.config"}
+		{fbvFormSection list=true}
+			{foreach from=$templates item="templateItem"}
+				{if empty($templateItem.id)}
+					{assign var="checkedValue" value=$noneSelectedValue}
+				{else}
+					{assign var="checkedValue" value=$templateItem.id|compare:$selectedTemplateValue}
+				{/if}
+
+				{fbvElement type="radio" 
+						id="template_{$templateItem.id|escape}" 
+						name="selectedTemplate" 
+						value=$templateItem.id|escape 
+						checked=$checkedValue 
+						label=$templateItem.title|escape}
+			{/foreach}
+		{/fbvFormSection}
 	{/fbvFormArea}
 
-		{fbvFormArea id="marginsForm" title="Configuración de márgenes"}
-			{fbvFormSection list=true}
-				{fbvElement type="text" id="pdfTopMargin" name="pdfTopMargin" label="top margin"}
-				{fbvElement type="text" id="pdfBottomMargin" name="pdfBottomMargin" label="bottom margin"}
-				{fbvElement type="text" id="pdfLeftMargin" name="pdfLeftMargin" label="left margin"}
-				{fbvElement type="text" id="pdfRightMargin" name="pdfRightMargin" label="right margin"}
-			{/fbvFormSection}
-		{/fbvFormArea}
+	{fbvFormArea id="marginsForm" title="plugins.generic.jatsParser.margins.config"}
+		{fbvFormSection list=true}
+			{fbvElement type="text" id="pdfTopMargin" name="pdfTopMargin" label="plugins.generic.jatsParser.top.margin" value=$pdfTopMargin}
+			{fbvElement type="text" id="pdfBottomMargin" name="pdfBottomMargin" label="plugins.generic.jatsParser.bottom.margin" value=$pdfBottomMargin}
+			{fbvElement type="text" id="pdfLeftMargin" name="pdfLeftMargin" label="plugins.generic.jatsParser.left.margin" value=$pdfLeftMargin}
+			{fbvElement type="text" id="pdfRightMargin" name="pdfRightMargin" label="plugins.generic.jatsParser.right.margin" value=$pdfRightMargin}
+		{/fbvFormSection}
+	{/fbvFormArea}
 
-    {fbvFormArea id="file" title="Subida de archivos a modo de test"}
-			{fbvFormSection for="fileSection" list=true description="Acá debería mandarte a leer la doc para los nombres de los archivos"}
-				{fbvElement type="file" id="fileInput" name="fileInput" label="asd"}
+    {fbvFormArea id="file" title="plugins.generic.jatsParser.files.config"}
+			{fbvFormSection for="fileSection" list=true description="Esto moverlo a otro lado :)"}
+				{fbvElement type="file" id="fileInput" name="fileInput" label=""}
 			{/fbvFormSection}
     {/fbvFormArea}
 

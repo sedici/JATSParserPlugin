@@ -115,3 +115,6 @@ msgstr "Резюме"
 
 msgid "plugins.generic.jatsParser.publication.jats.citationStyle.label"
 msgstr "Таблиця призначення"
+
+msgid "plugins.generic.jatsParser.file.not.found"
+msgstr "Бракує файлів для вибраного шаблону"

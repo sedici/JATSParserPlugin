@@ -1,11 +1,10 @@
 <?php
 import('lib.pkp.classes.form.Form');
 
-use APP\core\Application;
-use PKP\core\JSONMessage;
 use PKP\file\PrivateFileManager;
 use PKP\form\validation\FormValidatorPost;
 use PKP\form\validation\FormValidatorCSRF;
+use PKP\form\validation\FormValidatorRegExp;
 
 class JatsParserPdfSettingsForm extends Form
 {
@@ -22,6 +21,10 @@ class JatsParserPdfSettingsForm extends Form
 
 		$this->addCheck(new FormValidatorPost($this));
 		$this->addCheck(new FormValidatorCSRF($this));
+		$this->addCheck(new FormValidatorRegExp($this, 'pdfTopMargin', 'optional', 'plugins.generic.jatsparser.pdfsettings.margin.error', '/^[0-9]+$/'));
+		$this->addCheck(new FormValidatorRegExp($this, 'pdfBottomMargin', 'optional', 'plugins.generic.jatsparser.pdfsettings.margin.error', '/^[0-9]+$/'));
+		$this->addCheck(new FormValidatorRegExp($this, 'pdfLeftMargin', 'optional', 'plugins.generic.jatsparser.pdfsettings.margin.error', '/^[0-9]+$/'));
+		$this->addCheck(new FormValidatorRegExp($this, 'pdfRightMargin', 'optional', 'plugins.generic.jatsparser.pdfsettings.margin.error', '/^[0-9]+$/'));
 	}
 
 	function initData()
@@ -33,6 +36,7 @@ class JatsParserPdfSettingsForm extends Form
 		$this->setData('pdfBottomMargin', $plugin->getSetting($contextId, 'pdfBottomMargin'));
 		$this->setData('pdfLeftMargin', $plugin->getSetting($contextId, 'pdfLeftMargin'));
 		$this->setData('pdfRightMargin', $plugin->getSetting($contextId, 'pdfRightMargin'));
+
 		$this->setData('selectedTemplate', $plugin->getSetting($contextId, 'selectedTemplate'));
 	}
 
@@ -43,10 +47,14 @@ class JatsParserPdfSettingsForm extends Form
 
 	function fetch($request, $template = null, $display = false)
 	{
+		$templates = $this->_plugin->getAvailablePdfTemplates($request);
+		$selectedValue = $this->getData('selectedTemplate');
+
 		$templateMgr = TemplateManager::getManager($request);
 		$templateMgr->assign([
 			'pluginName' => $this->_plugin->getName(),
-			'templates' => $this->_plugin->getAvailablePdfTemplates($request),
+			'templates' => $templates,
+			'selectedTemplateValue' => $selectedValue,
 		]);
 
 		return parent::fetch($request, $template, $display);
@@ -62,16 +70,17 @@ class JatsParserPdfSettingsForm extends Form
 		$contextId = $this->_journalId;
 
 		# Configuración de márgenes
-		$plugin->updateSettings($contextId, 'pdfTopMargin', $this->getData('pdfTopMargin'));
-		$plugin->updateSettings($contextId, 'pdfRightMargin', $this->getData('pdfRightMargin'));
-		$plugin->updateSettings($contextId, 'pdfLeftMargin', $this->getData('pdfLeftMargin'));
-		$plugin->updateSettings($contextId, 'pdfBottomMargin', $this->getData('pdfBottomMargin'));
-		$plugin->updateSettings($contextId, 'selectedTemplate', $this->getData('selectedTemplate'));
+		$plugin->updateSetting($contextId, 'pdfTopMargin', $this->getData('pdfTopMargin'));
+		$plugin->updateSetting($contextId, 'pdfRightMargin', $this->getData('pdfRightMargin'));
+		$plugin->updateSetting($contextId, 'pdfLeftMargin', $this->getData('pdfLeftMargin'));
+		$plugin->updateSetting($contextId, 'pdfBottomMargin', $this->getData('pdfBottomMargin'));
+		$plugin->updateSetting($contextId, 'selectedTemplate', $this->getData('selectedTemplate'));
 
 		# Subir archivos para las templates
 		$inputName = 'fileInput';
 		$status = "";
 
+		# Esto debería moverse a un lugar aparte que tenga una tabla con blablabla 
 		if (isset($_FILES[$inputName]) && $_FILES[$inputName]['error'] === UPLOAD_ERR_OK) {
 
 			$selectedTemplate = "UNLP";
@@ -96,8 +105,6 @@ class JatsParserPdfSettingsForm extends Form
 		} elseif (isset($_FILES[$inputName]) && $_FILES[$inputName]['error'] !== UPLOAD_ERR_OK) {
 			$status .= 'Error de subida de archivo. Código: ' . $_FILES[$inputName]['error'];
 		}
-
-		file_put_contents(__DIR__ . "/test.txt", $status);
 
 		#parent::execute(...$functionArgs);
 	}
