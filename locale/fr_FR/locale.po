@@ -12,58 +12,58 @@ msgstr ""
 "Language: \n"
 
 msgid "plugins.generic.jatsParser.displayName"
-msgstr "JATSParser Plugin"
+msgstr "Plugin JATSParser"
 
 msgid "plugins.generic.jatsParser.description"
-msgstr "The plugin transforms JATS XML into HTML and PDF for viewing on the journal's front-end"
+msgstr "Le plugin transforme le XML JATS en HTML et PDF pour l’affichage sur l’interface publique de la revue"
 
 msgid "plugins.generic.jatsParser.article.fulltext.availableLocale"
-msgstr "Full-text of the article is available for this locale:"
+msgstr "Le texte intégral de l’article est disponible pour cette langue :"
 
 msgid "plugins.generic.jatsParser.article.fulltext.availableLocales"
-msgstr "Full-text of the article is available for these locales:"
+msgstr "Le texte intégral de l’article est disponible pour ces langues :"
 
 msgid "plugins.generic.jatsParser.workflow.settings"
-msgstr "JATS Parser Settings"
+msgstr "Paramètres de JATS Parser"
 
 msgid "plugins.generic.jatsParser.settings.description"
-msgstr "JATSParser plugin settings menu"
+msgstr "Menu des paramètres du plugin JATSParser"
 
 msgid "plugins.generic.jatsParser.settings.covert.pdf"
-msgstr "Activate JATS XML to PDF conversion"
+msgstr "Activer la conversion de JATS XML en PDF"
 
 msgid "plugins.generic.jatsParser.galley.import"
-msgstr "Import of JATS XML galleys"
+msgstr "Importation des épreuves JATS XML"
 
 msgid "plugins.generic.jatsParser.galley.import.description"
-msgstr "This options allows to save JATS XML galleys as a full-text across all publications in the journal. Import is omitted if a publication already has full-text for a given galley. Import starts immediately after saving the form"
+msgstr "Cette option permet d’enregistrer les épreuves JATS XML comme texte intégral dans toutes les publications de la revue. L’importation est ignorée si une publication possède déjà un texte intégral pour une épreuve donnée. L’importation commence immédiatement après l’enregistrement du formulaire."
 
 msgid "plugins.generic.jatsParser.galley.import.title"
-msgstr "Import full-text from galleys"
+msgstr "Importer le texte intégral depuis les épreuves"
 
 msgid "plugins.generic.jatsParser.publication.jats.fulltext"
-msgstr "Full Text"
+msgstr "Texte intégral"
 
 msgid "plugins.generic.jatsParser.publication.jats.fulltext.success"
-msgstr "Full-text upload successful"
+msgstr "Téléversement du texte intégral réussi"
 
 msgid "plugins.generic.jatsParser.publication.jats.label"
-msgstr "Create full text"
+msgstr "Créer un texte intégral"
 
 msgid "plugins.generic.jatsParser.publication.jats.description"
-msgstr "Select a production ready file in JATS XML format to create the full text."
+msgstr "Sélectionnez un fichier prêt pour la production au format JATS XML afin de créer le texte intégral."
 
 msgid "plugins.generic.jatsParser.publication.jats.descriptionEmpty"
-msgstr "The list of JATS XML files is empty. Please, upload the file to the production stage and it will appear below for full-text generation."
+msgstr "La liste des fichiers JATS XML est vide. Veuillez téléverser le fichier dans l’étape de production et il apparaîtra ci-dessous pour la génération du texte intégral."
 
 msgid "plugins.generic.jatsParser.publication.jats.references.label"
-msgstr "Retrieve references from JATS XML?"
+msgstr "Récupérer les références depuis le JATS XML ?"
 
 msgid "plugins.generic.jatsParser.publication.jats.references.description"
-msgstr "Reference list will be retrieved from JATS XML and saved as a part of the publication. If references are already included into the publication, they are going to be rewritten."
+msgstr "La liste des références sera extraite du JATS XML et enregistrée comme partie de la publication. Si des références existent déjà dans la publication, elles seront remplacées."
 
 msgid "plugins.generic.jatsParser.publication.jats.pdf.label"
-msgstr "Create PDF Galley?"
+msgstr "Créer une épreuve PDF ?"
 
 msgid "plugins.generic.jatsParser.publication.galley.pdf.label"
 msgstr "PDF"
@@ -99,97 +99,64 @@ msgid "plugins.generic.jatsParser.style.vancouver"
 msgstr "Vancouver"
 
 msgid "plugins.generic.jatsParser.style.custom"
-msgstr "Other citation style formats"
+msgstr "Autres formats de styles de citation"
 
 msgid "plugins.generic.jatsParser.style.description"
-msgstr "The style format for references parsed by the plugin. For other styles, visit <a target=\"_blank\" href=\"https://github.com/citation-style-language/styles\">CSL repository</a> to see if it's supported."
+msgstr "Le format de style pour les références analysées par le plugin. Pour d’autres styles, consultez le <a target=\"_blank\" href=\"https://github.com/citation-style-language/styles\">répertoire CSL</a> afin de vérifier s’ils sont pris en charge."
 
 msgid "plugins.generic.jatsParser.style.label"
-msgstr "e.g.: american-medical-association"
+msgstr "ex. : american-medical-association"
 
 msgid "plugins.generic.jatsParser.publication.jats.links.label"
-msgstr "Format in-text links to references?"
+msgstr "Formater les liens dans le texte vers les références ?"
 
 msgid "plugins.generic.jatsParser.settings.convert.pdf"
-msgstr "Enable PDF conversion"
+msgstr "Activer la conversion en PDF"
 
 msgid "plugins.generic.jatsParser.pdf.abstract"
-msgstr "Abstract"
+msgstr "Résumé"
 
 msgid "plugins.generic.jatsParser.publication.jats.citationStyle.label"
-msgstr "Citation Table"
+msgstr "Table de citations"
 
 msgid "plugins.generic.jatsParser.citationtable.error.emptyoption"
-msgstr "Error: You can't save an empty citation value"
+msgstr "Erreur : Vous ne pouvez pas enregistrer une valeur de citation vide"
 
 msgid "plugins.generic.citationtable.citations.notfound"
-msgstr "No citations were found in the article."
+msgstr "Aucune citation n’a été trouvée dans l’article."
 
 msgid "plugins.generic.jatsParser.citationtable.titlecontext"
-msgstr "Context"
-
-msgid "plugins.generic.jatsParser.citationtable.titlecontext"
-msgstr "Contexto"
+msgstr "Contexte"
 
 msgid "plugins.generic.jatsParser.citationtable.titlereferences"
-msgstr "References"
+msgstr "Références"
 
 msgid "plugins.generic.jatsParser.citationtable.titlefigsandtables"
-msgstr "Tables and Figures"
+msgstr "Tableaux et figures"
 
 msgid "plugins.generic.jatsParser.citationtable.figandtables.titles"
-msgstr "Titles"
+msgstr "Titres"
 
 msgid "plugins.generic.jatsParser.citationtable.titlecitationstyle"
-msgstr "Style of Citation"
+msgstr "Style de citation"
 
 msgid "plugins.generic.jatsParser.citationtable.savebuttontext"
-msgstr "Save"
+msgstr "Enregistrer"
 
 msgid "plugins.generic.jatsParser.citationtable.customtext"
-msgstr "Other"
+msgstr "Autre"
 
 msgid "plugins.generic.jatsParser.citationtable.citationstyle.twoauthors.separator"
 msgstr "&"
 
 msgid "plugins.generic.jatsParser.article.footnotes.title"
-msgstr "Footnotes"
+msgstr "Notes de bas de page"
 
 msgid "plugins.generic.jatsParser.article.references.title"
-msgstr "References"
+msgstr "Références"
 
 msgid "plugins.generic.jatsParser.figure.title"
 msgstr "Figure"
 
 msgid "plugins.generic.jatsParser.table.title"
-msgstr "Table"
-
-msgid "plugins.generic.jatsParser.file.not.found"
-msgstr "Missing files for the selected template"
-
-msgid "plugins.generic.jatsParser.template.config"
-msgstr "Templates configuration"
-
-msgid "plugins.generic.jatsParser.margins.config"
-msgstr "Margins configuration (millimeters)"
-
-msgid "plugins.generic.jatsParser.files.config"
-msgstr "Files configuration"
-
-msgid "plugins.generic.jatsParser.top.margin"
-msgstr "Top margin"
-
-msgid "plugins.generic.jatsParser.bottom.margin"
-msgstr "Bottom margin"
-
-msgid "plugins.generic.jatsParser.left.margin"
-msgstr "Left margin"
-
-msgid "plugins.generic.jatsParser.right.margin"
-msgstr "Right margin"
-
-msgid "plugins.generic.jatsParser.empty.template"
-msgstr "No template selected"
-
-msgig "plugins.generic.jatsParser.pdf.config.button"
-msgstr "PDF Templates Configuration"
+msgstr "Tableau"

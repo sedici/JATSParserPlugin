@@ -32,10 +32,17 @@ class JatsParserPdfSettingsForm extends Form
 		$contextId = $this->_journalId;
 		$plugin = $this->_plugin;
 
-		$this->setData('pdfTopMargin', $plugin->getSetting($contextId, 'pdfTopMargin'));
-		$this->setData('pdfBottomMargin', $plugin->getSetting($contextId, 'pdfBottomMargin'));
-		$this->setData('pdfLeftMargin', $plugin->getSetting($contextId, 'pdfLeftMargin'));
-		$this->setData('pdfRightMargin', $plugin->getSetting($contextId, 'pdfRightMargin'));
+		$top = $plugin->getSetting($contextId, 'pdfTopMargin') ? $plugin->getSetting($contextId, 'pdfTopMargin') : 25;
+		$bottom = $plugin->getSetting($contextId, 'pdfBottomMargin') ? $plugin->getSetting($contextId, 'pdfBottomMargin') : 30;
+		$left = $plugin->getSetting($contextId, 'pdfLeftMargin') ? $plugin->getSetting($contextId, 'pdfLeftMargin') : 15;
+		$right = $plugin->getSetting($contextId, 'pdfRightMargin') ? $plugin->getSetting($contextId, 'pdfRightMargin') : 15;
+
+		# Esto lo hice de esta manera porque sino no funcionaba, se ve que no le copaba demasiado que lo haga in-line o usando ??
+
+		$this->setData('pdfTopMargin', $top);
+		$this->setData('pdfBottomMargin', $bottom);
+		$this->setData('pdfLeftMargin', $left);
+		$this->setData('pdfRightMargin', $right);
 
 		$this->setData('selectedTemplate', $plugin->getSetting($contextId, 'selectedTemplate'));
 	}

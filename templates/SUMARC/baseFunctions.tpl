@@ -1,3 +1,9 @@
+{function name=isMetadataSet display='' search=''}
+    {if isset($search) && $search}
+        {$display nofilter}
+    {/if}
+{/function}
+
 {function name=getMetadata pre='' search='' post=''}
     {if isset($search) && $search}
         {$pre nofilter}{$search}{$post nofilter}

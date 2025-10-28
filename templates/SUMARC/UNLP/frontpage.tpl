@@ -114,13 +114,12 @@
 
             <div class="frontpage-abstract-section">
                 <span>
-                    {call name="getMetadata" pre="<span class='frontpage-abstract-title'>" search={$translations.es.abstract} post=" | </span>"}
-                    {call name="getMetadata" pre="<span class='frontpage-abstract-text'>" search={$abstract_texts.es} post="</span>"}
+                    {call name="getMetadata" pre="<span class='frontpage-abstract-title'> {$translations.es.abstract} | </span> <span class='frontpage-abstract-text'>" search={$abstract_texts.es} post="</span>"}
                 </span>
             </div>
 
             <div class="frontpage-keywords-container">
-                {call name="getMetadata" pre="<span class='frontpage-keywords-label'>" search={$translations.es.keywords} post=" |</span>"}
+                {call name="isMetadataSet" display="<span class='frontpage-keywords-label'> {$translations.es.keywords} | </span>" search="{$keywords_texts.es}"}
                 <span class="frontpage-keywords-list">
                     {foreach from=$keywords_texts.es item=keyword name=keywords}
                         {call name="getMetadata" pre="<span class='frontpage-keyword'>" search={$keyword} post="</span>{if !$smarty.foreach.keywords.last}, {/if}"}
@@ -130,13 +129,12 @@
 
             <div class="frontpage-abstract-section">
                 <span>
-                    {call name="getMetadata" pre="<span class='frontpage-abstract-title'>" search={$translations.en.abstract} post=" | </span>"}
-                    {call name="getMetadata" pre="<span class='frontpage-abstract-text'>" search={$abstract_texts.en} post="</span>"}
+                    {call name="getMetadata" pre="<span class='frontpage-abstract-title'> {$translations.en.abstract} | </span> <span class='frontpage-abstract-text'>" search={$abstract_texts.en} post="</span>"}
                 </span>
             </div>
 
             <div class="frontpage-keywords-container">
-                {call name="getMetadata" pre="<span class='frontpage-keywords-label'>" search={$translations.en.keywords} post=" |</span>"}
+                {call name="isMetadataSet" display="<span class='frontpage-keywords-label'> {$translations.en.keywords} |</span>" search="{$keywords_texts.en}"}
                 <span class="frontpage-keywords-list">
                     {foreach from=$keywords_texts.en item=keyword name=keywords}
                         {call name="getMetadata" pre="<span class='frontpage-keyword'>" search={$keyword} post="</span>{if !$smarty.foreach.keywords.last}, {/if}"}

@@ -1,36 +1,43 @@
 <?php
 
-require_once __DIR__ . '/../Helpers/getPublicationId.php';
 require_once __DIR__ . '/../../../daos/CustomPublicationSettingsDAO.inc.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['citationStyleName'])) {
+$isCli = (PHP_SAPI === 'cli');
+$isPost = isset($_SERVER['REQUEST_METHOD']) && strtoupper($_SERVER['REQUEST_METHOD']) === 'POST';
 
-        $unifiedArray = [];
+if ($isPost && !empty($_POST['citationStyleName'])) {
 
-        $unifiedArray['citationStyleName'] = $_POST['citationStyleName'];
-        $unifiedArray['publicationId'] = $_POST['publicationId'];
-        $unifiedArray['locale_key'] = $_POST['locale_key'];
+	$unifiedArray = [];
+	$unifiedArray['citationStyleName'] = $_POST['citationStyleName'];
+	$unifiedArray['publicationId'] = $_POST['publicationId'] ?? null;
+	$unifiedArray['locale_key'] = $_POST['locale_key'] ?? null;
 
-        foreach ($_POST['citationStyle'] as $rid => $citationStyle) {
-            $citationsArray[$rid] = $citationStyle;
-        }
-        foreach ($_POST['customCitation'] as $rid => $customCitation) {
-            $citationsArray[$rid] = $customCitation;
-        }
+	$citationsArray = [];
+	if (!empty($_POST['citationStyle']) && is_array($_POST['citationStyle'])) {
+		foreach ($_POST['citationStyle'] as $rid => $citationStyle) {
+			$citationsArray[$rid] = $citationStyle;
+		}
+	}
+	if (!empty($_POST['customCitation']) && is_array($_POST['customCitation'])) {
+		foreach ($_POST['customCitation'] as $rid => $customCitation) {
+			$citationsArray[$rid] = $customCitation;
+		}
+	}
 
-        $unifiedArray['fileId'][$_POST['xmlFilePath']] = $citationsArray;
+	$xmlFilePath = $_POST['xmlFilePath'] ?? '';
+	$unifiedArray['fileId'][$xmlFilePath] = $citationsArray;
 
-        if ($_POST['publicationId']) {
-            $citationJsonData = json_encode($unifiedArray);
+	if (!empty($_POST['publicationId'])) {
+		$citationJsonData = json_encode($unifiedArray);
+		$customPublicationSettingsDao = new CustomPublicationSettingsDAO();
+		$customPublicationSettingsDao->updateSetting($_POST['publicationId'], 'jatsParser::citationTableData', $citationJsonData, $unifiedArray['locale_key']);
+		// echo '<pre>' . json_encode($unifiedArray, JSON_PRETTY_PRINT) . '</pre>'; // debug opcional
+	}
 
-            // Using DAO to update the setting
-            $customPublicationSettingsDao = new CustomPublicationSettingsDAO();
-            $customPublicationSettingsDao->updateSetting($_POST['publicationId'], 'jatsParser::citationTableData', $citationJsonData, $_POST['locale_key']);
-            //echo '<pre>' . json_encode($unifiedArray, JSON_PRETTY_PRINT) . '</pre>'; //uncomment for debugging
-        }
-    
-        header("Location: " . $_SERVER['REQUEST_URI']);
-        exit();
-} 
-
-?>
+	// Redirigir solo en entorno web
+	if (!$isCli) {
+		$redirect = $_SERVER['REQUEST_URI'] ?? '/';
+		header("Location: " . $redirect);
+		exit();
+	}
+}
