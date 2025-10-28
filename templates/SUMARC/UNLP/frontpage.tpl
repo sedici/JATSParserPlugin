@@ -39,17 +39,16 @@
                                 </tr>
                                 <tr>
                                     <td class="frontpage-journal-info-line">
-                                        {call name="getLinkedMetadata" preOne="<a href='https://doi.org/" preTwo="'class='frontpage-anchor'>https://doi.org/" search={$doi} post="</a>"}
+                                        <div class='frontpage-anchor'>
+                                            {call name="getLinkedMetadata" preOne="<a href='https://doi.org/" preTwo="'class='frontpage-anchor'>https://doi.org/" search={$doi} post="</a>"}
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="frontpage-journal-info-line">
-                                        {call name="getMetadata" pre="ISSN " search={$online_issn} post="</div>"}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="frontpage-journal-info-line">
-                                        {call name="getLinkedMetadata" preOne="<a href='" preTwo="'class='frontpage-anchor'>" search={$journal_url} post="</a>"}
+                                        <div class='frontpage-anchor'>
+                                            {call name="getMetadata" pre="<span class='frontpage-anchor'>ISSN " search={$online_issn} post=" | </span>"} {call name="getLinkedMetadata" preOne="<a href='" preTwo="'class='frontpage-anchor'>" search={$journal_url} post="</a>"}
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr>
@@ -163,3 +162,5 @@
         </div>
     </div>
 </div>
+
+<pagebreak supress="off" />
