@@ -8,4 +8,4 @@
   {/if}
 </style>
 
-<h2>Notas</h2>
+<h2>{$translations.{$locale_key}.footnotes}</h2>

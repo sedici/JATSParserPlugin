@@ -21,7 +21,7 @@ class JatsParserPdfSettingsForm extends Form
 
 		$this->addCheck(new FormValidatorPost($this));
 		$this->addCheck(new FormValidatorCSRF($this));
-		$this->addCheck(new FormValidatorRegExp($this, 'pdfTopMargin', 'optional', 'plugins.generic.jatsparser.pdfsettings.margin.error', '/^[0-9]+$/'));
+		$this->addCheck(new FormValidatorRegExp($this, 'pdfTopMargin', 'optional', 'plugins.generic.jatsparser.pdfsettings.margin.error', '/^[0-9]+$/')); # En OJS no existe un type number, así que se verifica con este Regex
 		$this->addCheck(new FormValidatorRegExp($this, 'pdfBottomMargin', 'optional', 'plugins.generic.jatsparser.pdfsettings.margin.error', '/^[0-9]+$/'));
 		$this->addCheck(new FormValidatorRegExp($this, 'pdfLeftMargin', 'optional', 'plugins.generic.jatsparser.pdfsettings.margin.error', '/^[0-9]+$/'));
 		$this->addCheck(new FormValidatorRegExp($this, 'pdfRightMargin', 'optional', 'plugins.generic.jatsparser.pdfsettings.margin.error', '/^[0-9]+$/'));

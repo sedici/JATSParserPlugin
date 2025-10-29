@@ -71,7 +71,7 @@
 }
 
 .frontpage-journal-info-cell {
-    vertical-align: middle;
+    vertical-align: left;
     text-align: left;
 }
 
@@ -141,6 +141,11 @@
 .frontpage-author-affiliation {
     font-family: "FreeSerif", serif;
     font-size: 13.5px;
+    margin-bottom: 2px;
+}
+
+.frontpage-author-separation {
+    margin-bottom: 10px;
 }
 
 .frontpage-abstract-section {
@@ -244,6 +249,11 @@
 
 .frontpage-anchor {
     color: rgb(49, 132, 155);
+    text-decoration: none;
+}
+
+.frontpage-separator {
+    color: black;
     text-decoration: none;
 }
 

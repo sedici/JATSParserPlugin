@@ -13,9 +13,7 @@
 {function name=getLinkedMetadata preOne='' preTwo='' search='' post=''}
     {if isset($search) && $search}
         {$preOne nofilter}{$search}
-        {$preTwo nofilter}
-        {$search}
-        {$post nofilter}
+        {$preTwo nofilter}{$search}{$post nofilter}
     {/if}
 {/function}
 

@@ -4,6 +4,4 @@
   {include file={$references}}
 </style>
 
-<pagebreak />
-
-<h2>Referencias</h2>
+<h2>{$translations.{$locale_key}.references}</h2>

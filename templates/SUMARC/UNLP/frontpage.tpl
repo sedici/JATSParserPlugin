@@ -32,8 +32,8 @@
                                 </tr>
                                 <tr>
                                     <td class="frontpage-journal-info-line">
-                                        {call name="getMetadata" pre="{$translations.es.volume} " search={$issue_volume}}
-                                        {call name="getMetadata" pre="{$translations.es.number} " search={$issue_number}}
+                                        {call name="getMetadata" pre="{$translations.{$locale_key}.volume} " search={$issue_volume}}
+                                        {call name="getMetadata" pre="{$translations.{$locale_key}.number} " search={$issue_number}}
                                         {call name="getMetadata" pre="(" search={$issue_year} post=")"}
                                     </td>
                                 </tr>
@@ -46,16 +46,20 @@
                                 </tr>
                                 <tr>
                                     <td class="frontpage-journal-info-line">
-                                        <div class='frontpage-anchor'>
-                                            {call name="getMetadata" pre="<span class='frontpage-anchor'>ISSN " search={$online_issn} post=" | </span>"} {call name="getLinkedMetadata" preOne="<a href='" preTwo="'class='frontpage-anchor'>" search={$journal_url} post="</a>"}
+                                        <div class="frontpage-anchor">
+                                            {call name="getMetadata" pre="<span class='frontpage-anchor'>ISSN " search={$online_issn} post="</span>"} 
+                                            {if isset($online_issn) && $online_issn && isset($journal_url) && $journal_url}
+                                                <span class="frontpage-separator"> | </span>
+                                            {/if}
+                                            {call name="getLinkedMetadata" preOne="<a href='" preTwo="'class='frontpage-anchor'>" search={$journal_url} post="</a>"}
                                         </div>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="frontpage-journal-info-line">
-                                        {call name="getMetadata" pre="{$translations.es.received}: " search={$date_submitted} post=" - "}
-                                        {call name="getMetadata" pre="{$translations.es.accepted}: " seach={$date_accepted} post=" - "}
-                                        {call name="getMetadata" pre="{$translations.es.published}: " search={$date_published}}
+                                        {call name="getMetadata" pre="{$translations.{$locale_key}.received}: " search={$date_submitted} post=" - "}
+                                        {call name="getMetadata" pre="{$translations.{$locale_key}.accepted}: " seach={$date_accepted} post=" - "}
+                                        {call name="getMetadata" pre="{$translations.{$locale_key}.published}: " search={$date_published}}
                                     </td>
                                 </tr>
                             </table>
@@ -78,34 +82,41 @@
 
         <div class="frontpage-article-body">
             {call name="getMetadata" pre="<h3 class='frontpage-article-title'>" search={$article_title} post="</h3>"}
-            {call name="getMetadata" pre="<h4 class='frontpage-article-subtitle'>" search={$subtitles.es} post="</h4>"}
-            <h5 class="frontpage-article-lang-title">
-                {call name="getMetadata" pre="<span>" search={$titles.en} post="</span>."}
-                {call name="getMetadata" pre="<span>" search={$subtitles.en} post="</span>"}
-            </h5>
+            {call name="getMetadata" pre="<h4 class='frontpage-article-subtitle'>" search={$subtitles.{$locale_key}} post="</h4>"}
+
+            {foreach from=$lang_keys item=key name=keys}
+                {if $locale_key != $key}
+                    <h5 class="frontpage-article-lang-title">
+                        {call name="getMetadata" pre="<span>" search={$titles.{$key}} post="</span>."}
+                        {call name="getMetadata" pre="<span>" search={$subtitles.{$key}} post="</span>"}
+                    </h5>
+                {/if}
+            {/foreach}
 
             <div class="frontpage-author-info">
                 {foreach from=$authors item=author}
-                    <table style="border-collapse: collapse;">
-                        <tr>
-                            <td style="padding: 0; vertical-align: middle;">
-                                {call name="getDoubleMetadata"
-                                    preOne="<a class='frontpage-anchor' href='" searchOne="{$author.orcid}" postOne="'>"
-                                    preTwo="<img src='" searchTwo="{$orcid_logo.white_bg}" postTwo="' class='frontpage-orcid-logo'></a>"
-                                }
-                            </td>
-                            <td style="padding: 0; vertical-align: middle;">
-                                <div class="frontpage-author-name-colored">
-                                    {call name="getMetadata" search={$author.givenName.es}}
-                                    {call name="getMetadata" search={$author.familyName.es}}
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-                    <div class="frontpage-author-contact">
-                        {call name="getLinkedMetadata" preOne="<a href='mailto:'" preTwo="class='frontpage-anchor'>" search=$author.email post="</a>"}
+                    <div class="frontpage-author-separation">
+                        <table style="border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 0; vertical-align: middle;">
+                                    {call name="getDoubleMetadata"
+                                        preOne="<a class='frontpage-anchor' href='" searchOne="{$author.orcid}" postOne="'>"
+                                        preTwo="<img src='" searchTwo="{$orcid_logo.white_bg}" postTwo="' class='frontpage-orcid-logo'></a>"
+                                    }
+                                </td>
+                                <td style="padding: 0; vertical-align: middle;">
+                                    <div class="frontpage-author-name-colored">
+                                        {call name="getMetadata" search={$author.givenName.{$article_locale_key}}}
+                                        {call name="getMetadata" search={$author.familyName.{$article_locale_key}}}
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="frontpage-author-contact">
+                            {call name="getLinkedMetadata" preOne="<a href='mailto:'" preTwo="class='frontpage-anchor'>" search=$author.email post="</a>"}
+                        </div>
+                        {call name="getMetadata" pre="<div class='frontpage-author-affiliation'>" search={$author.affiliation.{$article_locale_key}} post="</div>"}
                     </div>
-                    {call name="getMetadata" pre="<div class='frontpage-author-affiliation'>" search={$author.affiliation.es} post="</div>"}
                 {/foreach}
             </div>
 
@@ -113,33 +124,35 @@
 
             <div class="frontpage-abstract-section">
                 <span>
-                    {call name="getMetadata" pre="<span class='frontpage-abstract-title'> {$translations.es.abstract} | </span> <span class='frontpage-abstract-text'>" search={$abstract_texts.es} post="</span>"}
+                    {call name="getMetadata" pre="<span class='frontpage-abstract-title'> {$translations.{$locale_key}.abstract} | </span> <span class='frontpage-abstract-text'>" search={$abstract_texts.{$locale_key}} post="</span>"}
                 </span>
             </div>
-
             <div class="frontpage-keywords-container">
-                {call name="isMetadataSet" display="<span class='frontpage-keywords-label'> {$translations.es.keywords} | </span>" search="{$keywords_texts.es}"}
+                {call name="isMetadataSet" display="<span class='frontpage-keywords-label'> {$translations.{$locale_key}.keywords} | </span>" search="{$keywords_texts.{$locale_key}}"}
                 <span class="frontpage-keywords-list">
-                    {foreach from=$keywords_texts.es item=keyword name=keywords}
+                    {foreach from=$keywords_texts.{$locale_key} item=keyword name=keywords}
                         {call name="getMetadata" pre="<span class='frontpage-keyword'>" search={$keyword} post="</span>{if !$smarty.foreach.keywords.last}, {/if}"}
                     {/foreach}
                 </span>
             </div>
 
-            <div class="frontpage-abstract-section">
-                <span>
-                    {call name="getMetadata" pre="<span class='frontpage-abstract-title'> {$translations.en.abstract} | </span> <span class='frontpage-abstract-text'>" search={$abstract_texts.en} post="</span>"}
-                </span>
-            </div>
-
-            <div class="frontpage-keywords-container">
-                {call name="isMetadataSet" display="<span class='frontpage-keywords-label'> {$translations.en.keywords} |</span>" search="{$keywords_texts.en}"}
-                <span class="frontpage-keywords-list">
-                    {foreach from=$keywords_texts.en item=keyword name=keywords}
-                        {call name="getMetadata" pre="<span class='frontpage-keyword'>" search={$keyword} post="</span>{if !$smarty.foreach.keywords.last}, {/if}"}
-                    {/foreach}
-                </span>
-            </div>
+            {foreach from=$lang_keys item=key name=keys}
+                {if $locale_key != $key}
+                    <div class="frontpage-abstract-section">
+                        <span>
+                            {call name="getMetadata" pre="<span class='frontpage-abstract-title'> {$translations.{$key}.abstract} | </span> <span class='frontpage-abstract-text'>" search={$abstract_texts.{$key}} post="</span>"}
+                        </span>
+                    </div>
+                    <div class="frontpage-keywords-container">
+                        {call name="isMetadataSet" display="<span class='frontpage-keywords-label'> {$translations.{$key}.keywords} | </span>" search="{$keywords_texts.{$key}}"}
+                        <span class="frontpage-keywords-list">
+                            {foreach from=$keywords_texts.{$key} item=keyword name=keywords}
+                                {call name="getMetadata" pre="<span class='frontpage-keyword'>" search={$keyword} post="</span>{if !$smarty.foreach.keywords.last}, {/if}"}
+                            {/foreach}
+                        </span>
+                    </div>
+                {/if}
+            {/foreach}
 
             <table class="frontpage-license-info" style="width: 100%; border-collapse: collapse; margin-top: 20px;">
                 <tr>
@@ -153,7 +166,7 @@
                         <div class="frontpage-license-text">
                             {call name="getDoubleMetadata"
                                 preOne="<a href='" searchOne={$license_url} postOne="' class='frontpage-anchor'>"
-                                preTwo="" searchTwo="{$translations.es.license_text}" postTwo='</a>'
+                                preTwo="" searchTwo="{$translations.{$locale_key}.license_text}" postTwo='</a>'
                             }
                         </div>
                     </td>
@@ -162,5 +175,3 @@
         </div>
     </div>
 </div>
-
-<pagebreak supress="off" />

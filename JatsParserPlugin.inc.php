@@ -38,12 +38,11 @@ use APP\core\Request;
 use JATSParser\TemplateHandler\HTML\HTMLOutputStrategy;
 use JATSParser\TemplateHandler\PDF\PDFCreationService;
 use JATSParser\TemplateHandler\PDF\PDFOutputStrategy;
-use PKP\context\Context;
 use PKP\locale\Locale;
 use PKP\galley\Galley;
 
 use PKP\db\DAORegistry;
-use Mpdf\Mpdf;
+use PKP\facades\Locale as FacadesLocale;
 use PKP\file\PrivateFileManager;
 
 define("CREATE_PDF_QUERY", "download=pdf");
@@ -242,6 +241,11 @@ class JatsParserPlugin extends GenericPlugin
 		// Reordenar como día/mes/año
 		$datePublished = ($dia && $mes && $anio) ? "$dia/$mes/$anio" : '';
 
+		$authors = array_values(iterator_to_array($publication->getData('authors')));
+		$simplifiedAuthors = array_map(function ($author) {
+			return $author->_data; // Extrae solo el contenido de '_data', así es más sencillo el acceso desde todos lados
+		}, $authors);
+
 		$metadata = [
 			'publication_pages' => $publication->getData('pages'), 
 			'section_title' => $section?->getLocalizedTitle(),
@@ -254,7 +258,7 @@ class JatsParserPlugin extends GenericPlugin
 			'journal_title' => $journal->getLocalizedData('name'),
 			'journal_issue' => $publication->getData('issueId'),
 			'journal_logos_path' => $logo,
-			'locale_key' => $localeKey,
+			'locale_key' => FacadesLocale::getLocale(),
 			'article_locale_key' => $publication->getData('locale'),
 			'journal_thumbnail' => $journal->getLocalizedData('journalThumbnail'),
 			'full_title' => $publication->getLocalizedFullTitle($localeKey),
@@ -279,7 +283,8 @@ class JatsParserPlugin extends GenericPlugin
 			'titles' => $publication->getData('title'),
 			'subtitles' => $publication->getData('subtitle'),
 			'editorial' => $context->getLocalizedData('institution'),
-			'prefixes' => $publication->getData('prefix')
+			'prefixes' => $publication->getData('prefix'),
+			'lang_keys' => $context->getSupportedLocales(),
 		];
 
 		return $metadata;
@@ -588,7 +593,6 @@ class JatsParserPlugin extends GenericPlugin
 		if (!$this->getSetting($request->getContext()->getId(), 'convertToPdf')) return false;
 
 		$localePare = $params['jatsParser::pdfGalley'];
-
 		foreach ($localePare as $localeKey => $createPdf) {
 			$fullText = $newPublication->getData('jatsParser::fullText', $localeKey);
 			if (empty($fullText)) continue;

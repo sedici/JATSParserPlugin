@@ -8,4 +8,4 @@
   {/if}
 </style>
 
-<pagebreak supress="off" />
+<pagebreak />
