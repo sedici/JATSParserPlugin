@@ -160,3 +160,39 @@ msgstr "Figure"
 
 msgid "plugins.generic.jatsParser.table.title"
 msgstr "Tableau"
+
+msgid "plugins.generic.jatsParser.file.not.found"
+msgstr "Des fichiers sont manquants pour le modèle sélectionné"
+
+msgid "plugins.generic.jatsParser.template.config"
+msgstr "Configuration du modèle"
+
+msgid "plugins.generic.jatsParser.margins.config"
+msgstr "Configuration des marges (millimètres)"
+
+msgid "plugins.generic.jatsParser.files.config"
+msgstr "Configuration des fichiers"
+
+msgid "plugins.generic.jatsParser.top.margin"
+msgstr "Marge supérieure"
+
+msgid "plugins.generic.jatsParser.bottom.margin"
+msgstr "Marge inférieure"
+
+msgid "plugins.generic.jatsParser.left.margin"
+msgstr "Marge gauche"
+
+msgid "plugins.generic.jatsParser.right.margin"
+msgstr "Marge droite"
+
+msgid "plugins.generic.jatsParser.empty.template"
+msgstr "Aucun modèle n'a été sélectionné"
+
+msgid "plugins.generic.jatsParser.pdf.config.button"
+msgstr "Configuration pour les modèles PDF"
+
+msgid "plugins.generic.jatsParser.pdf.settings.button"
+msgstr "Paramètres PDF"
+
+msgid "plugins.generic.jatsParser.pdf.empty.template"
+msgstr "Vide"

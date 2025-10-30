@@ -153,7 +153,7 @@ msgid "plugins.generic.jatsParser.citationtable.citationstyle.twoauthors.separat
 msgstr "&"
 
 msgid "plugins.generic.jatsParser.article.footnotes.title"
-msgstr "Footnotes"
+msgstr "Endnotes"
 
 msgid "plugins.generic.jatsParser.article.references.title"
 msgstr "References"
@@ -193,3 +193,9 @@ msgstr "No template selected"
 
 msgig "plugins.generic.jatsParser.pdf.config.button"
 msgstr "PDF Templates Configuration"
+
+msgid "plugins.generic.jatsParser.pdf.settings.button"
+msgstr "PDF Settings"
+
+msgid "plugins.generic.jatsParser.pdf.empty.template"
+msgstr "Empty"

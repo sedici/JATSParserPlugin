@@ -211,3 +211,9 @@ msgstr "No se ha seleccionado una plantilla"
 
 msgig "plugins.generic.jatsParser.pdf.config.button"
 msgstr "Configuración para las plantillas PDF"
+
+msgid "plugins.generic.jatsParser.pdf.settings.button"
+msgstr "Ajustes de PDF"
+
+msgid "plugins.generic.jatsParser.pdf.empty.template"
+msgstr "Vacío"

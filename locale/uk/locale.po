@@ -118,3 +118,39 @@ msgstr "Таблиця призначення"
 
 msgid "plugins.generic.jatsParser.file.not.found"
 msgstr "Бракує файлів для вибраного шаблону"
+
+msgid "plugins.generic.jatsParser.file.not.found"
+msgstr "Відсутні файли для вибраного шаблону"
+
+msgid "plugins.generic.jatsParser.template.config"
+msgstr "Налаштування шаблону"
+
+msgid "plugins.generic.jatsParser.margins.config"
+msgstr "Налаштування полів (міліметри)"
+
+msgid "plugins.generic.jatsParser.files.config"
+msgstr "Налаштування файлів"
+
+msgid "plugins.generic.jatsParser.top.margin"
+msgstr "Верхнє поле"
+
+msgid "plugins.generic.jatsParser.bottom.margin"
+msgstr "Нижнє поле"
+
+msgid "plugins.generic.jatsParser.left.margin"
+msgstr "Ліве поле"
+
+msgid "plugins.generic.jatsParser.right.margin"
+msgstr "Праве поле"
+
+msgid "plugins.generic.jatsParser.empty.template"
+msgstr "Шаблон не вибрано"
+
+msgid "plugins.generic.jatsParser.pdf.config.button"
+msgstr "Налаштування для шаблонів PDF"
+
+msgid "plugins.generic.jatsParser.pdf.settings.button"
+msgstr "Налаштування PDF"
+
+msgid "plugins.generic.jatsParser.pdf.empty.template"
+msgstr "Порожньо"

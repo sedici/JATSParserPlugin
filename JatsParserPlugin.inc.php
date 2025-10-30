@@ -130,7 +130,7 @@ class JatsParserPlugin extends GenericPlugin
 						$router->url($request, null, null, 'manage', null, array('verb' => 'pdfSettings', 'plugin' => $this->getName(), 'category' => 'generic')),
 						$this->getDisplayName()
 					),
-					__('manager.plugins.pdfSettings'),
+					__('plugins.generic.jatsParser.pdf.settings.button'),
 					null
 				),
 			) : array(),
@@ -230,12 +230,6 @@ class JatsParserPlugin extends GenericPlugin
 
 		$licenseUrl = !empty($publication->getData('licenseUrl')) ? $publication->getData('licenseUrl') : $journal->getData('licenseUrl');
 
-		$logoDir = Core::getBaseDir() . "/public/journals/" . $journal->getId() . "/";
-
-		foreach ($journal->getSetting('pageHeaderLogoImage') as $key => $value) {
-			$logo[$key] = $logoDir . $value['uploadName'];
-		}
-
 		// Separar por "/"
 		list($anio, $mes, $dia) = explode('/', str_replace('-', '/', $submission->getDatePublished()));
 		// Reordenar como día/mes/año
@@ -249,15 +243,14 @@ class JatsParserPlugin extends GenericPlugin
 		$metadata = [
 			'publication_pages' => $publication->getData('pages'), 
 			'section_title' => $section?->getLocalizedTitle(),
-			'citation_style' => $plugin->getSetting($context->getId(), 'citationStyle'), #
+			'citation_style' => $plugin->getSetting($context->getId(), 'citationStyle'), 
 			'publication_id' => $publication->getId(),
 			'doi' => $publication->getDoi(),
 			'journal_id' => $journal->getId(),
 			'authors' => $simplifiedAuthors,
-			'online_issn' => $journal->getData('onlineIssn'), //no se imprime
+			'online_issn' => $journal->getData('onlineIssn'),
 			'journal_title' => $journal->getLocalizedData('name'),
 			'journal_issue' => $publication->getData('issueId'),
-			'journal_logos_path' => $logo,
 			'locale_key' => FacadesLocale::getLocale(),
 			'article_locale_key' => $publication->getData('locale'),
 			'journal_thumbnail' => $journal->getLocalizedData('journalThumbnail'),
@@ -275,7 +268,7 @@ class JatsParserPlugin extends GenericPlugin
 			'user_groups' => $userGroups,
 			'contributors' => null,//$publication->getAuthorString($userGroups),
 			'subject' => $publication->getLocalizedData('subject', $localeKey),
-			'abstract_texts' => $publication->getData('abstract'), // Returns an array like this: ['es_ES' => 'Resumen', 'en_US' => 'Abstract']
+			'abstract_texts' => $publication->getData('abstract'), // Returns an array like this: ['es' => 'Resumen', 'en' => 'Abstract']
 			'translations' => Translations::getTranslations(),
 			'keywords_texts' => $publication->getData('keywords'),
 			'plugin_path' => $this->getPluginPath(),
@@ -284,7 +277,7 @@ class JatsParserPlugin extends GenericPlugin
 			'subtitles' => $publication->getData('subtitle'),
 			'editorial' => $context->getLocalizedData('institution'),
 			'prefixes' => $publication->getData('prefix'),
-			'lang_keys' => $context->getSupportedLocales(),
+			'lang_keys' => $context->getSupportedLocales(), # Retorna todas las claves de idioma que estén configuradas en la revista: ['es', 'en']
 		];
 
 		return $metadata;
@@ -312,8 +305,8 @@ class JatsParserPlugin extends GenericPlugin
 		
 		$templatesDir = [];
 		$templatesDir[] = [
-			'id' => 'vacio', # Esto debería cambiarlo por un texto traído desde los archivos de traucciones (locale) 
-			'title' => 'vacio'
+			'id' => 'plugins.generic.jatsParser.pdf.empty.template', 
+			'title' => 'plugins.generic.jatsParser.pdf.empty.template'
 		];
 
 		$fileManager = new PrivateFileManager();
@@ -348,6 +341,8 @@ class JatsParserPlugin extends GenericPlugin
 		$configuration = new Configuration($metadata);
 		$fileMgr = new PrivateFileManager();
 		$journalId = $request->getContext()->getId();
+
+		file_put_contents(__DIR__ . "/test.txt", print_r(PDFCreationService::getTemplatePartsAndLocation('UNLP', $this, $fileMgr, $journalId), true));
 
 		# $htmloutput = HTMLOutputStrategy::class; # Sorpresa sorpresa, adapté la estrategia de salida de los PDFs para generar una salida en HTML, es probable que haya que meter algo de mano para que termine de ser funcional, pero el desarrollo está prácticamente hecho. Todo el procesamiento interno ya estaría acomdoado 👍 
 
