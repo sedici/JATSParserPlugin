@@ -1,0 +1,52 @@
+Array
+(
+    [frontpage] => Array
+        (
+            [using] => plugins/generic/jatsParser/templates/SUMARC
+            [type] => 
+            [filename] => frontpage.tpl
+        )
+
+    [footer] => Array
+        (
+            [using] => plugins/generic/jatsParser/templates/SUMARC
+            [type] => 
+            [filename] => footer.tpl
+        )
+
+    [body] => Array
+        (
+            [using] => plugins/generic/jatsParser/templates/SUMARC
+            [type] => 
+            [filename] => body.tpl
+        )
+
+    [header] => Array
+        (
+            [using] => plugins/generic/jatsParser/templates/SUMARC
+            [type] => 
+            [filename] => header.tpl
+        )
+
+    [references] => Array
+        (
+            [using] => plugins/generic/jatsParser/templates/SUMARC
+            [type] => 
+            [filename] => references.tpl
+        )
+
+    [footnotes] => Array
+        (
+            [using] => plugins/generic/jatsParser/templates/SUMARC
+            [type] => 
+            [filename] => footnotes.tpl
+        )
+
+    [importCSS] => Array
+        (
+            [using] => plugins/generic/jatsParser/templates/SUMARC
+            [type] => 
+            [filename] => importCSS.tpl
+        )
+
+)

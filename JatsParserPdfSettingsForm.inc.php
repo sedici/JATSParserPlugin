@@ -36,6 +36,7 @@ class JatsParserPdfSettingsForm extends Form
 		$bottom = $plugin->getSetting($contextId, 'pdfBottomMargin') ? $plugin->getSetting($contextId, 'pdfBottomMargin') : 30;
 		$left = $plugin->getSetting($contextId, 'pdfLeftMargin') ? $plugin->getSetting($contextId, 'pdfLeftMargin') : 15;
 		$right = $plugin->getSetting($contextId, 'pdfRightMargin') ? $plugin->getSetting($contextId, 'pdfRightMargin') : 15;
+		$selectedTemplate = $plugin->getSetting($contextId, 'selectedTemplate') ? $plugin->getSetting($contextId, 'selectedTemplate') : 'plugins.generic.jatsParser.pdf.empty.template';
 
 		# Esto lo hice de esta manera porque sino no funcionaba, se ve que no le copaba demasiado que lo haga in-line o usando ??
 
@@ -43,8 +44,7 @@ class JatsParserPdfSettingsForm extends Form
 		$this->setData('pdfBottomMargin', $bottom);
 		$this->setData('pdfLeftMargin', $left);
 		$this->setData('pdfRightMargin', $right);
-
-		$this->setData('selectedTemplate', $plugin->getSetting($contextId, 'selectedTemplate'));
+		$this->setData('selectedTemplate', $selectedTemplate);
 	}
 
 	function readInputData()
