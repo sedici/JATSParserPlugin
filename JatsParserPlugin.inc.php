@@ -90,7 +90,7 @@ class JatsParserPlugin extends GenericPlugin
 		$parts = PDFCreationService::getTemplatePartsAndLocation($config['selected_template'], $this, $fileManager, $contextId);
 		
 		$templateMgr->assign('selectedTemplate', $config['selected_template']);
-		$templateMgr->assign('parts', $parts);
+		$templateMgr->assign('filesInformation', $parts);
 
         $output .= $templateMgr->fetch($this->getTemplateResource('pdfConfigTab.tpl'));
         return false;

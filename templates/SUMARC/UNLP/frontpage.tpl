@@ -57,9 +57,9 @@
                                 </tr>
                                 <tr>
                                     <td class="frontpage-journal-info-line">
-                                        {call name="getMetadata" pre="{$translations.{$locale_key}.received}: " search={$date_submitted} post=" - "}
-                                        {call name="getMetadata" pre="{$translations.{$locale_key}.accepted}: " seach={$date_accepted} post=" - "}
-                                        {call name="getMetadata" pre="{$translations.{$locale_key}.published}: " search={$date_published}}
+                                        {call name="getMetadata" pre="{$translations.{$locale_key}.received}: " search={$date_submitted}}
+                                        {call name="getMetadata" pre=" - {$translations.{$locale_key}.accepted}: " seach={$date_accepted}}
+                                        {call name="getMetadata" pre=" - {$translations.{$locale_key}.published}: " search={$date_published}}
                                     </td>
                                 </tr>
                             </table>
