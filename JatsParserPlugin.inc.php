@@ -91,6 +91,8 @@ class JatsParserPlugin extends GenericPlugin
 		
 		$templateMgr->assign('selectedTemplate', $config['selected_template']);
 		$templateMgr->assign('filesInformation', $parts);
+		
+		file_put_contents(__DIR__ . "/parts.txt", print_r($parts, true));
 
         $output .= $templateMgr->fetch($this->getTemplateResource('pdfConfigTab.tpl'));
         return false;
