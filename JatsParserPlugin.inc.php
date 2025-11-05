@@ -44,58 +44,133 @@ use PKP\galley\Galley;
 use PKP\db\DAORegistry;
 use PKP\facades\Locale as FacadesLocale;
 use PKP\file\PrivateFileManager;
-use PKP\plugins\Hook as Hook;
 
 define("CREATE_PDF_QUERY", "download=pdf");
-
-
 
 class JatsParserPlugin extends GenericPlugin
 {
 
-	function register($category, $path, $mainContextId = null)
-	{
-		if (parent::register($category, $path, $mainContextId)) {
+    function register($category, $path, $mainContextId = null)
+    {
+        if (parent::register($category, $path, $mainContextId)) {
 
-			if ($this->getEnabled()) {
-				// Add data to the publication
-				HookRegistry::add('Template::Workflow::Publication', array($this, 'publicationTemplateData'));
-				HookRegistry::add('Schema::get::publication', array($this, 'addToSchema'));
-				HookRegistry::add('LoadHandler', array($this, 'loadFullTextAssocHandler'));
-				HookRegistry::add('Publication::edit', array($this, 'editPublicationFullText'));
-				HookRegistry::add('Templates::Article::Main', array($this, 'displayFullText'));
-				HookRegistry::add('TemplateManager::display', array($this, 'themeSpecificStyles'));
-				HookRegistry::add('Form::config::before', array($this, 'addCitationsFormFields'));
-				HookRegistry::add('Publication::edit', array($this, 'editPublicationReferences'));
-				HookRegistry::add('Publication::edit', array($this, 'createPdfGalley'));
-				HookRegistry::add('Template::Settings::website', array($this, 'pdfConfigTab'));
-			}
+            if ($this->getEnabled()) {
+                HookRegistry::add('Template::Workflow::Publication', array($this, 'publicationTemplateData'));
+                HookRegistry::add('Schema::get::publication', array($this, 'addToSchema'));
+                HookRegistry::add('LoadHandler', array($this, 'loadFullTextAssocHandler'));
+                HookRegistry::add('Publication::edit', array($this, 'editPublicationFullText'));
+                HookRegistry::add('Templates::Article::Main', array($this, 'displayFullText'));
+                HookRegistry::add('TemplateManager::display', array($this, 'themeSpecificStyles'));
+                HookRegistry::add('Form::config::before', array($this, 'addCitationsFormFields'));
+                HookRegistry::add('Publication::edit', array($this, 'editPublicationReferences'));
+                HookRegistry::add('Publication::edit', array($this, 'createPdfGalley'));
+                
+                HookRegistry::add('Template::Settings::website', array($this, 'pdfConfigTab'));
+				HookRegistry::add('LoadHandler', array($this, 'setSettingsWebsiteHandler'));
+            }
 
-			return true;
-		}
-		return false;
-	}
+            return true;
+        }
+        return false;
+    }
+
+	public function setSettingsWebsiteHandler($hookName, $args) {
+        $page = $args[0];
+        $op = $args[1];
+        
+        if ($page === 'settings' && $op === 'website') {
+            $request = $this->getRequest();
+            $router = $request->getRouter();
+            $router->setPluginHandler($page, $op, $this); 
+        }
+    }
 
     public function pdfConfigTab($hookName, $args)
     {
         $templateMgr = $args[1];
         $output = &$args[2];
-        $request = & Registry::get('request');
+        $request = $this->getRequest();
 
         $context = $request->getContext();
         $contextId = $context ? $context->getId() : null;
-		$config = $this->getConfiguration($request);
-		$fileManager = new PrivateFileManager();
+        $config = $this->getConfiguration($request);
+        $fileManager = new PrivateFileManager();
 
-		$parts = PDFCreationService::getTemplatePartsAndLocation($config['selected_template'], $this, $fileManager, $contextId);
-		
-		$templateMgr->assign('selectedTemplate', $config['selected_template']);
-		$templateMgr->assign('filesInformation', $parts);
-		
-		file_put_contents(__DIR__ . "/parts.txt", print_r($parts, true));
+        $op = $request->getUserVar('op');
+		file_put_contents(__DIR__ . "/op.txt", $op);
+        if ($op) {
+            switch ($op) {
+                case 'resetPart':
+                    $this->resetPart($request, $contextId, $config['selected_template']);
+                    break;
+                case 'uploadPart':
+                    $this->uploadPart($request, $contextId, $config['selected_template']);
+                    break;
+                case 'downloadTemplate':
+                    $this->downloadTemplate($request, $contextId, $config['selected_template']);
+                    break;
+            }
+            $request->redirect(null, 'management', 'settings', array('website'), array('plugin' => $this->getName(), 'path' => 'pdfConfigTab'));
+            return false;
+        }
 
+        $parts = PDFCreationService::getTemplatePartsAndLocation($config['selected_template'], $this, $fileManager, $contextId); // Descomentar si usas el servicio
+        
+        $templateMgr->assign('selectedTemplate', $config['selected_template']);
+        $templateMgr->assign('filesInformation', $parts);
+		$templateMgr->assign('plugin', $this);
+        
         $output .= $templateMgr->fetch($this->getTemplateResource('pdfConfigTab.tpl'));
         return false;
+    }
+
+    private function resetPart($request, $contextId, $selectedTemplate) {
+        $partName = $request->getUserVar('partName');
+
+        if (!$partName) {
+			file_put_contents(__DIR__ . "/test2.txt", "");
+			return; 
+        }
+		file_put_contents(__DIR__ . "/test.txt", "");
+
+        $privateFilePath = $this->getPluginPath() . "/templates/SUMARC/private/$selectedTemplate/{$partName}.tpl";
+        if (file_exists($privateFilePath) && @unlink($privateFilePath)) {
+			unlink($privateFileManager);
+            $notificationManager = new NotificationManager();
+            $notificationManager->createTrivialNotification($request->getUser()->getId(), __('common.success'), __('plugins.generic.jatsParser.pdf.resetSuccess', array('part' => $partName)));
+        } else {
+            $notificationManager = new NotificationManager();
+            $notificationManager->createTrivialNotification($request->getUser()->getId(), __('common.error'), __('plugins.generic.jatsParser.pdf.resetError', array('part' => $partName)));
+        }
+    }
+
+    private function uploadPart($request, $contextId, $selectedTemplate) {
+        $partName = $request->getUserVar('partName');
+
+        if (!isset($_FILES['uploadedFile']) || $_FILES['uploadedFile']['error'] !== UPLOAD_ERR_OK) {
+            return;
+        }
+
+        $targetDir = $this->getPluginPath() . "/templates/SUMARC/private/$selectedTemplate";
+        
+        if (!is_dir($targetDir)) {
+            mkdir($targetDir, 0777, true);
+        }
+
+        $targetFile = $targetDir . "/{$partName}.tpl";
+
+        if (move_uploaded_file($_FILES['uploadedFile']['tmp_name'], $targetFile)) {
+            $notificationManager = new NotificationManager();
+            $notificationManager->createTrivialNotification($request->getUser()->getId(), __('common.success'), __('plugins.generic.jatsParser.pdf.uploadSuccess', array('part' => $partName)));
+        } else {
+             $notificationManager = new NotificationManager();
+            $notificationManager->createTrivialNotification($request->getUser()->getId(), __('common.error'), __('plugins.generic.jatsParser.pdf.uploadError', array('part' => $partName)));
+        }
+    }
+
+    private function downloadTemplate($request, $contextId, $selectedTemplate) {
+        $notificationManager = new NotificationManager();
+        $notificationManager->createTrivialNotification($request->getUser()->getId(), __('common.success'), __('plugins.generic.jatsParser.pdf.downloadStart'));
     }
 
 	public function setEnabled($enabled)
@@ -367,8 +442,6 @@ class JatsParserPlugin extends GenericPlugin
 		$configuration = new Configuration($metadata);
 		$fileMgr = new PrivateFileManager();
 		$journalId = $request->getContext()->getId();
-
-		file_put_contents(__DIR__ . "/test.txt", print_r(PDFCreationService::getTemplatePartsAndLocation('UNLP', $this, $fileMgr, $journalId), true));
 
 		# $htmloutput = HTMLOutputStrategy::class; # Sorpresa sorpresa, adapté la estrategia de salida de los PDFs para generar una salida en HTML, es probable que haya que meter algo de mano para que termine de ser funcional, pero el desarrollo está prácticamente hecho. Todo el procesamiento interno ya estaría acomdoado 👍 
 

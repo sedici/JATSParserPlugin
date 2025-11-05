@@ -47,7 +47,7 @@
                                 <tr>
                                     <td class="frontpage-journal-info-line">
                                         <div class="frontpage-anchor">
-                                            {call name="getMetadata" pre="<span class='frontpage-anchor'>ISSN " search={$online_issn} post="</span>"} 
+                                            {call name="getMetadata" pre="<span class='frontpage-issn'>ISSN " search={$online_issn} post="</span>"} 
                                             {if isset($online_issn) && $online_issn && isset($journal_url) && $journal_url}
                                                 <span class="frontpage-separator"> | </span>
                                             {/if}

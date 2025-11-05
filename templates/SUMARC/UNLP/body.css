@@ -26,6 +26,10 @@ h2 {
   page-break-inside: avoid; /* Esto es para que las tablas no se corte, sino que pasen de página */
 }
 
+.table > th, td {
+  padding: 1mm 10mm;
+}
+
 .title, .notes, .caption-title, .caption-notes, caption {
   text-align: justify;
 }

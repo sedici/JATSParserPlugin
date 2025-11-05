@@ -1,6 +1,6 @@
 <tab id="pdfSettingsTab" label="{translate key="plugins.generic.jatsParser.pdf.settings.tab"}">
 
-	<h3>Plantilla seleccionada: {$selectedTemplate}</h3>
+	<h3 style="font-size: 1.25rem; margin-bottom: 1rem;">Plantilla seleccionada: {$selectedTemplate|escape}</h3>
 
 	{if $filesInformation}
 	<div style="margin-top: 1rem;">
@@ -42,13 +42,15 @@
 				
 				<td style="padding: 1rem 1.25rem; vertical-align: middle; font-size: 0.875rem; color: #6b7280;">
 				{if !$fileInfo.public}
-					<button style="color: #2563eb; text-decoration: underline; background: none; border: none; padding: 0; cursor: pointer; font-size: 0.875rem;" title="Acción 1 {$partName|escape} ({$fileInfo.filename|escape})">
+					<a href="{call_hook name="Template::Settings::website::url" plugin=$plugin op="resetPart" partName=$partName|escape}" style="color: #dc2626; text-decoration: underline; background: none; border: none; padding: 0; cursor: pointer; font-size: 0.875rem;">
 						Reestablecer
-					</button>
+					</a>
 				{else}
-					<button style="color: #2563eb; text-decoration: underline; background: none; border: none; padding: 0; cursor: pointer; font-size: 0.875rem;" title="Acción 1 {$partName|escape} ({$fileInfo.filename|escape})">
-						Subir
-					</button>
+					<form method="post" enctype="multipart/form-data" action="{call_hook name="Template::Settings::website::url" plugin=$plugin op="uploadPart"}" style="display: flex; gap: 0.5rem; align-items: center;">
+						<input type="hidden" name="partName" value="{$partName|escape}" />
+						<input type="file" name="uploadedFile" style="font-size: 0.75rem;" />
+						<input type="submit" value="Subir" style="color: #2563eb; text-decoration: underline; background: none; border: none; padding: 0 0 0 1rem; cursor: pointer; font-size: 0.875rem;" />
+					</form>
 				{/if}
 				</td>
 				
@@ -56,7 +58,21 @@
 			{/foreach}
 		</tbody>
 		</table>
-		<a>Descargar plantilla</a>
+		
+		{* Botón para descargar toda la plantilla *}
+		<a href="{call_hook name="Template::Settings::website::url" plugin=$plugin op="downloadTemplate"}" style="
+			display: inline-block;
+			margin-top: 1.5rem;
+			padding: 0.5rem 1rem;
+			background-color: #2563eb; 
+			color: white; 
+			text-decoration: none; 
+			border-radius: 4px;
+			font-size: 0.875rem;
+			font-weight: 600;
+			cursor: pointer;
+		">Descargar plantilla completa</a>
+		
 	</div>
 	{else}
 	<div style="padding: 1rem; background-color: #fee2e2; border: 1px solid #f87171; color: #b91c1c; border-radius: 4px;" role="alert">
