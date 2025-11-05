@@ -40,3 +40,14 @@ h2 {
   display: block;
 }
 
+blockquote {
+  border-left-color: #31849b;
+  border-left-width: 4px;
+  border-left-style: solid;
+  padding-left: 15px;      
+  padding-top: 2px;     
+  padding-bottom: 2px;
+  margin-left: 30px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}

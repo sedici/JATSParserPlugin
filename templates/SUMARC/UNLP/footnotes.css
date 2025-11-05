@@ -17,15 +17,20 @@ a, .footnote-label {
   color: rgb(61, 145, 191);
 }
 
+.footnote-label {
+  text-decoration: bold;
+  font-size: 14px;
+}
+
 ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
 }
 
-h2 {
+.footnotes-title {
   text-decoration: bold;
   color: black;
-  margin-top: 30px;
-  margin-bottom: 20px;
+  margin-top: 10px;
+  margin-bottom: 5px;
 }

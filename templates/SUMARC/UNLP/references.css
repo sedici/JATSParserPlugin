@@ -19,8 +19,9 @@ ul {
   padding: 0;
 }
 
-h2 {
+.references-title {
   text-decoration: bold;
-  margin-bottom: 20px;
   color: black;
+  margin-top: 15px;
+  margin-bottom: 5px;
 }
