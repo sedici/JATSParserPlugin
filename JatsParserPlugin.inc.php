@@ -35,6 +35,7 @@ use JATSParser\Body\Document as JATSDocument;
 use PKP\components\forms\Processors\ReferencesProcessor;
 
 use APP\core\Request;
+use APP\notification\NotificationManager;
 use JATSParser\TemplateHandler\HTML\HTMLOutputStrategy;
 use JATSParser\TemplateHandler\PDF\PDFCreationService;
 use JATSParser\TemplateHandler\PDF\PDFOutputStrategy;
@@ -135,7 +136,7 @@ class JatsParserPlugin extends GenericPlugin
 
         $privateFilePath = $this->getPluginPath() . "/templates/SUMARC/private/$selectedTemplate/{$partName}.tpl";
         if (file_exists($privateFilePath) && @unlink($privateFilePath)) {
-			unlink($privateFileManager);
+			unlink($privateFilePath);
             $notificationManager = new NotificationManager();
             $notificationManager->createTrivialNotification($request->getUser()->getId(), __('common.success'), __('plugins.generic.jatsParser.pdf.resetSuccess', array('part' => $partName)));
         } else {
@@ -146,6 +147,8 @@ class JatsParserPlugin extends GenericPlugin
 
     private function uploadPart($request, $contextId, $selectedTemplate) {
         $partName = $request->getUserVar('partName');
+
+		file_put_contents(__DIR__ . "/test.txt", "");
 
         if (!isset($_FILES['uploadedFile']) || $_FILES['uploadedFile']['error'] !== UPLOAD_ERR_OK) {
             return;
