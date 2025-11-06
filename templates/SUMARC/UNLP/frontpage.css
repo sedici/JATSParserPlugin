@@ -107,7 +107,7 @@
     font-weight: normal;
     color: rgb(49, 132, 155);
     text-align: left;
-    margin-bottom: 30px;
+    margin-bottom: 15px;
 }
 
 .frontpage-author-info {
@@ -133,7 +133,7 @@
 
 .frontpage-author-contact {
     font-family: 'FreeSerif', serif;
-    font-size: 9pt;
+    font-size: 9.5pt;
     margin-top: 2px;
     margin-bottom: 2px;
 }
@@ -283,7 +283,7 @@
 }
 
 .frontpage-license-image {
-    width: 40px;
+    width: 90px;
     vertical-align: middle;
 }
 
