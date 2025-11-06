@@ -196,3 +196,36 @@ msgstr "Paramètres PDF"
 
 msgid "plugins.generic.jatsParser.pdf.empty.template"
 msgstr "Vide"
+
+msgid "plugins.generic.jatsParser.pdf.settings.tab"
+msgstr "Paramètres des modèles PDF"
+
+msgid "plugins.generic.jatsParser.pdf.download.template"
+msgstr "Télécharger le modèle"
+
+msgid "plugins.generic.jatsParser.pdf.error.loading"
+msgstr "Une erreur est survenue lors du chargement de cette page."
+
+msgid "plugins.generic.jatsParser.pdf.upload.file"
+msgstr "Téléverser le fichier"
+
+msgid "plugins.generic.jatsParser.pdf.reset"
+msgstr "Réinitialiser par défaut"
+
+msgid "plugins.generic.jatsParser.pdf.custom.file"
+msgstr "fichier personnalisé"
+
+msgid "plugins.generic.jatsParser.pdf.artifact"
+msgstr "Partie"
+
+msgid "plugins.generic.jatsParser.pdf.plugin.file"
+msgstr "Original"
+
+msgid "plugins.generic.jatsParser.pdf.local.file"
+msgstr "Personnalisé"
+
+msgid "plugins.generic.jatsParser.pdf.file.actions"
+msgstr "Actions"
+
+msgid "plugins.generic.jatsParser.pdf.selected.template.title"
+msgstr "Modèle sélectionné :"

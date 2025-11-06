@@ -154,3 +154,36 @@ msgstr "Налаштування PDF"
 
 msgid "plugins.generic.jatsParser.pdf.empty.template"
 msgstr "Порожньо"
+
+msgid "plugins.generic.jatsParser.pdf.settings.tab"
+msgstr "Налаштування шаблонів PDF"
+
+msgid "plugins.generic.jatsParser.pdf.download.template"
+msgstr "Завантажити шаблон"
+
+msgid "plugins.generic.jatsParser.pdf.error.loading"
+msgstr "Сталася помилка під час завантаження цієї сторінки."
+
+msgid "plugins.generic.jatsParser.pdf.upload.file"
+msgstr "Завантажити файл"
+
+msgid "plugins.generic.jatsParser.pdf.reset"
+msgstr "Скинути до початкового"
+
+msgid "plugins.generic.jatsParser.pdf.custom.file"
+msgstr "власний файл"
+
+msgid "plugins.generic.jatsParser.pdf.artifact"
+msgstr "Частина"
+
+msgid "plugins.generic.jatsParser.pdf.plugin.file"
+msgstr "Оригінал"
+
+msgid "plugins.generic.jatsParser.pdf.local.file"
+msgstr "Власний"
+
+msgid "plugins.generic.jatsParser.pdf.file.actions"
+msgstr "Дії"
+
+msgid "plugins.generic.jatsParser.pdf.selected.template.title"
+msgstr "Вибраний шаблон:"

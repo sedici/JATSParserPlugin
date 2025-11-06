@@ -199,3 +199,36 @@ msgstr "PDF Settings"
 
 msgid "plugins.generic.jatsParser.pdf.empty.template"
 msgstr "Empty"
+
+msgid "plugins.generic.jatsParser.pdf.settings.tab"
+msgstr "PDF Templates Settings"
+
+msgid "plugins.generic.jatsParser.pdf.download.template"
+msgstr "Download template"
+
+msgid "plugins.generic.jatsParser.pdf.error.loading"
+msgstr "An error occurred while loading this page."
+
+msgid "plugins.generic.jatsParser.pdf.upload.file"
+msgstr "Upload file"
+
+msgid "plugins.generic.jatsParser.pdf.reset"
+msgstr "Reset to default"
+
+msgid "plugins.generic.jatsParser.pdf.custom.file"
+msgstr "custom file"
+
+msgid "plugins.generic.jatsParser.pdf.artifact"
+msgstr "Part"
+
+msgid "plugins.generic.jatsParser.pdf.plugin.file"
+msgstr "Original"
+
+msgid "plugins.generic.jatsParser.pdf.local.file"
+msgstr "Custom"
+
+msgid "plugins.generic.jatsParser.pdf.file.actions"
+msgstr "Actions"
+
+msgid "plugins.generic.jatsParser.pdf.selected.template.title"
+msgstr "Selected Template:"

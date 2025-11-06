@@ -209,7 +209,7 @@ msgstr "Margen derecho"
 msgid "plugins.generic.jatsParser.empty.template"
 msgstr "No se ha seleccionado una plantilla"
 
-msgig "plugins.generic.jatsParser.pdf.config.button"
+msgid "plugins.generic.jatsParser.pdf.config.button"
 msgstr "Configuración para las plantillas PDF"
 
 msgid "plugins.generic.jatsParser.pdf.settings.button"
@@ -217,3 +217,36 @@ msgstr "Ajustes de PDF"
 
 msgid "plugins.generic.jatsParser.pdf.empty.template"
 msgstr "Vacío"
+
+msgid "plugins.generic.jatsParser.pdf.settings.tab"
+msgstr "Configuración de la plantilla PDF"
+
+msgid "plugins.generic.jatsParser.pdf.download.template"
+msgstr "Descargar plantilla"
+
+msgid "plugins.generic.jatsParser.pdf.error.loading"
+msgstr "Ocurrió un error al cargar esta página."
+
+msgid "plugins.generic.jatsParser.pdf.upload.file"
+msgstr "Subir archivo"
+
+msgid "plugins.generic.jatsParser.pdf.reset"
+msgstr "Reestablecer"
+
+msgid "plugins.generic.jatsParser.pdf.custom.file"
+msgstr "personalizado"
+
+msgid "plugins.generic.jatsParser.pdf.artifact"
+msgstr "Parte"
+
+msgid "plugins.generic.jatsParser.pdf.plugin.file"
+msgstr "Original"
+
+msgid "plugins.generic.jatsParser.pdf.local.file"
+msgstr "Personalizado"
+
+msgid "plugins.generic.jatsParser.pdf.file.actions"
+msgstr "Acciones"
+
+msgid "plugins.generic.jatsParser.pdf.selected.template.title"
+msgstr "Plantilla seleccionada:"
