@@ -232,3 +232,12 @@ msgstr "Actions"
 
 msgid "plugins.generic.jatsParser.pdf.selected.template.title"
 msgstr "Selected Template:"
+
+msgid "plugins.generic.jatsParser.pdf.journal_logo"
+msgstr "Journal logo"
+
+msgid "plugins.generic.jatsParser.pdf.institution_logo"
+msgstr "Institution logo"
+
+msgid "plugins.generic.jatsParser.pdf.custom_css"
+msgstr "Custom CSS"

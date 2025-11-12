@@ -65,115 +65,11 @@ class JatsParserPlugin extends GenericPlugin
                 HookRegistry::add('Form::config::before', array($this, 'addCitationsFormFields'));
                 HookRegistry::add('Publication::edit', array($this, 'editPublicationReferences'));
                 HookRegistry::add('Publication::edit', array($this, 'createPdfGalley'));
-                
-                HookRegistry::add('Template::Settings::website', array($this, 'pdfConfigTab'));
-				HookRegistry::add('LoadHandler', array($this, 'setSettingsWebsiteHandler'));
             }
 
             return true;
         }
         return false;
-    }
-
-	public function setSettingsWebsiteHandler($hookName, $args) {
-        $page = $args[0];
-        $op = $args[1];
-        
-        if ($page === 'settings' && $op === 'website') {
-            $request = $this->getRequest();
-            $router = $request->getRouter();
-            $router->setPluginHandler($page, $op, $this); 
-        }
-    }
-
-    public function pdfConfigTab($hookName, $args)
-    {
-        $templateMgr = $args[1];
-        $output = &$args[2];
-        $request = $this->getRequest();
-
-        $context = $request->getContext();
-        $contextId = $context ? $context->getId() : null;
-        $config = $this->getConfiguration($request);
-        $fileManager = new PrivateFileManager();
-
-        $op = $request->getUserVar('op');
-		file_put_contents(__DIR__ . "/op.txt", $op);
-        if ($op) {
-            switch ($op) {
-                case 'resetPart':
-                    $this->resetPart($request, $contextId, $config['selected_template']);
-                    break;
-                case 'uploadPart':
-                    $this->uploadPart($request, $contextId, $config['selected_template']);
-                    break;
-                case 'downloadTemplate':
-                    $this->downloadTemplate($request, $contextId, $config['selected_template']);
-                    break;
-            }
-            $request->redirect(null, 'management', 'settings', array('website'), array('plugin' => $this->getName(), 'path' => 'pdfConfigTab'));
-            return false;
-        }
-
-        $parts = PDFCreationService::getTemplatePartsAndLocation($config['selected_template'], $this, $fileManager, $contextId); // Descomentar si usas el servicio
-        
-        $templateMgr->assign('selectedTemplate', $config['selected_template']);
-        $templateMgr->assign('filesInformation', $parts);
-		$templateMgr->assign('plugin', $this);
-        
-        $output .= $templateMgr->fetch($this->getTemplateResource('pdfConfigTab.tpl'));
-        return false;
-    }
-
-    private function resetPart($request, $contextId, $selectedTemplate) {
-        $partName = $request->getUserVar('partName');
-
-        if (!$partName) {
-			file_put_contents(__DIR__ . "/test2.txt", "");
-			return; 
-        }
-		file_put_contents(__DIR__ . "/test.txt", "");
-
-        $privateFilePath = $this->getPluginPath() . "/templates/SUMARC/private/$selectedTemplate/{$partName}.tpl";
-        if (file_exists($privateFilePath) && @unlink($privateFilePath)) {
-			unlink($privateFilePath);
-            $notificationManager = new NotificationManager();
-            $notificationManager->createTrivialNotification($request->getUser()->getId(), __('common.success'), __('plugins.generic.jatsParser.pdf.resetSuccess', array('part' => $partName)));
-        } else {
-            $notificationManager = new NotificationManager();
-            $notificationManager->createTrivialNotification($request->getUser()->getId(), __('common.error'), __('plugins.generic.jatsParser.pdf.resetError', array('part' => $partName)));
-        }
-    }
-
-    private function uploadPart($request, $contextId, $selectedTemplate) {
-        $partName = $request->getUserVar('partName');
-
-		file_put_contents(__DIR__ . "/test.txt", "");
-
-        if (!isset($_FILES['uploadedFile']) || $_FILES['uploadedFile']['error'] !== UPLOAD_ERR_OK) {
-            return;
-        }
-
-        $targetDir = $this->getPluginPath() . "/templates/SUMARC/private/$selectedTemplate";
-        
-        if (!is_dir($targetDir)) {
-            mkdir($targetDir, 0777, true);
-        }
-
-        $targetFile = $targetDir . "/{$partName}.tpl";
-
-        if (move_uploaded_file($_FILES['uploadedFile']['tmp_name'], $targetFile)) {
-            $notificationManager = new NotificationManager();
-            $notificationManager->createTrivialNotification($request->getUser()->getId(), __('common.success'), __('plugins.generic.jatsParser.pdf.uploadSuccess', array('part' => $partName)));
-        } else {
-             $notificationManager = new NotificationManager();
-            $notificationManager->createTrivialNotification($request->getUser()->getId(), __('common.error'), __('plugins.generic.jatsParser.pdf.uploadError', array('part' => $partName)));
-        }
-    }
-
-    private function downloadTemplate($request, $contextId, $selectedTemplate) {
-        $notificationManager = new NotificationManager();
-        $notificationManager->createTrivialNotification($request->getUser()->getId(), __('common.success'), __('plugins.generic.jatsParser.pdf.downloadStart'));
     }
 
 	public function setEnabled($enabled)
@@ -235,6 +131,15 @@ class JatsParserPlugin extends GenericPlugin
 					__('plugins.generic.jatsParser.pdf.settings.button'),
 					null
 				),
+				new LinkAction(
+					'pdfPartsSettings',
+					new AjaxModal(
+						$router->url($request, null, null, 'manage', null, array('verb' => 'pdfPartsSettings', 'plugin' => $this->getName(), 'category' => 'generic')),
+						$this->getDisplayName()
+					),
+					__('plugins.generic.jatsParser.pdf.settings.tab'),
+					null
+				),
 			) : array(),
 			parent::getActions($request, $verb)
 		);
@@ -265,6 +170,20 @@ class JatsParserPlugin extends GenericPlugin
 				$context = $request->getContext();
 				$this->import('JatsParserPdfSettingsForm');
 				$form = new JatsParserPdfSettingsForm($this, $context->getId());
+				if ($request->getUserVar('save')) {
+					$form->readInputData();
+					if ($form->validate()) {
+						$form->execute();
+						return new JSONMessage(true);
+					}
+				} else {
+					$form->initData();
+				}
+				return new JSONMessage(true, $form->fetch($request));
+			case 'pdfPartsSettings':
+				$context = $request->getContext();
+				$this->import('JatsParserPartsForm');
+				$form = new JatsParserPartsForm($this, $context->getId());
 				if ($request->getUserVar('save')) {
 					$form->readInputData();
 					if ($form->validate()) {
@@ -386,7 +305,7 @@ class JatsParserPlugin extends GenericPlugin
 		return $metadata;
 	}
 
-	private function getConfiguration($request)
+	public function getConfiguration($request)
 	{
 		$context = $request->getContext();
 

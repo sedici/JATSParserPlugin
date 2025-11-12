@@ -1,10 +1,10 @@
 {include file={$baseFunctions}}
 
 <style>
-  {include file={$footnotes}}
+  {include file={$footnotes_css}}
 
-  {if isset($extraCSS) && $extraCSS}
-    {include file={$extraCSS}}
+  {if isset($custom_css) && $custom_css}
+    {include file={$custom_css}}
   {/if}
 </style>
 

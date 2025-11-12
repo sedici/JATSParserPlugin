@@ -1,10 +1,10 @@
 {include file={$baseFunctions}}
 
 <style>
-    {include file={$frontpage}}
+    {include file={$frontpage_css}}
 
-    {if isset($extraCSS) && $extraCSS}
-        {include file={$extraCSS}}
+    {if isset($custom_css) && $custom_css}
+        {include file={$custom_css}}
     {/if}
 </style>
 
@@ -17,7 +17,7 @@
                         <div class="frontpage-journal-logos">
                             {call name="getImage" 
                                 pre="<img src='"
-                                search={$journalLogo}
+                                search={$journal_logo}
                                 post="' class='frontpage-journal-logo'>"
                             }
                         </div>
@@ -74,7 +74,7 @@
                         <hr class="frontpage-hr">
                     </td>
                     <td class="frontpage-institution-logo-cell">
-                        {call name='getImage' pre="<img src='" search={$institutionLogo} post="' class='frontpage-institution-logo'>"}
+                        {call name='getImage' pre="<img src='" search={$institution_logo} post="' class='frontpage-institution-logo'>"}
                     </td>
                 </tr>
             </table>

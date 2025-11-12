@@ -187,3 +187,12 @@ msgstr "Дії"
 
 msgid "plugins.generic.jatsParser.pdf.selected.template.title"
 msgstr "Вибраний шаблон:"
+
+msgid "plugins.generic.jatsParser.pdf.journal_logo"
+msgstr "Логотип журналу"
+
+msgid "plugins.generic.jatsParser.pdf.institution_logo"
+msgstr "Логотип установи"
+
+msgid "plugins.generic.jatsParser.pdf.custom_css"
+msgstr "Власний CSS"

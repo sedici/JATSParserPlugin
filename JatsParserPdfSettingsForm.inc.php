@@ -83,36 +83,6 @@ class JatsParserPdfSettingsForm extends Form
 		$plugin->updateSetting($contextId, 'pdfBottomMargin', $this->getData('pdfBottomMargin'));
 		$plugin->updateSetting($contextId, 'selectedTemplate', $this->getData('selectedTemplate'));
 
-		# Subir archivos para las templates
-		$inputName = 'fileInput';
-		$status = "";
-
-		# Esto debería moverse a un lugar aparte que tenga una tabla con blablabla 
-		if (isset($_FILES[$inputName]) && $_FILES[$inputName]['error'] === UPLOAD_ERR_OK) {
-
-			$selectedTemplate = "UNLP";
-			$fileManager = new PrivateFileManager();
-			$templateDir = $fileManager->getBasePath() . "/journals/$contextId/jatsParser_templates/$selectedTemplate/";
-
-			if (!file_exists($templateDir)) { # Si no existe el dir. de la template a la hora de subir el archivo, lo creo
-				mkdir($templateDir, 0751, true);
-			}
-
-			$fileInfo = $_FILES[$inputName];
-
-			$status .= 'Archivo subido encontrado. Info: ' . print_r($fileInfo, true);
-			$fileName = basename($fileInfo['name']);
-			$targetFilePath = $templateDir . $fileName;
-
-			if (move_uploaded_file($fileInfo['tmp_name'], $targetFilePath)) {
-				$status .= "Archivo guardado con éxito en: " . $targetFilePath;
-			} else {
-				$status .= 'Error al mover el archivo subido.';
-			}
-		} elseif (isset($_FILES[$inputName]) && $_FILES[$inputName]['error'] !== UPLOAD_ERR_OK) {
-			$status .= 'Error de subida de archivo. Código: ' . $_FILES[$inputName]['error'];
-		}
-
 		#parent::execute(...$functionArgs);
 	}
 }

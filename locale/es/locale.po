@@ -250,3 +250,12 @@ msgstr "Acciones"
 
 msgid "plugins.generic.jatsParser.pdf.selected.template.title"
 msgstr "Plantilla seleccionada:"
+
+msgid "plugins.generic.jatsParser.pdf.journal_logo"
+msgstr "Logo de la revista"
+
+msgid "plugins.generic.jatsParser.pdf.institution_logo"
+msgstr "Logo de la institucion"
+
+msgid "plugins.generic.jatsParser.pdf.custom_css"
+msgstr "CSS Personalizado"

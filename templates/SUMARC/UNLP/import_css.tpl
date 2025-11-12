@@ -1,13 +1,13 @@
 <style>
   {*
-    {include file={$body}}
-    {include file={$frontpage}}
-    {include file={$references}}
-    {include file={$footnotes}}
+    {include file={$body_css}}
+    {include file={$frontpage_css}}
+    {include file={$references_css}}
+    {include file={$footnotes_css}}
   *}
   
-  {include file={$header}}
-  {include file={$footer}}
+  {include file={$header_css}}
+  {include file={$footer_css}}
 
   {*
     NO se puede hacer el include del body, references, footnotes y frontpage acá debido a que muchas cosas son traídas desde JATSParser,
@@ -15,7 +15,7 @@
     pero hasta que no se arregle lo mencionado arriba, no hay forma de hacerlo sin pisar estilos de otras partes
   *}
 
-  {if isset($extraCSS) && $extraCSS}
-    {include file={$extraCSS}}
+  {if isset($custom_css) && $custom_css}
+    {include file={$custom_css}}
   {/if}
 </style>

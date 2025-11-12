@@ -1,7 +1,7 @@
 {include file={$baseFunctions}}
 
 <style>
-  {include file={$references}}
+  {include file={$references_css}}
 </style>
 
 <break />
