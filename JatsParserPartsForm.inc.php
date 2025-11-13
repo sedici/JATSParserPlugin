@@ -18,32 +18,23 @@ class JatsParserPartsForm extends Form
 		$this->_journalId = $journalId;
 		$this->_plugin = $plugin;
 
-		parent::__construct($plugin->getTemplateResource('pdfConfigTab.tpl'));
+		parent::__construct($plugin->getTemplateResource('pdfPartsSettingsForm.tpl'));
 
 		$this->addCheck(new FormValidatorPost($this));
 		$this->addCheck(new FormValidatorCSRF($this));
 	}
 
-	function initData()
-	{
-		$contextId = $this->_journalId;
-		$plugin = $this->_plugin;
-	}
-
-	function readInputData()
-	{
-		$this->readUserVars(array());
-	}
-
 	function fetch($request, $template = null, $display = false)
 	{
+		$plugin = $this->_plugin;
 		$fileManager = new PrivateFileManager();
-        $config = $this->_plugin->getConfiguration($request);
-		$parts = PDFCreationService::getTemplatePartsAndLocation($config['selected_template'], $this->_plugin, $fileManager, $this->_journalId);
+		$config = $this->_plugin->getConfiguration($request);
+		$parts = PDFCreationService::getTemplatePartsAndLocation($config['selected_template'], $plugin, $fileManager, $this->_journalId);
 
 		$templateMgr = TemplateManager::getManager($request);
 		$templateMgr->assign([
-			'pluginName' => $this->_plugin->getName(),
+			'plugin' => $plugin,
+			'pluginName' => $plugin->getName(),
 			'selectedTemplate' => $config['selected_template'],
 			'filesInformation' => $parts,
 		]);
@@ -60,41 +51,40 @@ class JatsParserPartsForm extends Form
 		$plugin = $this->_plugin;
 		$contextId = $this->_journalId;
 
-		# Subir archivos para las templates
-        $selectedTemplate = $plugin->getSetting($contextId, 'selectedTemplate') ? $plugin->getSetting($contextId, 'selectedTemplate') : 'plugins.generic.jatsParser.pdf.empty.template';
+		$selectedTemplate = $plugin->getSetting($contextId, 'selectedTemplate') ? $plugin->getSetting($contextId, 'selectedTemplate') : 'plugins.generic.jatsParser.pdf.empty.template';
 
-        $fileManager = new PrivateFileManager();
-        $parts = PDFCreationService::getTemplatePartsAndLocation($selectedTemplate, $this->_plugin, $fileManager, $this->_journalId);
-        $status = "";
+		$fileManager = new PrivateFileManager();
+		$parts = PDFCreationService::getTemplatePartsAndLocation($selectedTemplate, $this->_plugin, $fileManager, $this->_journalId);
+		$status = "";
 
-        foreach($parts as $key => $value) {
-            $inputName = $key;
+		foreach ($parts as $key => $value) {
+			$inputName = $key;
 
-            if (isset($_FILES[$inputName]) && $_FILES[$inputName]['error'] === UPLOAD_ERR_OK) {
-                $fileManager = new PrivateFileManager();
-                $templateDir = $fileManager->getBasePath() . "/journals/$contextId/jatsParser_templates/$selectedTemplate/";
+			if (isset($_FILES[$inputName]) && $_FILES[$inputName]['error'] === UPLOAD_ERR_OK) {
+				$fileManager = new PrivateFileManager();
+				$templateDir = $fileManager->getBasePath() . "/journals/$contextId/jatsParser_templates/$selectedTemplate/";
 
-                if (!file_exists($templateDir)) { # Si no existe el dir. de la template a la hora de subir el archivo, lo creo
-                    mkdir($templateDir, 0751, true);
-                }
+				if (!file_exists($templateDir)) { # Si no existe el dir. de la template a la hora de subir el archivo, lo creo
+					mkdir($templateDir, 0751, true);
+				}
 
-                $fileInfo = $_FILES[$inputName];
+				$fileInfo = $_FILES[$inputName];
 
-                $status .= 'Archivo subido encontrado. Info: ' . print_r($fileInfo, true);
-                $fileName = $value['filename'];
-                $targetFilePath = $templateDir . $fileName;
+				$status .= 'Archivo subido encontrado. Info: ' . print_r($fileInfo, true);
+				$fileName = $value['filename'];
+				$targetFilePath = $templateDir . $fileName;
 
-                if (move_uploaded_file($fileInfo['tmp_name'], $targetFilePath)) {
-                    $status .= "Archivo guardado con éxito en: " . $targetFilePath;
-                } else {
-                    $status .= 'Error al mover el archivo subido.';
-                }
-            } elseif (isset($_FILES[$inputName]) && $_FILES[$inputName]['error'] !== UPLOAD_ERR_OK) {
-                $status .= 'Error de subida de archivo. Código: ' . $_FILES[$inputName]['error'];
-            }
-        }      
+				if (move_uploaded_file($fileInfo['tmp_name'], $targetFilePath)) {
+					$status .= "Archivo guardado con éxito en: " . $targetFilePath;
+				} else {
+					$status .= 'Error al mover el archivo subido.';
+				}
+			} elseif (isset($_FILES[$inputName]) && $_FILES[$inputName]['error'] !== UPLOAD_ERR_OK) {
+				$status .= 'Error de subida de archivo. Código: ' . $_FILES[$inputName]['error'];
+			}
+		}
 
-        file_put_contents(__DIR__ . "/test.txt", $status);
+		file_put_contents(__DIR__ . "/test.txt", $status);
 
 		#parent::execute(...$functionArgs);
 	}

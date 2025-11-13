@@ -36,12 +36,6 @@
 		{/fbvFormSection}
 	{/fbvFormArea}
 
-    {fbvFormArea id="file" title="plugins.generic.jatsParser.files.config"}
-			{fbvFormSection for="fileSection" list=true description="Esto moverlo a otro lado :)"}
-				{fbvElement type="file" id="fileInput" name="fileInput" label=""}
-			{/fbvFormSection}
-    {/fbvFormArea}
-
 	{fbvFormButtons}
 	<p><span class="formRequired">{translate key="common.requiredField"}</span></p>
 </form>

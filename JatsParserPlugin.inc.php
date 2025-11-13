@@ -21,6 +21,9 @@ import('plugins.generic.jatsParser.classes.components.forms.PublicationJATSUploa
 import('lib.pkp.classes.citation.Citation');
 import('lib.pkp.classes.file.PrivateFileManager');
 import('lib.pkp.classes.file.PKPPublicFileManager');
+import('lib.pkp.classes.linkAction.LinkAction');
+import('lib.pkp.classes.linkAction.request.AjaxModal');
+import('lib.pkp.classes.linkAction.request.RedirectAction');
 
 use PKP\decision\Decision;
 use PKP\citation\CitationListTokenizerFilter;
@@ -51,26 +54,26 @@ define("CREATE_PDF_QUERY", "download=pdf");
 class JatsParserPlugin extends GenericPlugin
 {
 
-    function register($category, $path, $mainContextId = null)
-    {
-        if (parent::register($category, $path, $mainContextId)) {
+	function register($category, $path, $mainContextId = null)
+	{
+		if (parent::register($category, $path, $mainContextId)) {
 
-            if ($this->getEnabled()) {
-                HookRegistry::add('Template::Workflow::Publication', array($this, 'publicationTemplateData'));
-                HookRegistry::add('Schema::get::publication', array($this, 'addToSchema'));
-                HookRegistry::add('LoadHandler', array($this, 'loadFullTextAssocHandler'));
-                HookRegistry::add('Publication::edit', array($this, 'editPublicationFullText'));
-                HookRegistry::add('Templates::Article::Main', array($this, 'displayFullText'));
-                HookRegistry::add('TemplateManager::display', array($this, 'themeSpecificStyles'));
-                HookRegistry::add('Form::config::before', array($this, 'addCitationsFormFields'));
-                HookRegistry::add('Publication::edit', array($this, 'editPublicationReferences'));
-                HookRegistry::add('Publication::edit', array($this, 'createPdfGalley'));
-            }
+			if ($this->getEnabled()) {
+				HookRegistry::add('Template::Workflow::Publication', array($this, 'publicationTemplateData'));
+				HookRegistry::add('Schema::get::publication', array($this, 'addToSchema'));
+				HookRegistry::add('LoadHandler', array($this, 'loadFullTextAssocHandler'));
+				HookRegistry::add('Publication::edit', array($this, 'editPublicationFullText'));
+				HookRegistry::add('Templates::Article::Main', array($this, 'displayFullText'));
+				HookRegistry::add('TemplateManager::display', array($this, 'themeSpecificStyles'));
+				HookRegistry::add('Form::config::before', array($this, 'addCitationsFormFields'));
+				HookRegistry::add('Publication::edit', array($this, 'editPublicationReferences'));
+				HookRegistry::add('Publication::edit', array($this, 'createPdfGalley'));
+			}
 
-            return true;
-        }
-        return false;
-    }
+			return true;
+		}
+		return false;
+	}
 
 	public function setEnabled($enabled)
 	{
@@ -110,7 +113,6 @@ class JatsParserPlugin extends GenericPlugin
 	function getActions($request, $verb)
 	{
 		$router = $request->getRouter();
-		import('lib.pkp.classes.linkAction.request.AjaxModal');
 		return array_merge(
 			$this->getEnabled() ? array(
 				new LinkAction(
@@ -133,9 +135,9 @@ class JatsParserPlugin extends GenericPlugin
 				),
 				new LinkAction(
 					'pdfPartsSettings',
-					new AjaxModal(
-						$router->url($request, null, null, 'manage', null, array('verb' => 'pdfPartsSettings', 'plugin' => $this->getName(), 'category' => 'generic')),
-						$this->getDisplayName()
+					// ** CAMBIO CLAVE 1: USAR RedirectAction **
+					new RedirectAction(
+						$router->url($request, null, null, 'manage', null, array('verb' => 'pdfPartsSettings', 'plugin' => $this->getName(), 'category' => 'generic'))
 					),
 					__('plugins.generic.jatsParser.pdf.settings.tab'),
 					null
@@ -188,12 +190,42 @@ class JatsParserPlugin extends GenericPlugin
 					$form->readInputData();
 					if ($form->validate()) {
 						$form->execute();
-						return new JSONMessage(true);
+						$router = $request->getRouter();
+						$router->url($request, null, null, 'manage', null, array('verb' => 'pdfPartsSettings', 'plugin' => $this->getName(), 'category' => 'generic'));
 					}
-				} else {
-					$form->initData();
 				}
-				return new JSONMessage(true, $form->fetch($request));
+
+				$templateMgr = TemplateManager::getManager($request);
+				$templateMgr->registerPlugin('function', 'plugin_url', [$this, 'smartyPluginUrl']);
+				$templateMgr->assign('jatsParserPlugin', $this);
+
+				$form->display($request);
+
+				return true;
+			case 'resetPart':
+				$context = $request->getContext();
+				$this->import('JatsParserPartsForm');
+				$form = new JatsParserPartsForm($this, $context->getId());
+
+				$part = $request->getUserVar('partName');
+				$template = $request->getUserVar('template');
+				$fileManager = new PrivateFileManager();
+				$path = $fileManager->getBasePath() . "/journals/" . $context->getId() . "/jatsParser_templates/$template/";
+
+				$fileName = basename((string) $part);
+				$targetPath = $path . $fileName;
+				
+				unlink($targetPath);
+
+				file_put_contents(__DIR__ . "/testFile.txt", $targetPath);
+
+				$templateMgr = TemplateManager::getManager($request);
+				$templateMgr->registerPlugin('function', 'plugin_url', [$this, 'smartyPluginUrl']);
+				$templateMgr->assign('jatsParserPlugin', $this);
+
+				$form->display($request);
+
+				return true;
 		}
 		return parent::manage($args, $request);
 	}
