@@ -84,7 +84,7 @@ class JatsParserPartsForm extends Form
 			}
 		}
 
-		file_put_contents(__DIR__ . "/test.txt", $status);
+		#file_put_contents(__DIR__ . "/test.txt", $status); # Esto debería cambiarse por un manejo de errores como la gente
 
 		#parent::execute(...$functionArgs);
 	}

@@ -5,9 +5,19 @@
 
         {fbvFormArea id="filePartsArea"}
             
-            <h3 style="font-size: 1.5rem; font-weight: 700; color: #111827; margin-bottom: 1.5rem;">
-                {translate key="plugins.generic.jatsParser.pdf.selected.template.title"} {$selectedTemplate|escape}
-            </h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; margin-top: 10px;">
+                <h3 style="font-size: 1.5rem; font-weight: 700; color: #111827; margin: 0;">
+                    {translate key="plugins.generic.jatsParser.pdf.selected.template.title"} {$selectedTemplate|escape}
+                </h3>
+
+                <button style="
+                    padding: 0.6rem 1.2rem; background-color: #1075b9; color: #ffffff; font-weight: 600;
+                    font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;
+                ">
+                    {translate key="plugins.generic.jatsParser.pdf.parts_table.cancel"}
+                </button>
+            </div>
+
 
             {if $filesInformation}
                 
@@ -63,7 +73,7 @@
                         </tbody>
                     </table>
                     
-                    <!-- <a href="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="downloadTemplate"}" style="display: inline-block; margin-top: 1.5rem; padding: 0.5rem 1rem; background-color: #2563eb; color: #ffffff; font-weight: 600; border-radius: 6px; text-decoration: none; font-size: 0.875rem;">{translate key="plugins.generic.jatsParser.pdf.download.template"}</a> -->
+                    <!-- <a href="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="downloadTemplate"}" style="display: inline-block; margin-top: 1.5rem; padding: 0.5rem 1rem; background-color: #2563eb; color: #ffffff; font-weight: 600; border-radius: 6px; text-decoration: none; font-size: 0.875rem;">{translate key="plugins.generic.jatsParser.pdf.parts_table.download"}</a> -->
                     
                 </div>
                 
@@ -79,6 +89,11 @@
         <button type="submit" style="
             margin-top: 2rem; padding: 0.6rem 1.2rem; background-color: #10b981; color: #ffffff; font-weight: 600;
             font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;
-        ">Ok</button>
+        ">{translate key="plugins.generic.jatsParser.pdf.parts_table.save"}</button>
+        
+        <button style="
+            margin-top: 2rem; padding: 0.6rem 1.2rem; background-color: #1075b9ff; color: #ffffff; font-weight: 600;
+            font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;
+        ">{translate key="plugins.generic.jatsParser.pdf.parts_table.cancel"}</button>
     </form>
 {/block}

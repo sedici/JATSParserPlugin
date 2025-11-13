@@ -1,1 +1,1 @@
-/var/ojs-data/journals/1/jatsParser_templates/UNLP/frontpage.tpl
+/var/ojs-data/journals/1/jatsParser_templates/UNLP/body.tpl
