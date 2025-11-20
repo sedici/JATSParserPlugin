@@ -24,23 +24,38 @@ class JatsParserPartsForm extends Form
 		$this->addCheck(new FormValidatorCSRF($this));
 	}
 
-	function fetch($request, $template = null, $display = false)
-	{
-		$plugin = $this->_plugin;
-		$fileManager = new PrivateFileManager();
-		$config = $this->_plugin->getConfiguration($request);
-		$parts = PDFCreationService::getTemplatePartsAndLocation($config['selected_template'], $plugin, $fileManager, $this->_journalId);
+	    function fetch($request, $template = null, $display = false)
+    {
+        $plugin = $this->_plugin;
+        $fileManager = new PrivateFileManager();
+        $config = $this->_plugin->getConfiguration($request);
+        $parts = PDFCreationService::getTemplatePartsAndLocation($config['selected_template'], $plugin, $fileManager, $this->_journalId);
 
 		$templateMgr = TemplateManager::getManager($request);
-		$templateMgr->assign([
-			'plugin' => $plugin,
-			'pluginName' => $plugin->getName(),
-			'selectedTemplate' => $config['selected_template'],
-			'filesInformation' => $parts,
-		]);
 
-		return parent::fetch($request, $template, $display);
-	}
+        $context = $request->getContext();
+        $contextPath = $context->getPath();
+
+		$contextBaseUrl = $request->getBaseUrl();
+
+        if ($contextPath && strpos($contextBaseUrl, '/' . $contextPath) === false) {
+             $contextBaseUrl .= '/index.php/' . $contextPath;
+        }
+
+        $baseUrl = $contextBaseUrl . '/management';
+        
+		$goBackUrl = $baseUrl . '/settings/website#plugins';
+        
+        $templateMgr->assign([
+            'plugin' => $plugin,
+            'pluginName' => $plugin->getName(),
+            'go_back_url' => $goBackUrl,
+            'selectedTemplate' => $config['selected_template'],
+            'filesInformation' => $parts,
+        ]);
+
+        return parent::fetch($request, $template, $display);
+    }
 
 	function execute(...$functionArgs)
 	{

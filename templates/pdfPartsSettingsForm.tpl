@@ -14,7 +14,7 @@
                     padding: 0.6rem 1.2rem; background-color: #1075b9; color: #ffffff; font-weight: 600;
                     font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;
                 ">
-                    {translate key="plugins.generic.jatsParser.pdf.parts_table.cancel"}
+                    <a style="text-decoration: none; color: white;" href="{$go_back_url}">{translate key="plugins.generic.jatsParser.pdf.parts_table.cancel"}</a>
                 </button>
             </div>
 
@@ -86,14 +86,36 @@
             
         {/fbvFormArea}
         
-        <button type="submit" style="
-            margin-top: 2rem; padding: 0.6rem 1.2rem; background-color: #10b981; color: #ffffff; font-weight: 600;
-            font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;
-        ">{translate key="plugins.generic.jatsParser.pdf.parts_table.save"}</button>
-        
-        <button style="
-            margin-top: 2rem; padding: 0.6rem 1.2rem; background-color: #1075b9ff; color: #ffffff; font-weight: 600;
-            font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;
-        ">{translate key="plugins.generic.jatsParser.pdf.parts_table.cancel"}</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-top:2rem;">
+            <div style="display:flex; gap:0.75rem;">
+                <button type="submit" style="
+                    padding: 0.6rem 1.2rem; background-color: #10b981; color: #ffffff; font-weight: 600;
+                    font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;
+                ">{translate key="plugins.generic.jatsParser.pdf.parts_table.save"}</button>
+
+                <button style="
+                    padding: 0.6rem 1.2rem; background-color: #1075b9ff; color: #ffffff; font-weight: 600;
+                    font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;
+                ">
+                    <a style="text-decoration: none; color: white;" href="{$go_back_url}">{translate key="plugins.generic.jatsParser.pdf.parts_table.cancel"}</a>
+                </button>
+            </div>
+
+            <div style="display:flex; gap:0.5rem;">
+                <button style="
+                    padding: 0.6rem 1.2rem; background-color: #7510b9ff; color: #ffffff; font-weight: 600;
+                    font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;
+                ">
+                    <a href="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="downloadCurrentTemplate" template=$selectedTemplate}" style="text-decoration: none; color: white;">{translate key="plugins.generic.jatsParser.pdf.parts_table.download_current"}</a>
+                </button>
+
+                <button style="
+                    padding: 0.6rem 1.2rem; background-color: #10b93aff; font-weight: 600;
+                    font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;
+                ">
+                    <a href="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="downloadOriginalTemplate" template=$selectedTemplate}" style="text-decoration: none; color: white;">{translate key="plugins.generic.jatsParser.pdf.parts_table.download_original"}</a>
+                </button>
+            </div>
+        </div>
     </form>
 {/block}

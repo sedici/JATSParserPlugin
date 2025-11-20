@@ -217,8 +217,6 @@ class JatsParserPlugin extends GenericPlugin
 				
 				unlink($targetPath);
 
-				file_put_contents(__DIR__ . "/testFile.txt", $targetPath);
-
 				$templateMgr = TemplateManager::getManager($request);
 				$templateMgr->registerPlugin('function', 'plugin_url', [$this, 'smartyPluginUrl']);
 				$templateMgr->assign('jatsParserPlugin', $this);
@@ -226,6 +224,85 @@ class JatsParserPlugin extends GenericPlugin
 				$form->display($request);
 
 				return true;
+			case 'downloadCurrentTemplate':
+				$context = $request->getContext();
+				$this->import('JatsParserPartsForm');
+				$form = new JatsParserPartsForm($this, $context->getId());
+				$fileManager = new PrivateFileManager();
+
+				$template = $request->getuserVar('template');
+
+				$parts = PDFCreationService::getTemplatePartsAndLocation($template, $this, $fileManager, $context->getId());
+
+				$zipPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'jats_template_' . uniqid() . '.zip';
+				$zip = new ZipArchive();
+				$res = $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+				if ($res !== true) {
+					file_put_contents(__DIR__ . "/error.txt", "No se pudo crear el archivo ZIP: $res\n");
+				}
+
+				foreach ($parts as $part) {
+					$using = $part['using'] . "/$template/";
+					$filename = $part['filename'];
+
+					$full = $using . $filename;
+					$zip->addFile($full, $filename);
+				}
+
+				$zip->close();
+
+				header('Content-Type: application/zip');
+				header('Content-Disposition: attachment; filename="' . basename($template) . '-modified.zip"');
+				header('Content-Length: ' . filesize($zipPath));
+				readfile($zipPath);
+				@unlink($zipPath);
+
+				$templateMgr = TemplateManager::getManager($request);
+				$templateMgr->registerPlugin('function', 'plugin_url', [$this, 'smartyPluginUrl']);
+				$templateMgr->assign('jatsParserPlugin', $this);
+
+				$form->display($request);
+				return true;
+			case 'downloadOriginalTemplate':
+				$context = $request->getContext();
+				$this->import('JatsParserPartsForm');
+				$form = new JatsParserPartsForm($this, $context->getId());
+				$fileManager = new PrivateFileManager();
+
+				$template = $request->getuserVar('template');
+
+				$parts = PDFCreationService::getTemplatePartsAndLocation($template, $this, $fileManager, $context->getId());
+
+				$zipPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'jats_template_' . uniqid() . '.zip';
+				$zip = new ZipArchive();
+				$res = $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+				if ($res !== true) {
+					file_put_contents(__DIR__ . "/error.txt", "No se pudo crear el archivo ZIP: $res\n");
+				}
+
+				foreach ($parts as $part) {
+					$using = $this->getPluginPath() . "/templates/SUMARC/$template/";
+					$filename = $part['filename'];
+
+					$full = $using . $filename;
+					$zip->addFile($full, $filename);
+				}
+
+				$zip->close();
+
+				header('Content-Type: application/zip');
+				header('Content-Disposition: attachment; filename="' . basename($template) . '-original.zip"');
+				header('Content-Length: ' . filesize($zipPath));
+				readfile($zipPath);
+				@unlink($zipPath);
+
+				$templateMgr = TemplateManager::getManager($request);
+				$templateMgr->registerPlugin('function', 'plugin_url', [$this, 'smartyPluginUrl']);
+				$templateMgr->assign('jatsParserPlugin', $this);
+
+				$form->display($request);
+				return true;
+
 		}
 		return parent::manage($args, $request);
 	}

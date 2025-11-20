@@ -201,7 +201,7 @@ msgid "plugins.generic.jatsParser.pdf.empty.template"
 msgstr "Empty"
 
 msgid "plugins.generic.jatsParser.pdf.settings.tab"
-msgstr "PDF Templates Settings"
+msgstr "PDF Template Settings"
 
 msgid "plugins.generic.jatsParser.pdf.download.template"
 msgstr "Download template"
@@ -241,3 +241,15 @@ msgstr "Institution logo"
 
 msgid "plugins.generic.jatsParser.pdf.custom_css"
 msgstr "Custom CSS"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.cancel"
+msgstr "Cancel"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.save"
+msgstr "Save"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.download_original"
+msgstr "Download original template"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.download_current"
+msgstr "Download modified template"

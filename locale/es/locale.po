@@ -210,7 +210,7 @@ msgid "plugins.generic.jatsParser.empty.template"
 msgstr "No se ha seleccionado una plantilla"
 
 msgid "plugins.generic.jatsParser.pdf.config.button"
-msgstr "Configuración para las plantillas PDF"
+msgstr "Configuración para la plantilla PDF"
 
 msgid "plugins.generic.jatsParser.pdf.settings.button"
 msgstr "Ajustes de PDF"
@@ -259,3 +259,15 @@ msgstr "Logo de la institucion"
 
 msgid "plugins.generic.jatsParser.pdf.custom_css"
 msgstr "CSS Personalizado"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.cancel"
+msgstr "Cancelar"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.save"
+msgstr "Guardar"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.download_original"
+msgstr "Descargar plantilla original"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.download_current"
+msgstr "Descargar plantilla modificada"

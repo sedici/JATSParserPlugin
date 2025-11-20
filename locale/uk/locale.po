@@ -196,3 +196,15 @@ msgstr "Логотип установи"
 
 msgid "plugins.generic.jatsParser.pdf.custom_css"
 msgstr "Власний CSS"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.cancel"
+msgstr "Скасувати"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.save"
+msgstr "Зберегти"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.download_original"
+msgstr "Завантажити оригінальний шаблон"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.download_current"
+msgstr "Завантажити змінений шаблон"
