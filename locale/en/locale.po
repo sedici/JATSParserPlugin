@@ -253,3 +253,12 @@ msgstr "Download original template"
 
 msgid "plugins.generic.jatsParser.pdf.parts_table.download_current"
 msgstr "Download modified template"
+
+msgid "plugins.generic.jatsParser.pdf.basic_config"
+msgstr "Basic configuration"
+
+msgid "plugins.generic.jatsParser.pdf.intermediate_config"
+msgstr "Intermediate configuration"
+
+msgid "plugins.generic.jatsParser.pdf.advanced_config"
+msgstr "Advanced configuration"

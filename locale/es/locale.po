@@ -271,3 +271,12 @@ msgstr "Descargar plantilla original"
 
 msgid "plugins.generic.jatsParser.pdf.parts_table.download_current"
 msgstr "Descargar plantilla modificada"
+
+msgid "plugins.generic.jatsParser.pdf.basic_config"
+msgstr "configuración básica"
+
+msgid "plugins.generic.jatsParser.pdf.intermediate_config"
+msgstr "Configuración intermedia"
+
+msgid "plugins.generic.jatsParser.pdf.advanced_config"
+msgstr "Configuración avanzada"

@@ -250,3 +250,12 @@ msgstr "Télécharger le modèle original"
 
 msgid "plugins.generic.jatsParser.pdf.parts_table.download_current"
 msgstr "Télécharger le modèle modifié"
+
+msgid "plugins.generic.jatsParser.pdf.basic_config"
+msgstr "Configuration de base"
+
+msgid "plugins.generic.jatsParser.pdf.intermediate_config"
+msgstr "Configuration intermédiaire"
+
+msgid "plugins.generic.jatsParser.pdf.advanced_config"
+msgstr "Configuration avancée"

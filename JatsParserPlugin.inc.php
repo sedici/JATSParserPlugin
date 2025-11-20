@@ -302,6 +302,29 @@ class JatsParserPlugin extends GenericPlugin
 
 				$form->display($request);
 				return true;
+			case 'downloadPart':
+				$context = $request->getContext();
+				$this->import('JatsParserPartsForm');
+				$form = new JatsParserPartsForm($this, $context->getId());
+				$fileManager = new PrivateFileManager();
+
+				$template = $request->getuserVar('template');
+				$part = $request->getuserVar('partFile');
+				$path = $request->getuserVar('partPath');
+
+				$file = "$path/$template/$part";
+
+				header('Content-Type: application/zip');
+				header('Content-Disposition: attachment; filename="' . basename($part));
+				header('Content-Length: ' . filesize($file));
+				readfile($file);
+
+				$templateMgr = TemplateManager::getManager($request);
+				$templateMgr->registerPlugin('function', 'plugin_url', [$this, 'smartyPluginUrl']);
+				$templateMgr->assign('jatsParserPlugin', $this);
+
+				$form->display($request);
+				return true;
 
 		}
 		return parent::manage($args, $request);
