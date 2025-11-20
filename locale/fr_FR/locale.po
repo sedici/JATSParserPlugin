@@ -245,3 +245,8 @@ msgstr "Annuler"
 msgid "plugins.generic.jatsParser.pdf.parts_table.save"
 msgstr "Enregistrer"
 
+msgid "plugins.generic.jatsParser.pdf.parts_table.download_original"
+msgstr "Télécharger le modèle original"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.download_current"
+msgstr "Télécharger le modèle modifié"
