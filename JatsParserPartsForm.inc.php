@@ -29,7 +29,7 @@ class JatsParserPartsForm extends Form
         $plugin = $this->_plugin;
         $fileManager = new PrivateFileManager();
         $config = $this->_plugin->getConfiguration($request);
-        $parts = PDFCreationService::getTemplatePartsAndLocation($config['selected_template'], $plugin, $fileManager, $this->_journalId);
+        $parts = PDFCreationService::getTemplatePartsAndLocation($config['selected_template'], $plugin, $fileManager, $this->_journalId, $request);
 
 		$templateMgr = TemplateManager::getManager($request);
 

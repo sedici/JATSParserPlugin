@@ -262,3 +262,6 @@ msgstr "Intermediate configuration"
 
 msgid "plugins.generic.jatsParser.pdf.advanced_config"
 msgstr "Advanced configuration"
+
+msgid "plugins.generic.jatsParser.pdf.file.delete_prompt"
+msgstr "You're about to delete this file, this action is irreversible. Do you want to continue?"
