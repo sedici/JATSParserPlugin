@@ -257,11 +257,6 @@ class JatsParserPlugin extends GenericPlugin
 				readfile($zipPath);
 				@unlink($zipPath);
 
-				$templateMgr = TemplateManager::getManager($request);
-				$templateMgr->registerPlugin('function', 'plugin_url', [$this, 'smartyPluginUrl']);
-				$templateMgr->assign('jatsParserPlugin', $this);
-
-				$form->display($request);
 				return true;
 			case 'downloadOriginalTemplate':
 				$context = $request->getContext();
@@ -296,17 +291,11 @@ class JatsParserPlugin extends GenericPlugin
 				readfile($zipPath);
 				@unlink($zipPath);
 
-				$templateMgr = TemplateManager::getManager($request);
-				$templateMgr->registerPlugin('function', 'plugin_url', [$this, 'smartyPluginUrl']);
-				$templateMgr->assign('jatsParserPlugin', $this);
-
-				$form->display($request);
 				return true;
 			case 'downloadPart':
 				$context = $request->getContext();
 				$this->import('JatsParserPartsForm');
 				$form = new JatsParserPartsForm($this, $context->getId());
-				$fileManager = new PrivateFileManager();
 
 				$template = $request->getuserVar('template');
 				$part = $request->getuserVar('partFile');
@@ -319,11 +308,6 @@ class JatsParserPlugin extends GenericPlugin
 				header('Content-Length: ' . filesize($file));
 				readfile($file);
 
-				$templateMgr = TemplateManager::getManager($request);
-				$templateMgr->registerPlugin('function', 'plugin_url', [$this, 'smartyPluginUrl']);
-				$templateMgr->assign('jatsParserPlugin', $this);
-
-				$form->display($request);
 				return true;
 
 		}
