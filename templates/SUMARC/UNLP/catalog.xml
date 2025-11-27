@@ -83,5 +83,8 @@
   </footnotes>
   <import_css>
     <file>import_css.tpl</file>
+    <uses>
+      <use>footer</use>
+    </uses>
   </import_css>
 </catalog>
