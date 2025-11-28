@@ -32,9 +32,11 @@
                                 </tr>
                                 <tr>
                                     <td class="frontpage-journal-info-line">
-                                        {call name="getMetadata" pre="{$translations.{$locale_key}.volume} " search={$issue_volume}}
-                                        {call name="getMetadata" pre="{$translations.{$locale_key}.number} " search={$issue_number}}
-                                        {call name="getMetadata" pre="(" search={$issue_year} post=")"}
+                                        {call name="getMetadata" pre="{$translations.{$locale_key}.volume} " search={$issue_volume} post=", "}
+                                        {call name="getMetadata" pre="{$translations.{$locale_key}.number} " search={$issue_number} post=", "}
+                                        {call name="getMetadata" search={$publication_pages} post=", "}
+                                        {call name="getMetadata" search={$section_title} post=", "}
+                                        {call name="getMetadata" search={$issue_year}}
                                     </td>
                                 </tr>
                                 <tr>
