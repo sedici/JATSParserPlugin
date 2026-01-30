@@ -716,7 +716,14 @@ class JatsParserPlugin extends GenericPlugin
 		$citationStyle = $this->getCitationStyle($context);
 
 		$lang = str_replace('_', '-', $submissionFile->getSubmissionLocale());
-		$htmlDocument->setReferences($citationStyle, $lang, false);
+		$dateFormat = $context->getSetting('dateFormatShort');
+		error_log('[DATEFORMAT:] ' . print_r($dateFormat, true));
+		if (is_array($dateFormat)) {
+			// Extract date format based on specific submission locale
+			$locale = $submissionFile->getSubmissionLocale(); 
+			$dateFormat = $dateFormat[$locale] ?? reset($dateFormat);
+		}
+		$htmlDocument->setReferences($citationStyle, $lang, false, $dateFormat);
 
 		$this->_importCitations($htmlDocument, $newPublication);
 
@@ -910,8 +917,14 @@ class JatsParserPlugin extends GenericPlugin
 		$locale_key = $context->getPrimaryLocale();
 		$formattedLocaleKey = str_replace('_', '-', $locale_key);
 		$citationStyle = $plugin->getSetting($context->getId(), 'citationStyle');
+		$dateFormat = $context->getSetting('dateFormatShort');
+		if (is_array($dateFormat)) {
+			// Extract date format from array, preferring current locale or falling back to first element
+			$locale = \PKP\facades\Locale::getLocale();
+			$dateFormat = $dateFormat[$locale] ?? reset($dateFormat);
+		}
 
-		$htmlDoc->setReferences($citationStyle, $formattedLocaleKey, false);
+		$htmlDoc->setReferences($citationStyle, $formattedLocaleKey, false, $dateFormat);
 
 		// Get raw formatted references
 		$formattedRefs = $htmlDoc->getRawReferences();
