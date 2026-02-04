@@ -221,6 +221,8 @@ if (is_array($dateFormat)) {
 $htmlDocument->setReferences($citationStyle, $lang, false, $dateFormat);
 ```
 
+**Nota:** Esta misma lógica se aplicó al método `_setReferences` (utilizado para la generación del PDF de la galera), asegurando que el PDF generado también respete el idioma específico de la galera/artículo y no el del usuario que genera el PDF.
+
 #### C. Modificación en `src/JATSParser/HTML/Document.php`
 Uso de `DateFormatter`.
 
