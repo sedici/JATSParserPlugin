@@ -13,10 +13,12 @@
  * @brief Form for journal managers to modify jatsParser plugin settings
  */
 import('lib.pkp.classes.form.Form');
+
 use PKP\form\validation\FormValidatorPost;
 use PKP\form\validation\FormValidatorCSRF;
 
-class JatsParserSettingsForm extends Form {
+class JatsParserSettingsForm extends Form
+{
 
 	/** @var int */
 	var $_journalId;
@@ -29,7 +31,8 @@ class JatsParserSettingsForm extends Form {
 	 * @param $plugin JATSParserPlugin
 	 * @param $journalId int
 	 */
-	function __construct($plugin, $journalId) {
+	function __construct($plugin, $journalId)
+	{
 		$this->_journalId = $journalId;
 		$this->_plugin = $plugin;
 
@@ -37,14 +40,14 @@ class JatsParserSettingsForm extends Form {
 
 		$this->addCheck(new FormValidatorPost($this));
 		$this->addCheck(new FormValidatorCSRF($this));
-
 	}
 
 	/**
 	 * Initialize form data.
 	 */
-	function initData() {
-		$contextId = $this->_journalId ;
+	function initData()
+	{
+		$contextId = $this->_journalId;
 		$plugin = $this->_plugin;
 
 		$this->setData('convertToPdf', $plugin->getSetting($contextId, 'convertToPdf'));
@@ -54,7 +57,8 @@ class JatsParserSettingsForm extends Form {
 	/**
 	 * Assign form data to user-submitted data.
 	 */
-	function readInputData() {
+	function readInputData()
+	{
 		$this->readUserVars(array('convertToPdf', 'citationStyle', 'customStyleInput', 'galleysImport'));
 	}
 
@@ -62,7 +66,8 @@ class JatsParserSettingsForm extends Form {
 	 * Fetch the form.
 	 * @copydoc Form::fetch()
 	 */
-	function fetch($request, $template = null, $display = false) {
+	function fetch($request, $template = null, $display = false)
+	{
 		$templateMgr = TemplateManager::getManager($request);
 		$templateMgr->assign([
 			'pluginName' => $this->_plugin->getName(),
@@ -74,9 +79,10 @@ class JatsParserSettingsForm extends Form {
 	/**
 	 * Save settings.
 	 */
-	function execute(...$functionArgs) {
+	function execute(...$functionArgs)
+	{
 		$plugin = $this->_plugin;
-		$contextId = $this->_journalId ;
+		$contextId = $this->_journalId;
 
 		$convertToPdf = $this->getData('convertToPdf');
 		if (!$convertToPdf) {
@@ -98,7 +104,7 @@ class JatsParserSettingsForm extends Form {
 		if ($importGalleys = $this->getData('galleysImport')) {
 			$plugin->importGalleys();
 		}
-
+	
 		parent::execute(...$functionArgs);
 	}
 }

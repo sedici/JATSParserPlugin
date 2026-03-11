@@ -9,21 +9,82 @@ require_once __dir__ . '/CitationStyles/ApaCitationTable.php';
 
 class TableHTML {
 
+    /**
+     * Number of words kept before the xref (citation) to show as context in the table.
+     */
     private const WORDS_BEFORE = 30;
+    
+    /**
+     * Temporary marker inserted in the context text; later replaced by the styled citation span.
+     */
     private const CITATION_MARKER = "{{CITATION_MARKER}}";
     
+    /**
+     * Final generated HTML (the modal fragment with the complete table).
+     */
     private $html = "";
+    
+    /**
+     * Shared DOMXPath instance over the JATS document to perform reusable queries.
+     */
     private static $xpath;
+    
+    /**
+     * Selected citation style (e.g. 'apa').
+     */
     private $citationStyle;
-    private $arrayData = array();
+    
+    /**
+     * Absolute path to the processed JATS XML file.
+     */
     private $absoluteXmlPath;
+    
+    /**
+     * OJS Publication object used to obtain metadata such as its ID.
+     */
     private $publication;
+    
+    /**
+     * Requested locale (base format with underscores) used to format references and texts.
+     */
     private $locale_key;
-
-    private $citationsArray;
+    
+    /**
+     * Previously stored config of custom citations from DB (structure: ['fileId' => [...xrefId => text...]] ).
+     */
+    private $dbCitationsData;
+    
+    /**
+     * Parsed bibliographic references: id => ['reference' => formatted html/text, 'authors' => author data].
+     */
     private $referencesArray = array();
-    private $xrefsArray = array();
-    private $debug = false;
+    
+    /**
+     * Extracted table titles: tableId => 'Table title'.
+     */
+    private $tablesArray = array();
+    
+    /**
+     * Extracted figure titles: figId => 'Figure title'.
+     */
+    private $figsArray = array();
+    
+    /**
+     * Detected bibr xrefs: xrefId => ['context','rid','originalText','refType'].
+     */
+    private $bibrXrefsArray = array();
+    
+    /**
+     * Figure and table xrefs: xrefId => ['context','rid','originalText','title?(if single)','refType'].
+     */
+    private $figsAndTablesXRefsArray = array();
+    
+    /**
+     * Consolidated structure feeding the final renderer. Contains keys:
+     *  - 'bibr_citations_data' => [...]
+     *  - 'figs_tables_citations_data' => [...]
+     */
+    private $arrayData = array();
 
     public function __construct(String $citationStyle, ?String $absoluteXmlPath, $customCitationData, $publication, String $locale_key)
     {
@@ -32,7 +93,7 @@ class TableHTML {
         $this->absoluteXmlPath = $absoluteXmlPath;
         
         // Make sure citationsArray is properly structured even if empty
-        $this->citationsArray = $customCitationData ?: [];
+        $this->dbCitationsData = $customCitationData ?: [];
 
         $dom = new \DOMDocument;
         $dom->load($absoluteXmlPath);
@@ -42,7 +103,12 @@ class TableHTML {
         $this->citationStyle = $citationStyle;
 
         $this->extractReferences();
-        $this->extractXRefs();
+        $this->extractFigsTitles();
+        $this->extractTablesTitles();
+
+        $this->extractBibrXRefs();
+        $this->extractFigsAndTablesXRefs();
+        
         $this->mergeArrays();
 
         $this->makeHtml();
@@ -52,15 +118,21 @@ class TableHTML {
         return $this->html;
     }
 
-    // Merge xrefs and references arrays
+    // Merge xrefs (bibr, tables&figs) to get the final array
     public function mergeArrays(){
+        $this->mergeBibrCitations();
+        $this->mergeFigsTablesCitations();
+    }
 
-        foreach ($this->xrefsArray as $xrefId => $data){
-            $rids = explode(' ', $data['rid']); // Split multiple rids
-            
+    /**
+     * Merge bibr citations into arrayData
+     */
+    private function mergeBibrCitations(): void {
+        foreach ($this->bibrXrefsArray as $xrefId => $data){
+            $rids = explode(' ', $data['rid']);
             foreach ($rids as $singleRid) {
-                if (!isset($this->arrayData[$xrefId])) {
-                    $this->arrayData[$xrefId] = [
+                if (!isset($this->arrayData['bibr_citations_data'][$xrefId])) {
+                    $this->arrayData['bibr_citations_data'][$xrefId] = [
                         'xrefId' => $xrefId,
                         'rid' => $data['rid'],
                         'context' => $data['context'],
@@ -70,22 +142,19 @@ class TableHTML {
                         'citationText' => ''
                     ];
                 }
-
                 foreach ($this->referencesArray as $id => $reference) {
-                    if (strpos($singleRid, $id) !== false) { // Ensure match
-                        $this->arrayData[$xrefId]['references'][] = [
+                    if (strpos($singleRid, $id) !== false) {
+                        $this->arrayData['bibr_citations_data'][$xrefId]['references'][] = [
                             'id' => $id,
                             'reference' => $reference['reference'],
                             'authors' => $reference['authors']
                         ];
                     }
                 }
-
-                // Try to find by just matching the xrefId across any XML path
-                foreach ($this->citationsArray['fileId'] as $xmlPath => $citations) {
+                foreach ($this->dbCitationsData['fileId'] as $xmlPath => $citations) {
                     if (isset($citations[$xrefId])) {
-                        $this->arrayData[$xrefId]['status'] = 'not-default';
-                        $this->arrayData[$xrefId]['citationText'] = $citations[$xrefId];
+                        $this->arrayData['bibr_citations_data'][$xrefId]['status'] = 'not-default';
+                        $this->arrayData['bibr_citations_data'][$xrefId]['citationText'] = $citations[$xrefId];
                         break;
                     }
                 }
@@ -93,13 +162,97 @@ class TableHTML {
         }
     }
 
+    /**
+     * Merge figs and tables citations into arrayData
+     */
+    private function mergeFigsTablesCitations(): void {
+        foreach ($this->figsAndTablesXRefsArray as $xrefId => $data){
+            if (!isset($this->arrayData['figs_tables_citations_data'][$xrefId])) {
+                $this->arrayData['figs_tables_citations_data'][$xrefId] = [
+                    'xrefId' => $xrefId,
+                    'rid' => $data['rid'],
+                    'context' => $data['context'],
+                    'originalText' => $data['originalText'],
+                    'title' => $data['title'],
+                    'refType' => $data['refType'],
+                    'status' => 'default',
+                    'citationText' => ''
+                ];
+            }
+            $rids = preg_split('/\s+/', trim($data['rid']));
+            $titlesList = [];
+            foreach ($rids as $singleRid) {
+                if ($singleRid === '') continue;
+                $titleTxt = '';
+                if ($data['refType'] === 'fig' && isset($this->figsArray[$singleRid])) {
+                    $titleTxt = $this->figsArray[$singleRid];
+                } elseif ($data['refType'] === 'table' && isset($this->tablesArray[$singleRid])) {
+                    $titleTxt = $this->tablesArray[$singleRid];
+                }
+                if ($titleTxt === '') { $titleTxt = $singleRid; }
+                $titlesList[] = [ 'id' => $singleRid, 'title' => $titleTxt ];
+            }
+            $this->arrayData['figs_tables_citations_data'][$xrefId]['titles'] = $titlesList;
+            foreach ($this->dbCitationsData['fileId'] as $xmlPath => $citations) {
+                if (isset($citations[$xrefId])) {
+                    $this->arrayData['figs_tables_citations_data'][$xrefId]['status'] = 'not-default';
+                    $this->arrayData['figs_tables_citations_data'][$xrefId]['citationText'] = $citations[$xrefId];
+                    break;
+                }
+            }
+        }
+    }
+
+    public function extractFigsAndTablesXRefs() {
+        $xrefsArray = array();
+        foreach (self::$xpath->evaluate("//xref[@ref-type='fig' or @ref-type='table']") as $xref) {
+            $ridAttr = $xref->getAttribute("rid");
+            $ids = preg_split('/\s+/', trim($ridAttr));
+            $ridNormalized = implode(' ', $ids); // Normalize spaces
+            $id = $xref->getAttribute("id");
+            $refType = $xref->getAttribute("ref-type");
+
+            $originalText = $xref->nodeValue;
+            $xrefMarkedText = $xref->nodeValue . $id;
+            $xref->nodeValue = $xrefMarkedText;
+            $parentNode = $xref->parentNode;
+            $paragraphText = $parentNode->textContent; 
+            $xrefPosition = strpos($paragraphText, $xrefMarkedText);
+            $beforeText = substr($paragraphText, 0, $xrefPosition);
+            $beforeWords = implode(' ', array_slice(explode(' ', trim($beforeText)), -self::WORDS_BEFORE));
+            $xref->nodeValue = $originalText;
+            $context = $beforeWords . ' ' . self::CITATION_MARKER;
+
+            // Only assign a single "title" if there is only one rid. If there are multiple, they will be handled later in mergeArrays.
+            $title = '';
+            if (count($ids) === 1) {
+                $singleRid = $ids[0];
+                if ($refType === 'fig' && isset($this->figsArray[$singleRid])) {
+                    $title = $this->figsArray[$singleRid];
+                } elseif ($refType === 'table' && isset($this->tablesArray[$singleRid])) {
+                    $title = $this->tablesArray[$singleRid];
+                }
+            }
+
+            $xrefsArray[$id] = [
+                'context' => $context,
+                'rid' => $ridNormalized,
+                'originalText' => $originalText,
+                'title' => $title,
+                'refType' => $refType
+            ];
+        }
+        $this->figsAndTablesXRefsArray = $xrefsArray;
+    }
+
     // Extract xrefs (citations) from the XML
-    public function extractXRefs(){
+    public function extractBibrXRefs(){
         $xrefsArray = array();
         $xrefBrand = 0;
         foreach (self::$xpath->evaluate("//xref[@ref-type='bibr']") as $xref) {
             $rid = $xref->getAttribute("rid"); //saving citations rid attribute
             $id = $xref->getAttribute("id");
+            $refType = $xref->getAttribute("ref-type");
 
             //mark the xref node with a brand to identify it later
             $originalText = $xref->nodeValue;
@@ -125,11 +278,38 @@ class TableHTML {
             $xrefsArray[$id] = [
                 'context' => $context,
                 'rid' => $rid,
-                'originalText' => $originalText
+                'originalText' => $originalText,
+                'refType' => $refType
             ];
         }
 
-        $this->xrefsArray = $xrefsArray;
+        $this->bibrXrefsArray = $xrefsArray;
+    }
+
+    // Extract fig titles from the XML
+    public function extractFigsTitles(){
+        $figsArray = array();
+        foreach (self::$xpath->evaluate("//fig") as $fig) {
+            $id = $fig->getAttribute("id");
+            $captionNode = self::$xpath->query(".//caption//title", $fig)->item(0);
+            if ($captionNode) {
+                $figsArray[$id] = trim($captionNode->nodeValue);
+            }
+        }
+        $this->figsArray = $figsArray;
+    }
+
+    // Extract table titles from the XML
+    public function extractTablesTitles(){
+        $tablesArray = array();
+        foreach (self::$xpath->evaluate("//table-wrap") as $table) {
+            $id = $table->getAttribute("id");
+            $captionNode = self::$xpath->query(".//caption//title", $table)->item(0);
+            if ($captionNode) {
+                $tablesArray[$id] = trim($captionNode->nodeValue);
+            }
+        }
+        $this->tablesArray = $tablesArray;
     }
 
     // Extract references from the XML
@@ -227,7 +407,8 @@ class TableHTML {
         $className = "PKP\\components\\forms\\CitationStyles\\" . ucfirst($this->citationStyle) . 'CitationTable';
 
         $processedArrayData = $this->processContexts($this->arrayData);
-        
+
+
         $tableStyle = new $className(
             $processedArrayData, 
             $this->absoluteXmlPath, 
@@ -247,17 +428,20 @@ class TableHTML {
      * @return array The processed array with updated contexts
      */
     private function processContexts(array $data): array {
-        foreach ($data as $xrefId => &$item) {
-            // Prioritize custom citation text when available
-            $citationText = !empty($item['citationText']) ? $item['citationText'] : $item['originalText'];
-            
-            $escapedCitationText = htmlspecialchars($citationText, ENT_QUOTES, 'UTF-8');
-            
-            // Apply inline styling directly to the citation with properly escaped content
-            $styledCitation = '<span style="color: #32849c; font-weight: bold; background-color: #f0f8ff; padding: 0 3px; border-radius: 3px;">' 
-                . $escapedCitationText . '</span>';
-            
-            $item['context'] = str_replace(self::CITATION_MARKER, $styledCitation, $item['context']);
+        foreach ($data as $groupKey => &$group) { // bibr_citations_data, figs_tables_citations_data, etc.
+            foreach ($group as $xrefId => &$item) {
+                // Prioritize custom citation text when available
+                $citationText = !empty($item['citationText']) ? $item['citationText'] : $item['originalText'];
+                
+                $escapedCitationText = htmlspecialchars($citationText, ENT_QUOTES, 'UTF-8');
+                
+                // Apply inline styling directly to the citation with properly escaped content
+                $styledCitation = '<span style="color: #32849c; font-weight: bold; background-color: #f0f8ff; padding: 0 3px; border-radius: 3px;">' 
+                    . $escapedCitationText . '</span>';
+                
+                $item['context'] = str_replace(self::CITATION_MARKER, $styledCitation, $item['context']);
+            }
         }
         return $data;
-}   }
+    }
+}

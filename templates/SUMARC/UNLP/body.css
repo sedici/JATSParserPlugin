@@ -1,0 +1,54 @@
+a {
+  text-decoration: none;
+  color: rgb(61, 145, 191);
+}
+
+p {
+  font-size: 14px;
+}
+
+h2, h3, h4, h5, h1, p, a, span, .table, li, ul, ol {
+  font-family: 'FreeSerif', sans-serif;
+  text-align: justify;
+}
+
+h2, h3{
+  padding-top: 20px;
+}
+
+h2 {
+  padding-bottom: 20px;
+}
+
+.table {
+  border: 1px solid #333;
+  border-collapse: collapse;
+  page-break-inside: avoid; /* Esto es para que las tablas no se corte, sino que pasen de página */
+}
+
+.table > th, td {
+  padding: 1mm 10mm;
+}
+
+.title, .notes, .caption-title, .caption-notes, caption {
+  text-align: justify;
+}
+
+.figure, .table, img, table {
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+
+blockquote {
+  font-size: 10px;
+  border-left-color: #31849b;
+  border-left-width: 4px;
+  border-left-style: solid;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  padding-left: 15px;      
+  margin-left: 30px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}

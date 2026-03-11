@@ -1,0 +1,30 @@
+<button type="button" id="openCitationModalBtn" class="view-btn-citations">Asignar Citas</button><div id="citationModal" class="citation-modal" style="display: none;">
+                    <div class="citation-modal-content">
+                    <span class="citation-modal-close">&times;</span><div class="citation-form-container" style="max-height: 80vh; overflow-y: auto; overflow-x: hidden;"><div id="citationErrorMessage" class="citation-error-message" style="display:none;">
+                <span class="error-icon">⚠️</span> Error: No puedes guardar una cita vacía.
+                </div><form method="POST" target="_self" id="citationForm">
+                <input type="hidden" name="xmlFilePath" value="/var/ojs-data/journals/1/articles/1/6900cac95ea2e.xml">
+                <input type="hidden" name="citationStyleName" value="apa">
+                <input type="hidden" name="publicationId" value="1">
+                <input type="hidden" name="locale_key" value="es"><table class="citation-table">
+                <tr class="citation-header">
+                    <th class="citation-th">Contexto</th>
+                    <th class="citation-th">Referencias</th>
+                    <th class="citation-th"> Estilo de Cita </th>
+                </tr><tr class='citation-row citation-group-last-row'><td rowspan="1" class="citation-td">Lorem ipsum dolor sit amet <span style="color: #0066cc; font-weight: bold; background-color: #f0f8ff; padding: 0 3px; border-radius: 3px;">(Magdalena Abad Castelló y Antonio Álvarez Baz, 2021)</span></td><td class='citation-td'>Aprendizaje basado en datos y combinaciones léxicas: una propuesta didáctica con cuasisinónimos. (2021). <i>MLS Educational Research</i>, <i>5</i>(2), 88-104. https://doi.org/10.29314/mlser.v5i2.562</td><td rowspan='1' class='citation-td select-wrapper-cell'>
+                    <select name='citationStyle[xref-4d0615f7fb06a59ed95a93ca8b230cc8]' id='citationStyle_xref-4d0615f7fb06a59ed95a93ca8b230cc8' 
+                        class='citation-select citation-original'
+                        data-original-value='(Magdalena Abad Castelló y Antonio Álvarez Baz, 2021)'>
+                        <option value='(Magdalena Abad Castelló y Antonio Álvarez Baz, 2021)' selected>(Magdalena Abad Castelló y Antonio Álvarez Baz, 2021)</option>
+                        <option value='(2021)' >(2021)</option>
+                        <option value='custom' >Otro</option>
+                    </select></td></tr><tr class='citation-row citation-group-last-row'><td rowspan="1" class="citation-td">Lorem ipsum dolor sit amet[1], consectetur adipiscing elit. Donec ornare mattis feugiat. Nam metus mauris, egestas congue odio quis, egestas laoreet justo <span style="color: #0066cc; font-weight: bold; background-color: #f0f8ff; padding: 0 3px; border-radius: 3px;">(González Vázquez, 1998)</span></td><td class='citation-td'>González Vázquez, M. (1998). <i>La polisemia de ’poder’ en e/le: acerca de la pertinencia comunicativa de la posibilidad lateral y bilateral</i>.</td><td rowspan='1' class='citation-td select-wrapper-cell'>
+                    <select name='citationStyle[xref-f26c885ea091eefd3c45dc4c0523ca58]' id='citationStyle_xref-f26c885ea091eefd3c45dc4c0523ca58' 
+                        class='citation-select citation-original'
+                        data-original-value='(González Vázquez, 1998)'>
+                        <option value='(González Vázquez, 1998)' selected>(González Vázquez, 1998)</option>
+                        <option value='(1998)' >(1998)</option>
+                        <option value='custom' >Otro</option>
+                    </select></td></tr></table><button type="submit" class="save-btn-citations">
+                    Guardar Citas
+                </button></form></div></div></div></div></div>

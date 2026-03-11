@@ -8,6 +8,9 @@ use PKP\components\forms\CitationStyles\Core\CitationTableBuilder;
 
 abstract class GenericCitationTable {
     protected $arrayData;
+    protected $bibrCitationsData;
+    protected $figAndTableCitationsData;
+
     protected $absoluteXmlPath;
     protected $citationStyle;
     protected $publicationId;
@@ -16,6 +19,10 @@ abstract class GenericCitationTable {
     
     public function __construct(array $arrayData, string $absoluteXmlPath, string $citationStyle, int $publicationId, string $localeKey) {
         $this->arrayData = $arrayData;
+
+        $this->bibrCitationsData = $arrayData['bibr_citations_data'] ?? [];
+        $this->figAndTableCitationsData = $arrayData['figs_tables_citations_data'] ?? [];
+
         $this->absoluteXmlPath = $absoluteXmlPath;
         $this->citationStyle = $citationStyle;
         $this->publicationId = $publicationId;
@@ -23,13 +30,14 @@ abstract class GenericCitationTable {
         
         $this->initFormatter();
     }
-    
+
     protected abstract function initFormatter(): void;
 
     public function makeHtml() {
         $builder = new CitationTableBuilder(
             $this->formatter,
-            $this->arrayData, 
+            $this->bibrCitationsData, 
+            $this->figAndTableCitationsData,
             $this->absoluteXmlPath, 
             $this->citationStyle, 
             $this->publicationId, 

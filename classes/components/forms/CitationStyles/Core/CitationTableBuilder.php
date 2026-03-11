@@ -1,13 +1,17 @@
 <?php namespace PKP\components\forms\CitationStyles\Core;
 
 require_once __DIR__ . '/Renderers/ApaTableRenderer.php';
-require_once __DIR__ . '/Stylesheets/ApaStylesheet.php';
+require_once __DIR__ . '/Renderers/ApaReferencesRenderer.php';
+require_once __DIR__ . '/Renderers/ApaFigsTablesRenderer.php';
+
 require_once __DIR__ . '/Elements/Messages.php';
 require_once __DIR__ . '/Elements/Buttons.php';
 require_once __DIR__ . '/Elements/Modal.php';
 
 use PKP\components\forms\CitationStyles\Core\Renderers\ApaTableRenderer;
-use PKP\components\forms\CitationStyles\Core\Stylesheets\ApaStylesheet;
+use PKP\components\forms\CitationStyles\Core\Renderers\ApaFigsTablesRenderer;
+use PKP\components\forms\CitationStyles\Core\Renderers\ApaReferencesRenderer;
+
 use PKP\components\forms\CitationStyles\Core\Elements\Messages;
 use PKP\components\forms\CitationStyles\Core\Elements\Buttons;
 use PKP\components\forms\CitationStyles\Core\Elements\Modal;
@@ -24,8 +28,11 @@ class CitationTableBuilder {
     private $formatter;
     
     /* Citation data organized as an array with citation references */
-    private $data;
-    
+    private $bibrCitationData;
+
+    /* Citation data for figures and tables */
+    private $figAndTableCitationData;
+
     /* Path to the XML file containing the publication data */
     private $xmlPath;
     
@@ -50,14 +57,16 @@ class CitationTableBuilder {
      */
     public function __construct(
         $formatter,
-        array $data,
+        array $bibrCitationData,
+        array $figAndTableCitationData,
         string $xmlPath,
         string $citationStyle,
         int $publicationId,
         string $localeKey
     ) {
         $this->formatter = $formatter;
-        $this->data = $data;
+        $this->bibrCitationData = $bibrCitationData;
+        $this->figAndTableCitationData = $figAndTableCitationData;
         $this->xmlPath = $xmlPath;
         $this->citationStyle = $citationStyle;
         $this->publicationId = $publicationId;
@@ -70,7 +79,8 @@ class CitationTableBuilder {
      * @return string The HTML representation of the citation table
      */
     public function build(): string {
-        if (empty($this->data)) {
+        // If there are no citations of any type, show empty message
+        if (empty($this->bibrCitationData) && empty($this->figAndTableCitationData)) {
             return Messages::getEmptyCitationsMessage();
         }
 
@@ -78,32 +88,58 @@ class CitationTableBuilder {
         $html .= Modal::getOpeningCitationModal();
 
         $html .= '<div class="citation-form-container" style="max-height: 80vh; overflow-y: auto; overflow-x: hidden;">';
-
         $html .= Messages::getErrorMessageHtml();
 
+        // Instantiate table renderer, figures/tables renderer and references renderer
         $tableRendererClassname = 'PKP\\components\\forms\\CitationStyles\\Core\\Renderers\\' . ucfirst($this->citationStyle) . 'TableRenderer';
+        $tableRenderer = new $tableRendererClassname($this->xmlPath, $this->citationStyle, $this->publicationId, $this->localeKey);
+        
+        $tableFigsRendererClassname = 'PKP\\components\\forms\\CitationStyles\\Core\\Renderers\\' . ucfirst($this->citationStyle) . 'FigsTablesRenderer';
+        $tableFigsRenderer = new $tableFigsRendererClassname();
 
-        $tableRenderer = new $tableRendererClassname($this->formatter, $this->xmlPath, $this->citationStyle, $this->publicationId, $this->localeKey);
+        $tableReferencesRendererClassname = 'PKP\\components\\forms\\CitationStyles\\Core\\Renderers\\' . ucfirst($this->citationStyle) . 'ReferencesRenderer';
+        $tableReferencesRenderer = new $tableReferencesRendererClassname($this->formatter, $this->xmlPath, $this->citationStyle, $this->publicationId, $this->localeKey);
 
-        $html .= $tableRenderer->getFormOpening();
-        $html .= $tableRenderer->getTableHeader();
+        $html .= $tableRenderer->getFormOpening('citationFormAll'); // Open single form for both tabs
+        $html .= $tableRenderer->getCitationTabs(); // Tabs header
+        $html .= '<div class="citation-tab-panels">'; // Panels wrapper
 
-        foreach ($this->data as $xrefId => $rowData) {
-            $html .= $tableRenderer->renderCitationRow($xrefId, $rowData);
+        // References panel
+        $html .= '<div id="citation-tab-references" class="citation-tab-panel is-active">';
+        if (!empty($this->bibrCitationData)) {
+            $html .= $tableReferencesRenderer->getTableHeader();
+            foreach ($this->bibrCitationData as $xrefId => $rowData) {
+                $html .= $tableReferencesRenderer->renderCitationRow($xrefId, $rowData);
+            }
+            $html .= $tableRenderer->getClosingTable();
+
+        } else {
+            $html .= Messages::getEmptyCitationsMessage();
         }
+        $html .= '</div>';
 
-        $html .= $tableRenderer->getClosingTable();
+        // Figures and Tables panel
+        $html .= '<div id="citation-tab-figtables" class="citation-tab-panel">';
 
+        if (!empty($this->figAndTableCitationData)) {
+            $html .= $tableFigsRenderer->getTableHeader();
+            foreach ($this->figAndTableCitationData as $xrefId => $rowData) {
+                $html .= $tableFigsRenderer->renderCitationRow($xrefId, $rowData);
+            }
+            $html .= $tableRenderer->getClosingTable();
+        } else {
+            $html .= Messages::getEmptyCitationsMessage();
+        }
+        $html .= '</div>'; // end figures/tables panel
+
+        $html .= '</div>'; // end panels wrapper
+
+        // Single save button for the entire form
         $html .= Buttons::getFormSaveButton();
-
         $html .= $tableRenderer->getClosingForm();
 
-        $html .= '</div>'; // Closing the citation-form-container div
-
+        $html .= '</div>'; // citation-form-container
         $html .= Modal::getClosingCitationModal();
-
-        // Ya no agregues $stylesheetClassname::getStyles();
-        // El CSS se cargará como archivo externo
 
         return $html;
     }
