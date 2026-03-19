@@ -7,37 +7,83 @@ p {
   font-size: 14px;
 }
 
-h2, h3, h4, h5, h1, p, a, span, .table, li, ul, ol {
+h2,
+h3,
+h4,
+h5,
+h1,
+p,
+a,
+span,
+.table,
+li,
+ul,
+ol {
   font-family: 'FreeSerif', sans-serif;
   text-align: justify;
 }
 
-h2, h3{
-  padding-top: 20px;
-}
-
-h2 {
-  padding-bottom: 20px;
+h1,
+h2,
+h3,
+h4,
+h5 {
+  margin-top: 40px;
+  margin-bottom: 0px;
+  padding: 0;
 }
 
 .table {
   border: 1px solid #333;
   border-collapse: collapse;
-  page-break-inside: avoid; /* Esto es para que las tablas no se corte, sino que pasen de página */
+  margin-top: 4px;
+  margin-bottom: 0px;
+  margin-left: auto;
+  margin-right: auto;
+  page-break-inside: avoid;
 }
 
-.table > th, td {
-  padding: 1mm 10mm;
+.table th,
+.table td {
+  padding: 2mm 5mm;
+  border: 1px solid #333;
+  text-align: center;
+  vertical-align: middle;
 }
 
-.title, .notes, .caption-title, .caption-notes, caption {
+.table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.title,
+.notes,
+.caption-title,
+.caption-notes,
+caption {
   text-align: justify;
 }
 
-.figure, .table, img, table {
+.figure,
+img {
   margin-left: auto;
   margin-right: auto;
   display: block;
+}
+
+caption {
+  text-align: left;
+  margin-top: 15px;
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+
+.table-notes {
+  display: block;
+  margin-top: -12px;
+  margin-bottom: 25px;
+  text-align: left;
+  font-size: 12px;
 }
 
 blockquote {
@@ -47,7 +93,7 @@ blockquote {
   border-left-style: solid;
   padding-top: 0px;
   padding-bottom: 0px;
-  padding-left: 15px;      
+  padding-left: 15px;
   margin-left: 30px;
   margin-top: 5px;
   margin-bottom: 5px;
