@@ -1,0 +1,54 @@
+JATSParser DEBUG: _setSupplImgPath started. SubmissionFile ID: 183 ForceUrl: YES
+JATSParser DEBUG: Found 2 dependent candidates.
+JATSParser DEBUG: Checking dependent file ID 872 with names: ["Captura desde 2025-10-31 13-31-51.png","Captura desde 2025-10-31 13-31-51.png","Captura desde 2025-10-31 13-31-51.png"]
+JATSParser DEBUG: Trying to replace pattern: Captura desde 2025\-10\-31 13\-31\-51\.png with http://localhost:8082/index.php/revisp/article/downloadFullTextAssoc/6/183/1568
+JATSParser DEBUG: Checking dependent file ID 871 with names: ["image.png","image.png","image.png"]
+JATSParser DEBUG: Trying to replace pattern: image\.png with http://localhost:8082/index.php/revisp/article/downloadFullTextAssoc/6/183/1566
+JATSParser DEBUG: _setSupplImgPath started. SubmissionFile ID: 183 ForceUrl: NO
+JATSParser DEBUG: Found 2 dependent candidates.
+JATSParser DEBUG: Checking dependent file ID 872 with names: ["Captura desde 2025-10-31 13-31-51.png","Captura desde 2025-10-31 13-31-51.png","Captura desde 2025-10-31 13-31-51.png"]
+JATSParser DEBUG: Trying to replace pattern: Captura desde 2025\-10\-31 13\-31\-51\.png with /var/ojs-data/journals/1/articles/6/69c55f2016af5.png
+JATSParser DEBUG: Checking dependent file ID 871 with names: ["image.png","image.png","image.png"]
+JATSParser DEBUG: Trying to replace pattern: image\.png with /var/ojs-data/journals/1/articles/6/69c55f200fcad.png
+JATSParser DEBUG: _setSupplImgPath started. SubmissionFile ID: 183 ForceUrl: YES
+JATSParser DEBUG: Found 2 dependent candidates.
+JATSParser DEBUG: Checking dependent file ID 872 with names: ["Captura desde 2025-10-31 13-31-51.png","Captura desde 2025-10-31 13-31-51.png","Captura desde 2025-10-31 13-31-51.png"]
+JATSParser DEBUG: Trying to replace pattern: Captura desde 2025\-10\-31 13\-31\-51\.png with http://localhost:8082/index.php/revisp/article/downloadFullTextAssoc/6/183/1568
+JATSParser DEBUG: Checking dependent file ID 871 with names: ["image.png","image.png","image.png"]
+JATSParser DEBUG: Trying to replace pattern: image\.png with http://localhost:8082/index.php/revisp/article/downloadFullTextAssoc/6/183/1566
+JATSParser DEBUG: _setSupplImgPath started. SubmissionFile ID: 183 ForceUrl: NO
+JATSParser DEBUG: Found 2 dependent candidates.
+JATSParser DEBUG: Checking dependent file ID 872 with names: ["Captura desde 2025-10-31 13-31-51.png","Captura desde 2025-10-31 13-31-51.png","Captura desde 2025-10-31 13-31-51.png"]
+JATSParser DEBUG: Trying to replace pattern: Captura desde 2025\-10\-31 13\-31\-51\.png with /var/ojs-data/journals/1/articles/6/69c55f2016af5.png
+JATSParser DEBUG: Checking dependent file ID 871 with names: ["image.png","image.png","image.png"]
+JATSParser DEBUG: Trying to replace pattern: image\.png with /var/ojs-data/journals/1/articles/6/69c55f200fcad.png
+JATSParser DEBUG: _setSupplImgPath started. SubmissionFile ID: 183 ForceUrl: YES
+JATSParser DEBUG: Found 2 dependent candidates.
+JATSParser DEBUG: Checking dependent file ID 872 with names: ["Captura desde 2025-10-31 13-31-51.png","Captura desde 2025-10-31 13-31-51.png","Captura desde 2025-10-31 13-31-51.png"]
+JATSParser DEBUG: Trying to replace pattern: Captura desde 2025\-10\-31 13\-31\-51\.png with http://localhost:8082/index.php/revisp/article/downloadFullTextAssoc/6/183/1568
+JATSParser DEBUG: Checking dependent file ID 871 with names: ["image.png","image.png","image.png"]
+JATSParser DEBUG: Trying to replace pattern: image\.png with http://localhost:8082/index.php/revisp/article/downloadFullTextAssoc/6/183/1566
+JATSParser DEBUG: _setSupplImgPath started. SubmissionFile ID: 183 ForceUrl: NO
+JATSParser DEBUG: Found 2 dependent candidates.
+JATSParser DEBUG: Checking dependent file ID 872 with names: ["Captura desde 2025-10-31 13-31-51.png","Captura desde 2025-10-31 13-31-51.png","Captura desde 2025-10-31 13-31-51.png"]
+JATSParser DEBUG: Trying to replace pattern: Captura desde 2025\-10\-31 13\-31\-51\.png with /var/ojs-data/journals/1/articles/6/69c55f2016af5.png
+JATSParser DEBUG: Checking dependent file ID 871 with names: ["image.png","image.png","image.png"]
+JATSParser DEBUG: Trying to replace pattern: image\.png with /var/ojs-data/journals/1/articles/6/69c55f200fcad.png
+JATSParser DEBUG: _setSupplImgPath started. SubmissionFile ID: 183 ForceUrl: YES
+JATSParser DEBUG: Found 2 dependent candidates.
+JATSParser DEBUG: Checking dependent file ID 872 with names: ["Captura desde 2025-10-31 13-31-51.png","Captura desde 2025-10-31 13-31-51.png","Captura desde 2025-10-31 13-31-51.png"]
+JATSParser DEBUG: Trying to replace pattern: Captura desde 2025\-10\-31 13\-31\-51\.png with http://localhost:8082/index.php/revisp/article/downloadFullTextAssoc/6/183/1568
+JATSParser DEBUG: Checking dependent file ID 871 with names: ["image.png","image.png","image.png"]
+JATSParser DEBUG: Trying to replace pattern: image\.png with http://localhost:8082/index.php/revisp/article/downloadFullTextAssoc/6/183/1566
+JATSParser DEBUG: _setSupplImgPath started. SubmissionFile ID: 183 ForceUrl: NO
+JATSParser DEBUG: Found 2 dependent candidates.
+JATSParser DEBUG: Checking dependent file ID 872 with names: ["Captura desde 2025-10-31 13-31-51.png","Captura desde 2025-10-31 13-31-51.png","Captura desde 2025-10-31 13-31-51.png"]
+JATSParser DEBUG: Trying to replace pattern: Captura desde 2025\-10\-31 13\-31\-51\.png with /var/ojs-data/journals/1/articles/6/69c55f2016af5.png
+JATSParser DEBUG: Checking dependent file ID 871 with names: ["image.png","image.png","image.png"]
+JATSParser DEBUG: Trying to replace pattern: image\.png with /var/ojs-data/journals/1/articles/6/69c55f200fcad.png
+JATSParser DEBUG: _setSupplImgPath started. SubmissionFile ID: 183 ForceUrl: NO
+JATSParser DEBUG: Found 2 dependent candidates.
+JATSParser DEBUG: Checking dependent file ID 872 with names: ["Captura desde 2025-10-31 13-31-51.png","Captura desde 2025-10-31 13-31-51.png","Captura desde 2025-10-31 13-31-51.png"]
+JATSParser DEBUG: Trying to replace pattern: Captura desde 2025\-10\-31 13\-31\-51\.png with http://localhost:8082/index.php/revisp/article/downloadFullTextAssoc/6/183/1568
+JATSParser DEBUG: Checking dependent file ID 871 with names: ["image.png","image.png","image.png"]
+JATSParser DEBUG: Trying to replace pattern: image\.png with http://localhost:8082/index.php/revisp/article/downloadFullTextAssoc/6/183/1566

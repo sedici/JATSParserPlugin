@@ -477,6 +477,26 @@ class JatsParserPlugin extends GenericPlugin
 	 */
 	private function pdfCreation(string $htmlString, Publication $publication, Request $request, string $localeKey, int $fileId): string
 	{
+
+		$metadata = $this->getMetadata($publication, $localeKey, $request, $htmlString);
+		$ojsConfiguration = $this->getConfiguration($request);
+		$configuration = new Configuration($metadata);
+		$fileMgr = new PrivateFileManager();
+		$journalId = $request->getContext()->getId();
+
+		$outputStrategy = PDFOutputStrategy::class; # Lo que hablamos fue que esto quede así hasta que se necesite hace un selector de estrategias, trabajo para otra persona
+		# Pero, esencialmente, sería un selector que te devuelve el FQCN de la estrategia a usar, en este caso PdfOutputStrategy::class retorna algo del estilo JATSParser\TemplateHandler\PDF\PdfOutputStrategy
+		# Nótese que la estrategia a usar debe guardarse en la DB ya que es una configuración que se mantiene, no se selecciona a la hora de escupir el PDF sino desde la config del plugin en OJS. Atte: Leito
+
+		# file_put_contents(__DIR__ . "/htmlTest.html", $htmloutput::generateOutput($this, $fileMgr, $journalId, $localeKey, $fileId, $htmlString, $configuration, $metadata, $ojsConfiguration));
+		return $outputStrategy::generateOutput($this, $fileMgr, $journalId, $localeKey, $fileId, $htmlString, $configuration, $metadata, $ojsConfiguration);
+	}
+
+	/**
+	 * @brief Generates and persists the enriched HTML for the publication
+	 */
+	private function htmlCreation(string $htmlString, Publication $publication, Request $request, string $localeKey, int $fileId): void
+	{
 		$metadata = $this->getMetadata($publication, $localeKey, $request, $htmlString);
 		$ojsConfiguration = $this->getConfiguration($request);
 		$configuration = new Configuration($metadata);
@@ -485,12 +505,97 @@ class JatsParserPlugin extends GenericPlugin
 
 		# $htmloutput = HTMLOutputStrategy::class; # Sorpresa sorpresa, adapté la estrategia de salida de los PDFs para generar una salida en HTML, es probable que haya que meter algo de mano para que termine de ser funcional, pero el desarrollo está prácticamente hecho. Todo el procesamiento interno ya estaría acomdoado 👍 
 
-		$outputStrategy = PDFOutputStrategy::class; # Lo que hablamos fue que esto quede así hasta que se necesite hace un selector de estrategias, trabajo para otra persona
-		# Pero, esencialmente, sería un selector que te devuelve el FQCN de la estrategia a usar, en este caso PdfOutputStrategy::class retorna algo del estilo JATSParser\TemplateHandler\PDF\PdfOutputStrategy
-		# Nótese que la estrategia a usar debe guardarse en la DB ya que es una configuración que se mantiene, no se selecciona a la hora de escupir el PDF sino desde la config del plugin en OJS. Atte: Leito
+		$html = HTMLOutputStrategy::generateOutput($this, $fileMgr, $journalId, $localeKey, $fileId, $htmlString, $configuration, $metadata, $ojsConfiguration);
 
-		# file_put_contents(__DIR__ . "/htmlTest.html", $htmloutput::generateOutput($this, $fileMgr, $journalId, $localeKey, $fileId, $htmlString, $configuration, $metadata, $ojsConfiguration));
-		return $outputStrategy::generateOutput($this, $fileMgr, $journalId, $localeKey, $fileId, $htmlString, $configuration, $metadata, $ojsConfiguration);
+		// Me quedo solo con lo que esté dentro del tag <html> del HTML, descartando lo demás
+		if (preg_match('/<html[^>]*>(.*?)<\/html>/is', $html, $matches)) {
+			$html = $matches[1];
+		}
+
+		// Inyectamos estilos quirúrgicos para la previsualización (Tablas, figuras, citas, etc)
+		// Solo incluimos los estilos esenciales del cuerpo del artículo según lo solicitado
+		$css = <<<CSS
+			a {
+				text-decoration: none;
+				color: rgb(61, 145, 191);
+			}
+
+			p {
+				font-size: 14px;
+			}
+
+			h2, h3, h4, h5, h1, p, a, span, .table, li, ul, ol {
+				font-family: 'FreeSerif', sans-serif;
+				text-align: justify;
+			}
+
+			h1, h2, h3, h4, h5 {
+				margin-top: 40px;
+				margin-bottom: 0px;
+				padding: 0;
+			}
+
+			.table {
+				border: 1px solid #333;
+				border-collapse: collapse;
+				margin-top: 10px;
+				margin-bottom: 40px;
+				margin-left: auto;
+				margin-right: auto;
+				page-break-inside: avoid;
+			}
+
+			.table th, .table td {
+				padding: 2mm 5mm;
+				border: 1px solid #333;
+				text-align: center;
+				vertical-align: middle;
+			}
+
+			.table th {
+				background-color: #f2f2f2;
+				font-weight: bold;
+			}
+
+			.title, .notes, .caption-title, .caption-notes, caption {
+				text-align: justify;
+			}
+
+			.figure, img {
+				margin-left: auto;
+				margin-right: auto;
+				display: block;
+			}
+
+			caption {
+				text-align: left;
+				margin-top: 15px;
+				margin-bottom: 4px;
+				font-weight: bold;
+			}
+
+			.table-notes {
+				display: block;
+				margin-top: 5px;
+				text-align: left;
+				font-size: 12px;
+			}
+
+			blockquote {
+				font-size: 10px;
+				border-left-color: #31849b;
+				border-left-width: 4px;
+				border-left-style: solid;
+				padding: 0 0 0 15px;
+				margin: 5px 0 5px 30px;
+			}
+			CSS;
+
+		if (!empty($css)) {
+			$html = "<style>\n$css\n</style>\n" . $html;
+		}
+
+		$publication->setData('jatsParser::fullText', $html, $localeKey);
 	}
 
 	/**
@@ -647,10 +752,21 @@ class JatsParserPlugin extends GenericPlugin
 				$newPublication->setData('jatsParser::fullTextFileId', null, $localeKey);
 				continue;
 			}
-			//$submissionFile = Services::get('submissionFile')->get($fileId);
 			$submissionFile = Repo::submissionFile()->get($fileId);
 			$htmlDocument = $this->getFullTextFromJats($submissionFile);
-			$newPublication->setData('jatsParser::fullText', $htmlDocument->saveAsHTML(), $localeKey);
+			$htmlString = $htmlDocument->saveAsHTML();
+
+			// Obtener el path físico del archivo JATS para _setReferences()
+			import('lib.pkp.classes.file.PrivateFileManager');
+			$privateFileManager = new PrivateFileManager();
+			$jatsFilePath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $submissionFile->getData('path');
+
+			// Aplicar referencias formateadas y notas al pie
+			// (mismo procesamiento que el flujo del PDF, así la previsualización HTML queda consistente)
+			$htmlString = $this->_setReferences($newPublication, $localeKey, $htmlString, $jatsFilePath);
+			$htmlString = $this->_setFootnotes($newPublication, $localeKey, $htmlString);
+
+			$newPublication->setData('jatsParser::fullText', $htmlString, $localeKey);
 		}
 
 		return false;
@@ -750,20 +866,23 @@ class JatsParserPlugin extends GenericPlugin
 			$jatsSubmissionFile = Repo::submissionFile()->get($jatsFileId);
 
 
-
 			if ($jatsSubmissionFile) {
 				import('lib.pkp.classes.file.PrivateFileManager');
-				$fullText = $this->_setSupplImgPath($jatsSubmissionFile, $fullText);
+				// Creamos la versión HTML con Base64 para la web/base de datos
+				$fullTextHtml = $this->_setSupplImgPath($jatsSubmissionFile, $fullText, true);
+				// Creamos la versión PDF con rutas locales del servidor
+				$fullTextPdf = $this->_setSupplImgPath($jatsSubmissionFile, $fullText, false);
+				
 				$privateFileManager = new PrivateFileManager();
 				$jatsFilePath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $jatsSubmissionFile->getData('path');
+			} else {
+				$fullTextHtml = $fullText;
+				$fullTextPdf = $fullText;
 			}
 
-			// Set references y footnotes
-			$fullText = $this->_setReferences($newPublication, $localeKey, $fullText, $jatsFilePath);
-			$fullText = $this->_setFootnotes($newPublication, $localeKey, $fullText);
-
-			// Convertir a PDF
-			$pdf = $this->pdfCreation($fullText, $newPublication, $request, $localeKey, $jatsFileId);
+			// Convertir a PDF (Usamos Base64 para HTML y Rutas Locales para PDF)
+			$html = $this->htmlCreation($fullTextHtml, $newPublication, $request, $localeKey, $jatsFileId);
+			$pdf = $this->pdfCreation($fullTextPdf, $newPublication, $request, $localeKey, $jatsFileId);
 
 			// Crear galley
 			$galley = $this->createGalley($localeKey, $newPublication);
@@ -1051,7 +1170,7 @@ class JatsParserPlugin extends GenericPlugin
 		if (is_null($html)) return false;
 
 		if ($submissionFileId && $submissionFile) {
-			$html = $this->_setSupplImgPath($submissionFile, $html);
+			$html = $this->_setSupplImgPath($submissionFile, $html, true);
 		}
 
 		$templateMgr->assign('fullText', $html);
@@ -1065,7 +1184,7 @@ class JatsParserPlugin extends GenericPlugin
 	 * @return string
 	 * @brief Substitute path to attached images for full-text HTML
 	 */
-	function _setSupplImgPath(SubmissionFile $submissionFile, string $htmlString): string
+	function _setSupplImgPath(SubmissionFile $submissionFile, string $htmlString, bool $useBase64 = false): string
 	{
 
 		$dependentFilesIterator = Repo::submissionFile()
@@ -1094,24 +1213,21 @@ class JatsParserPlugin extends GenericPlugin
 
 			$submissionId = $submissionFile->getData('submissionId');
 
-			switch ($request->getRequestedOp()) {
-				case 'view':
-					$filePath = $request->url(null, 'article', 'downloadFullTextAssoc', array($submissionId, $dependentFile->getData('assocId'), $dependentFile->getData('fileId')));
-					break;
-				case 'editPublication':
-					// API Handler cannot process $op, $path or $anchor in url()
-					$imgPath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $dependentFile->getData('path');
-					// $image = file_get_contents($imgPath);
-					// error_log('JATSParserPlugin::_setSupplImgPath() - image path: ' . $imgPath);
+			$imgPath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $dependentFile->getData('path');
 
-					// $finfo = finfo_open(FILEINFO_MIME_TYPE);
-					// $mimeType = finfo_file($finfo, $imgPath);
-					// finfo_close($finfo);
-
-					// #$imageBase64 = base64_encode($image);
-					// #$filePath = 'data:' . $mimeType . ';base64,@' . $imageBase64; # Dejo todo esto comentado por si se desea volver a usar Base64
-					$filePath = $imgPath;
-					break;
+			if ($useBase64) {
+				if (file_exists($imgPath)) {
+					$image = file_get_contents($imgPath);
+					$finfo = finfo_open(FILEINFO_MIME_TYPE);
+					$mimeType = finfo_file($finfo, $imgPath);
+					finfo_close($finfo);
+					$imageBase64 = base64_encode($image);
+					$filePath = 'data:' . $mimeType . ';base64,' . $imageBase64; 
+				} else {
+					$filePath = ''; // Provide fallback if file doesn't exist
+				}
+			} else {
+				$filePath = $imgPath;
 			}
 
 			$imageFileNames = array_values($dependentFile->getData('name')); // localized
