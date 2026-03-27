@@ -67,7 +67,7 @@ class JatsParserPlugin extends GenericPlugin
 				HookRegistry::add('TemplateManager::display', array($this, 'themeSpecificStyles'));
 				HookRegistry::add('Form::config::before', array($this, 'addCitationsFormFields'));
 				HookRegistry::add('Publication::edit', array($this, 'editPublicationReferences'));
-				HookRegistry::add('Publication::edit', array($this, 'createPdfGalley'));
+				HookRegistry::add('Publication::edit', array($this, 'createAllGalleys'));
 			}
 
 			return true;
@@ -378,8 +378,6 @@ class JatsParserPlugin extends GenericPlugin
 			return $author->_data; // Extrae solo el contenido de '_data', así es más sencillo el acceso desde todos lados
 		}, $authors);
 
-		error_log('publication pages: ' . $publication->getData('pages'));
-
 		$metadata = [
 			'publication_pages' => $publication->getData('pages'),
 			'section_title' => $section?->getLocalizedTitle(),
@@ -477,6 +475,26 @@ class JatsParserPlugin extends GenericPlugin
 	 */
 	private function pdfCreation(string $htmlString, Publication $publication, Request $request, string $localeKey, int $fileId): string
 	{
+
+		$metadata = $this->getMetadata($publication, $localeKey, $request, $htmlString);
+		$ojsConfiguration = $this->getConfiguration($request);
+		$configuration = new Configuration($metadata);
+		$fileMgr = new PrivateFileManager();
+		$journalId = $request->getContext()->getId();
+
+		$outputStrategy = PDFOutputStrategy::class; # Lo que hablamos fue que esto quede así hasta que se necesite hace un selector de estrategias, trabajo para otra persona
+		# Pero, esencialmente, sería un selector que te devuelve el FQCN de la estrategia a usar, en este caso PdfOutputStrategy::class retorna algo del estilo JATSParser\TemplateHandler\PDF\PdfOutputStrategy
+		# Nótese que la estrategia a usar debe guardarse en la DB ya que es una configuración que se mantiene, no se selecciona a la hora de escupir el PDF sino desde la config del plugin en OJS. Atte: Leito
+
+		# file_put_contents(__DIR__ . "/htmlTest.html", $htmloutput::generateOutput($this, $fileMgr, $journalId, $localeKey, $fileId, $htmlString, $configuration, $metadata, $ojsConfiguration));
+		return $outputStrategy::generateOutput($this, $fileMgr, $journalId, $localeKey, $fileId, $htmlString, $configuration, $metadata, $ojsConfiguration);
+	}
+
+	/**
+	 * @brief Generates and persists the enriched HTML for the publication
+	 */
+	private function htmlCreation(string $htmlString, Publication $publication, Request $request, string $localeKey, int $fileId): string
+	{
 		$metadata = $this->getMetadata($publication, $localeKey, $request, $htmlString);
 		$ojsConfiguration = $this->getConfiguration($request);
 		$configuration = new Configuration($metadata);
@@ -485,12 +503,159 @@ class JatsParserPlugin extends GenericPlugin
 
 		# $htmloutput = HTMLOutputStrategy::class; # Sorpresa sorpresa, adapté la estrategia de salida de los PDFs para generar una salida en HTML, es probable que haya que meter algo de mano para que termine de ser funcional, pero el desarrollo está prácticamente hecho. Todo el procesamiento interno ya estaría acomdoado 👍 
 
-		$outputStrategy = PDFOutputStrategy::class; # Lo que hablamos fue que esto quede así hasta que se necesite hace un selector de estrategias, trabajo para otra persona
-		# Pero, esencialmente, sería un selector que te devuelve el FQCN de la estrategia a usar, en este caso PdfOutputStrategy::class retorna algo del estilo JATSParser\TemplateHandler\PDF\PdfOutputStrategy
-		# Nótese que la estrategia a usar debe guardarse en la DB ya que es una configuración que se mantiene, no se selecciona a la hora de escupir el PDF sino desde la config del plugin en OJS. Atte: Leito
+		$html = HTMLOutputStrategy::generateOutput($this, $fileMgr, $journalId, $localeKey, $fileId, $htmlString, $configuration, $metadata, $ojsConfiguration);
 
-		# file_put_contents(__DIR__ . "/htmlTest.html", $htmloutput::generateOutput($this, $fileMgr, $journalId, $localeKey, $fileId, $htmlString, $configuration, $metadata, $ojsConfiguration));
-		return $outputStrategy::generateOutput($this, $fileMgr, $journalId, $localeKey, $fileId, $htmlString, $configuration, $metadata, $ojsConfiguration);
+		// Me quedo solo con lo que esté dentro del tag <html> del HTML, descartando lo demás
+		if (preg_match('/<html[^>]*>(.*?)<\/html>/is', $html, $matches)) {
+			$html = $matches[1];
+		}
+
+		// Inyectamos estilos quirúrgicos para la previsualización (Tablas, figuras, citas, etc)
+		// Solo incluimos los estilos esenciales del cuerpo del artículo según lo solicitado
+		$css = <<<CSS
+			a {
+				text-decoration: none;
+				color: rgb(61, 145, 191);
+			}
+
+			p {
+				font-size: 14px;
+			}
+
+			h2, h3, h4, h5, h1, p, a, span, .table, li, ul, ol {
+				font-family: 'FreeSerif', sans-serif;
+				text-align: justify;
+			}
+
+			h1, h2, h3, h4, h5 {
+				margin-top: 40px;
+				margin-bottom: 0px;
+				padding: 0;
+			}
+
+			.table {
+				border: 1px solid #333;
+				border-collapse: collapse;
+				margin-top: 10px;
+				margin-bottom: 40px;
+				margin-left: auto;
+				margin-right: auto;
+				page-break-inside: avoid;
+			}
+
+			.table th, .table td {
+				padding: 2mm 5mm;
+				border: 1px solid #333;
+				text-align: center;
+				vertical-align: middle;
+			}
+
+			.table th {
+				background-color: #f2f2f2;
+				font-weight: bold;
+			}
+
+			.title, .notes, .caption-title, .caption-notes, caption {
+				text-align: justify;
+			}
+
+			.figure, img {
+				margin-left: auto;
+				margin-right: auto;
+				display: block;
+			}
+
+			caption {
+				text-align: left;
+				margin-top: 15px;
+				margin-bottom: 4px;
+				font-weight: bold;
+			}
+
+			.table-notes {
+				display: block;
+				margin-top: 5px;
+				text-align: left;
+				font-size: 12px;
+			}
+
+			blockquote {
+				font-size: 10px;
+				border-left-color: #31849b;
+				border-left-width: 4px;
+				border-left-style: solid;
+				padding: 0 0 0 15px;
+				margin: 5px 0 5px 30px;
+			}
+			
+			/* Desplazamiento suave para los anclajes de las citas */
+			html {
+				scroll-behavior: smooth;
+			}
+			
+			.author-biographies-section {
+				margin-top: 40px;
+				margin-bottom: 40px;
+			}
+			.author-biographies-section h2 {
+				margin-bottom: 25px;
+				font-weight: bold;
+			}
+			.author-bio {
+				margin-bottom: 25px;
+			}
+			.author-name {
+				font-weight: bold;
+				display: block;
+				margin-bottom: 0px; /* Reducido a cero para contrarrestar el margen del párrafo */
+				font-size: 1.05em;
+			}
+			.author-bio-text p:first-child {
+				margin-top: 4px; /* Un pequeñísimo respiro entre el nombre y el texto */
+			}
+			
+			/* Estilos para limpiar las referencias (quitar viñetas/números) */
+			.citation-list {
+				list-style: none;
+				padding-left: 0;
+				margin-left: 0;
+			}
+			.citation-item {
+				list-style-type: none;
+				margin-bottom: 12px;
+				text-indent: -20px;
+				padding-left: 20px;
+				transition: background-color 0.3s ease;
+			}
+			
+			/* Resaltado del texto de la referencia al redirigirse a ella desde una cita */
+			.citation-item:target {
+				background-color: #fff3cd;
+				box-shadow: -4px 0 0 0 #ffc107;
+				padding-left: 28px; /* Más espacio entre la línea y el texto */
+				margin-left: -8px;  /* Desplaza la línea un poco hacia afuera */
+				border-radius: 2px;
+			}
+
+			section.item.references {
+				display: none;
+			}
+
+			/* Resaltado de la cita en el texto al volver desde la referencia */
+			a[id^="citation_"]:target + a {
+				background-color: #fff3cd;
+				box-shadow: 0 0 0 2px #fff3cd;
+				border-radius: 2px;
+				transition: background-color 0.5s ease;
+			}
+			CSS;
+
+		if (!empty($css)) {
+			$html = "<style>\n$css\n</style>\n" . $html;
+		}
+
+		$publication->setData('jatsParser::fullText', $html, $localeKey);
+		return $html;
 	}
 
 	/**
@@ -647,10 +812,21 @@ class JatsParserPlugin extends GenericPlugin
 				$newPublication->setData('jatsParser::fullTextFileId', null, $localeKey);
 				continue;
 			}
-			//$submissionFile = Services::get('submissionFile')->get($fileId);
 			$submissionFile = Repo::submissionFile()->get($fileId);
 			$htmlDocument = $this->getFullTextFromJats($submissionFile);
-			$newPublication->setData('jatsParser::fullText', $htmlDocument->saveAsHTML(), $localeKey);
+			$htmlString = $htmlDocument->saveAsHTML();
+
+			// Obtener el path físico del archivo JATS para _setReferences()
+			import('lib.pkp.classes.file.PrivateFileManager');
+			$privateFileManager = new PrivateFileManager();
+			$jatsFilePath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $submissionFile->getData('path');
+
+			// Aplicar referencias formateadas y notas al pie
+			// (mismo procesamiento que el flujo del PDF, así la previsualización HTML queda consistente)
+			$htmlString = $this->_setReferences($newPublication, $localeKey, $htmlString, $jatsFilePath);
+			$htmlString = $this->_setFootnotes($newPublication, $localeKey, $htmlString);
+
+			$newPublication->setData('jatsParser::fullText', $htmlString, $localeKey);
 		}
 
 		return false;
@@ -729,9 +905,8 @@ class JatsParserPlugin extends GenericPlugin
 		return false;
 	}
 
-	function createPdfGalley(string $hookname, array $args)
+	function createAllGalleys(string $hookname, array $args)
 	{
-
 		$newPublication = $args[0]; /* @var $newPublication Publication */
 		$params = $args[2];
 		$request = $args[3];
@@ -750,52 +925,75 @@ class JatsParserPlugin extends GenericPlugin
 			$jatsSubmissionFile = Repo::submissionFile()->get($jatsFileId);
 
 
-
 			if ($jatsSubmissionFile) {
 				import('lib.pkp.classes.file.PrivateFileManager');
-				$fullText = $this->_setSupplImgPath($jatsSubmissionFile, $fullText);
+				// Creamos la versión HTML con Base64 para la web/base de datos
+				$fullTextHtml = $this->_setSupplImgPath($jatsSubmissionFile, $fullText, true);
+				// Creamos la versión PDF con rutas locales del servidor
+				$fullTextPdf = $this->_setSupplImgPath($jatsSubmissionFile, $fullText, false);
+				
 				$privateFileManager = new PrivateFileManager();
 				$jatsFilePath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $jatsSubmissionFile->getData('path');
+			} else {
+				$fullTextHtml = $fullText;
+				$fullTextPdf = $fullText;
 			}
 
-			// Set references y footnotes
-			$fullText = $this->_setReferences($newPublication, $localeKey, $fullText, $jatsFilePath);
-			$fullText = $this->_setFootnotes($newPublication, $localeKey, $fullText);
+			// Convertir a PDF (Usamos Base64 para HTML y Rutas Locales para PDF)
+			$html = $this->htmlCreation($fullTextHtml, $newPublication, $request, $localeKey, $jatsFileId);
+			$pdf = $this->pdfCreation($fullTextPdf, $newPublication, $request, $localeKey, $jatsFileId);
 
-			// Convertir a PDF
-			$pdf = $this->pdfCreation($fullText, $newPublication, $request, $localeKey, $jatsFileId);
+			// --- Crear galley para PDF ---
+			$pdfGalleyId = $this->createGalley($localeKey, $newPublication, 'plugins.generic.jatsParser.publication.galley.pdf.label');
 
-			// Crear galley
-			$galley = $this->createGalley($localeKey, $newPublication);
-
-
-			// Obtener el galley usando Repo
-			$galley = Repo::galley()
+			// Obtener el galley PDF usando Repo
+			$pdfGalley = Repo::galley()
 				->getCollector()
 				->filterByPublicationIds([$newPublication->getId()])
 				->getMany()
-				->first(function ($g) use ($galley) {
-					return $g->getBestGalleyId() === $galley;
+				->first(function ($g) use ($pdfGalleyId) {
+					return $g->getBestGalleyId() === $pdfGalleyId;
 				});
 
-			if (!$galley) continue;
+			if ($pdfGalley) {
+				// Crear archivo de sumisión del PDF
+				$pdfSubmissionFile = $this->_setPdfSubmissionFile($pdf, $newPublication, $pdfGalley);
+				if ($pdfSubmissionFile) {
+					Repo::galley()->edit($pdfGalley, [
+						'submissionFileId' => $pdfSubmissionFile->getId(),
+					]);
+				} else {
+					Repo::galley()->delete($pdfGalley);
+				}
+			}
 
-			// Crear archivo de sumisiÃ³n del PDF
-			$submissionFile = $this->_setPdfSubmissionFile($pdf, $newPublication, $galley);
+			// --- Crear galley para HTML  ---
+			$htmlGalleyId = $this->createGalley($localeKey, $newPublication, 'plugins.generic.jatsParser.publication.galley.html.label');
 
-			if ($submissionFile) {
-				// Not working, Repo::galley()->edit() does not accept fileId
-				Repo::galley()->edit($galley, [
-					'submissionFileId' => $submissionFile->getId(),
-				]);
-			} else {
-				Repo::galley()->delete($galley);
+			// Obtener el galley HTML usando Repo
+			$htmlGalley = Repo::galley()
+				->getCollector()
+				->filterByPublicationIds([$newPublication->getId()])
+				->getMany()
+				->first(function ($g) use ($htmlGalleyId) {
+					return $g->getBestGalleyId() === $htmlGalleyId;
+				});
+
+			if ($htmlGalley) {
+				// Crear archivo de sumisión del HTML
+				$htmlSubmissionFile = $this->_setHtmlSubmissionFile($html, $newPublication, $htmlGalley);
+				if ($htmlSubmissionFile) {
+					Repo::galley()->edit($htmlGalley, [
+						'submissionFileId' => $htmlSubmissionFile->getId(),
+					]);
+				} else {
+					Repo::galley()->delete($htmlGalley);
+				}
 			}
 		}
 
 		return false;
 	}
-
 
 	/**
 	 * @param string $galleyLocale
@@ -803,16 +1001,76 @@ class JatsParserPlugin extends GenericPlugin
 	 * @return int
 	 * @brief create an empty galley
 	 */
-	function createGalley(string $galleyLocale, Publication $publication): int
+	function createGalley(string $galleyLocale, Publication $publication, $translationLabelKey): int
 	{
-
-		//$articleGalleyDao = DAORegistry::getDAO('ArticleGalleyDAO'); /* @var $articleGalleyDao ArticleGalleyDAO */
 		$articleGalley = Repo::galley()->newDataObject();
 		$articleGalley->setLocale($galleyLocale);
 		$articleGalley->setData('publicationId', $publication->getId());
-		$articleGalley->setLabel(__('plugins.generic.jatsParser.publication.galley.pdf.label'));
+		$articleGalley->setLabel(__($translationLabelKey));
 		$articleGalley = Repo::galley()->add($articleGalley);
 		return $articleGalley;
+	}
+
+	/**
+	 * @param string $htmlString the generated HTML to be saved as file
+	 * @param Publication $publication publication associated with a submission file
+	 * @brief creates a new HTML submission file
+	 */
+	private function _setHtmlSubmissionFile(string $htmlString, Publication $publication, Galley $galley)
+	{
+		$submission = Repo::submission()->get($publication->getData('submissionId'));
+		$request = $this->getRequest();
+
+		// Ensure HTML structure is valid for standalone presentation
+		$htmlContent = "<!DOCTYPE html>\n<html lang=\"{$galley->getLocale()}\">\n<head>\n<meta charset=\"utf-8\">\n<title>{$publication->getLocalizedTitle(null, 'html')}</title>\n</head>\n<body>\n{$htmlString}\n</body>\n</html>";
+
+		// Create a temporary file
+		$tmpFile = tempnam(sys_get_temp_dir(), 'jatsParserHtml');
+		file_put_contents($tmpFile, $htmlContent);
+
+		$submissionFile = Repo::submissionFile();
+		$submissionDir = $submissionFile->getSubmissionDir($submission->getData('contextId'), $submission->getId());
+
+		$fileId = Services::get('file')->add(
+			$tmpFile,
+			$submissionDir . DIRECTORY_SEPARATOR . uniqid() . '.html'
+		);
+
+		$jatsFileId = $publication->getData('jatsParser::fullTextFileId', $galley->getLocale());
+		$jatsFile = $submissionFile->get($jatsFileId);
+
+		$name = [];
+		if ($jatsFile) {
+			foreach ($jatsFile->getData('name') as $locale => $sourceName) {
+				$name[$locale] = pathinfo($sourceName, PATHINFO_FILENAME) . '.html';
+			}
+		} else {
+			$name[$galley->getLocale()] = 'article.html';
+		}
+
+		$genreDao = DAORegistry::getDAO('GenreDAO');
+		/** @var GenreDAO $genreDao */
+		$genre = $genreDao->getByKey('SUBMISSION', $submission->getData('contextId'));
+
+		$submissionFileObj = $submissionFile->newDataObject();
+		$submissionFileObj->setAllData(
+			[
+				'fileId' => $fileId,
+				'assocType' => ASSOC_TYPE_GALLEY,
+				'assocId' => $galley->getId(),
+				'fileStage' => SUBMISSION_FILE_PROOF,
+				'mimetype' => 'text/html',
+				'locale' => $galley->getLocale(),
+				'genreId' => $genre->getId(),
+				'name' => $name,
+				'submissionId' => $submission->getId(),
+			]
+		);
+		$submissionFileId = Repo::submissionFile()->add($submissionFileObj, $request);
+		$submissionFileObj = Repo::submissionFile()->get($submissionFileId);
+
+		unlink($tmpFile); // remove temporary file
+		return $submissionFileObj;
 	}
 
 	/**
@@ -950,8 +1208,12 @@ class JatsParserPlugin extends GenericPlugin
 			$formattedCitation = $this->_formatUrlsInText($reference);
 
 			$htmlString .= "\t";
+			
+			// Flecha para retornar a la cita en el texto (usa enlace real para activar :target)
+			$arrow = ' <a href="#citation_' . $id . '" class="return-arrow" title="' . __('common.return') . '">&#8593;</a>';
+			
 			// Apply semantic class to the list item
-			$htmlString .= '<li class="citation-item" id="' . $id . '">' . $formattedCitation . '</li>';
+			$htmlString .= '<li class="citation-item" id="' . $id . '">' . $formattedCitation . $arrow . '</li>';
 			$htmlString .= "<br/>\n";
 		}
 		$htmlString .= '</' . $containerTag . '>';
@@ -1051,7 +1313,7 @@ class JatsParserPlugin extends GenericPlugin
 		if (is_null($html)) return false;
 
 		if ($submissionFileId && $submissionFile) {
-			$html = $this->_setSupplImgPath($submissionFile, $html);
+			$html = $this->_setSupplImgPath($submissionFile, $html, true);
 		}
 
 		$templateMgr->assign('fullText', $html);
@@ -1065,7 +1327,7 @@ class JatsParserPlugin extends GenericPlugin
 	 * @return string
 	 * @brief Substitute path to attached images for full-text HTML
 	 */
-	function _setSupplImgPath(SubmissionFile $submissionFile, string $htmlString): string
+	function _setSupplImgPath(SubmissionFile $submissionFile, string $htmlString, bool $useBase64 = false): string
 	{
 
 		$dependentFilesIterator = Repo::submissionFile()
@@ -1094,24 +1356,21 @@ class JatsParserPlugin extends GenericPlugin
 
 			$submissionId = $submissionFile->getData('submissionId');
 
-			switch ($request->getRequestedOp()) {
-				case 'view':
-					$filePath = $request->url(null, 'article', 'downloadFullTextAssoc', array($submissionId, $dependentFile->getData('assocId'), $dependentFile->getData('fileId')));
-					break;
-				case 'editPublication':
-					// API Handler cannot process $op, $path or $anchor in url()
-					$imgPath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $dependentFile->getData('path');
-					// $image = file_get_contents($imgPath);
-					// error_log('JATSParserPlugin::_setSupplImgPath() - image path: ' . $imgPath);
+			$imgPath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $dependentFile->getData('path');
 
-					// $finfo = finfo_open(FILEINFO_MIME_TYPE);
-					// $mimeType = finfo_file($finfo, $imgPath);
-					// finfo_close($finfo);
-
-					// #$imageBase64 = base64_encode($image);
-					// #$filePath = 'data:' . $mimeType . ';base64,@' . $imageBase64; # Dejo todo esto comentado por si se desea volver a usar Base64
-					$filePath = $imgPath;
-					break;
+			if ($useBase64) {
+				if (file_exists($imgPath)) {
+					$image = file_get_contents($imgPath);
+					$finfo = finfo_open(FILEINFO_MIME_TYPE);
+					$mimeType = finfo_file($finfo, $imgPath);
+					finfo_close($finfo);
+					$imageBase64 = base64_encode($image);
+					$filePath = 'data:' . $mimeType . ';base64,' . $imageBase64; 
+				} else {
+					$filePath = ''; // Provide fallback if file doesn't exist
+				}
+			} else {
+				$filePath = $imgPath;
 			}
 
 			$imageFileNames = array_values($dependentFile->getData('name')); // localized

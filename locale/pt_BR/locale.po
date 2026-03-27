@@ -68,6 +68,9 @@ msgstr "Criar prova em PDF?"
 msgid "plugins.generic.jatsParser.publication.galley.pdf.label"
 msgstr "PDF"
 
+msgid "plugins.generic.jatsParser.publication.galley.html.label"
+msgstr "HTML"
+
 msgid "plugins.generic.jatsParser.style.acm-sig-proceedings"
 msgstr "ACM"
 
