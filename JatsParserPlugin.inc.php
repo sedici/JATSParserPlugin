@@ -637,6 +637,10 @@ class JatsParserPlugin extends GenericPlugin
 				border-radius: 2px;
 			}
 
+			section.item.references {
+				display: none;
+			}
+
 			/* Resaltado de la cita en el texto al volver desde la referencia */
 			a[id^="citation_"]:target + a {
 				background-color: #fff3cd;
