@@ -67,7 +67,7 @@ class JatsParserPlugin extends GenericPlugin
 				HookRegistry::add('TemplateManager::display', array($this, 'themeSpecificStyles'));
 				HookRegistry::add('Form::config::before', array($this, 'addCitationsFormFields'));
 				HookRegistry::add('Publication::edit', array($this, 'editPublicationReferences'));
-				HookRegistry::add('Publication::edit', array($this, 'createPdfGalley'));
+				HookRegistry::add('Publication::edit', array($this, 'createAllGalleys'));
 			}
 
 			return true;
@@ -493,7 +493,7 @@ class JatsParserPlugin extends GenericPlugin
 	/**
 	 * @brief Generates and persists the enriched HTML for the publication
 	 */
-	private function htmlCreation(string $htmlString, Publication $publication, Request $request, string $localeKey, int $fileId): void
+	private function htmlCreation(string $htmlString, Publication $publication, Request $request, string $localeKey, int $fileId): string
 	{
 		$metadata = $this->getMetadata($publication, $localeKey, $request, $htmlString);
 		$ojsConfiguration = $this->getConfiguration($request);
@@ -587,6 +587,63 @@ class JatsParserPlugin extends GenericPlugin
 				padding: 0 0 0 15px;
 				margin: 5px 0 5px 30px;
 			}
+			
+			/* Desplazamiento suave para los anclajes de las citas */
+			html {
+				scroll-behavior: smooth;
+			}
+			
+			.author-biographies-section {
+				margin-top: 40px;
+				margin-bottom: 40px;
+			}
+			.author-biographies-section h2 {
+				margin-bottom: 25px;
+				font-weight: bold;
+			}
+			.author-bio {
+				margin-bottom: 25px;
+			}
+			.author-name {
+				font-weight: bold;
+				display: block;
+				margin-bottom: 0px; /* Reducido a cero para contrarrestar el margen del párrafo */
+				font-size: 1.05em;
+			}
+			.author-bio-text p:first-child {
+				margin-top: 4px; /* Un pequeñísimo respiro entre el nombre y el texto */
+			}
+			
+			/* Estilos para limpiar las referencias (quitar viñetas/números) */
+			.citation-list {
+				list-style: none;
+				padding-left: 0;
+				margin-left: 0;
+			}
+			.citation-item {
+				list-style-type: none;
+				margin-bottom: 12px;
+				text-indent: -20px;
+				padding-left: 20px;
+				transition: background-color 0.3s ease;
+			}
+			
+			/* Resaltado del texto de la referencia al redirigirse a ella desde una cita */
+			.citation-item:target {
+				background-color: #fff3cd;
+				box-shadow: -4px 0 0 0 #ffc107;
+				padding-left: 28px; /* Más espacio entre la línea y el texto */
+				margin-left: -8px;  /* Desplaza la línea un poco hacia afuera */
+				border-radius: 2px;
+			}
+
+			/* Resaltado de la cita en el texto al volver desde la referencia */
+			a[id^="citation_"]:target + a {
+				background-color: #fff3cd;
+				box-shadow: 0 0 0 2px #fff3cd;
+				border-radius: 2px;
+				transition: background-color 0.5s ease;
+			}
 			CSS;
 
 		if (!empty($css)) {
@@ -594,6 +651,7 @@ class JatsParserPlugin extends GenericPlugin
 		}
 
 		$publication->setData('jatsParser::fullText', $html, $localeKey);
+		return $html;
 	}
 
 	/**
@@ -843,9 +901,8 @@ class JatsParserPlugin extends GenericPlugin
 		return false;
 	}
 
-	function createPdfGalley(string $hookname, array $args)
+	function createAllGalleys(string $hookname, array $args)
 	{
-
 		$newPublication = $args[0]; /* @var $newPublication Publication */
 		$params = $args[2];
 		$request = $args[3];
@@ -882,37 +939,57 @@ class JatsParserPlugin extends GenericPlugin
 			$html = $this->htmlCreation($fullTextHtml, $newPublication, $request, $localeKey, $jatsFileId);
 			$pdf = $this->pdfCreation($fullTextPdf, $newPublication, $request, $localeKey, $jatsFileId);
 
-			// Crear galley
-			$galley = $this->createGalley($localeKey, $newPublication);
+			// --- Crear galley para PDF ---
+			$pdfGalleyId = $this->createGalley($localeKey, $newPublication, 'plugins.generic.jatsParser.publication.galley.pdf.label');
 
-
-			// Obtener el galley usando Repo
-			$galley = Repo::galley()
+			// Obtener el galley PDF usando Repo
+			$pdfGalley = Repo::galley()
 				->getCollector()
 				->filterByPublicationIds([$newPublication->getId()])
 				->getMany()
-				->first(function ($g) use ($galley) {
-					return $g->getBestGalleyId() === $galley;
+				->first(function ($g) use ($pdfGalleyId) {
+					return $g->getBestGalleyId() === $pdfGalleyId;
 				});
 
-			if (!$galley) continue;
+			if ($pdfGalley) {
+				// Crear archivo de sumisión del PDF
+				$pdfSubmissionFile = $this->_setPdfSubmissionFile($pdf, $newPublication, $pdfGalley);
+				if ($pdfSubmissionFile) {
+					Repo::galley()->edit($pdfGalley, [
+						'submissionFileId' => $pdfSubmissionFile->getId(),
+					]);
+				} else {
+					Repo::galley()->delete($pdfGalley);
+				}
+			}
 
-			// Crear archivo de sumisiÃ³n del PDF
-			$submissionFile = $this->_setPdfSubmissionFile($pdf, $newPublication, $galley);
+			// --- Crear galley para HTML  ---
+			$htmlGalleyId = $this->createGalley($localeKey, $newPublication, 'plugins.generic.jatsParser.publication.galley.html.label');
 
-			if ($submissionFile) {
-				// Not working, Repo::galley()->edit() does not accept fileId
-				Repo::galley()->edit($galley, [
-					'submissionFileId' => $submissionFile->getId(),
-				]);
-			} else {
-				Repo::galley()->delete($galley);
+			// Obtener el galley HTML usando Repo
+			$htmlGalley = Repo::galley()
+				->getCollector()
+				->filterByPublicationIds([$newPublication->getId()])
+				->getMany()
+				->first(function ($g) use ($htmlGalleyId) {
+					return $g->getBestGalleyId() === $htmlGalleyId;
+				});
+
+			if ($htmlGalley) {
+				// Crear archivo de sumisión del HTML
+				$htmlSubmissionFile = $this->_setHtmlSubmissionFile($html, $newPublication, $htmlGalley);
+				if ($htmlSubmissionFile) {
+					Repo::galley()->edit($htmlGalley, [
+						'submissionFileId' => $htmlSubmissionFile->getId(),
+					]);
+				} else {
+					Repo::galley()->delete($htmlGalley);
+				}
 			}
 		}
 
 		return false;
 	}
-
 
 	/**
 	 * @param string $galleyLocale
@@ -920,16 +997,76 @@ class JatsParserPlugin extends GenericPlugin
 	 * @return int
 	 * @brief create an empty galley
 	 */
-	function createGalley(string $galleyLocale, Publication $publication): int
+	function createGalley(string $galleyLocale, Publication $publication, $translationLabelKey): int
 	{
-
-		//$articleGalleyDao = DAORegistry::getDAO('ArticleGalleyDAO'); /* @var $articleGalleyDao ArticleGalleyDAO */
 		$articleGalley = Repo::galley()->newDataObject();
 		$articleGalley->setLocale($galleyLocale);
 		$articleGalley->setData('publicationId', $publication->getId());
-		$articleGalley->setLabel(__('plugins.generic.jatsParser.publication.galley.pdf.label'));
+		$articleGalley->setLabel(__($translationLabelKey));
 		$articleGalley = Repo::galley()->add($articleGalley);
 		return $articleGalley;
+	}
+
+	/**
+	 * @param string $htmlString the generated HTML to be saved as file
+	 * @param Publication $publication publication associated with a submission file
+	 * @brief creates a new HTML submission file
+	 */
+	private function _setHtmlSubmissionFile(string $htmlString, Publication $publication, Galley $galley)
+	{
+		$submission = Repo::submission()->get($publication->getData('submissionId'));
+		$request = $this->getRequest();
+
+		// Ensure HTML structure is valid for standalone presentation
+		$htmlContent = "<!DOCTYPE html>\n<html lang=\"{$galley->getLocale()}\">\n<head>\n<meta charset=\"utf-8\">\n<title>{$publication->getLocalizedTitle(null, 'html')}</title>\n</head>\n<body>\n{$htmlString}\n</body>\n</html>";
+
+		// Create a temporary file
+		$tmpFile = tempnam(sys_get_temp_dir(), 'jatsParserHtml');
+		file_put_contents($tmpFile, $htmlContent);
+
+		$submissionFile = Repo::submissionFile();
+		$submissionDir = $submissionFile->getSubmissionDir($submission->getData('contextId'), $submission->getId());
+
+		$fileId = Services::get('file')->add(
+			$tmpFile,
+			$submissionDir . DIRECTORY_SEPARATOR . uniqid() . '.html'
+		);
+
+		$jatsFileId = $publication->getData('jatsParser::fullTextFileId', $galley->getLocale());
+		$jatsFile = $submissionFile->get($jatsFileId);
+
+		$name = [];
+		if ($jatsFile) {
+			foreach ($jatsFile->getData('name') as $locale => $sourceName) {
+				$name[$locale] = pathinfo($sourceName, PATHINFO_FILENAME) . '.html';
+			}
+		} else {
+			$name[$galley->getLocale()] = 'article.html';
+		}
+
+		$genreDao = DAORegistry::getDAO('GenreDAO');
+		/** @var GenreDAO $genreDao */
+		$genre = $genreDao->getByKey('SUBMISSION', $submission->getData('contextId'));
+
+		$submissionFileObj = $submissionFile->newDataObject();
+		$submissionFileObj->setAllData(
+			[
+				'fileId' => $fileId,
+				'assocType' => ASSOC_TYPE_GALLEY,
+				'assocId' => $galley->getId(),
+				'fileStage' => SUBMISSION_FILE_PROOF,
+				'mimetype' => 'text/html',
+				'locale' => $galley->getLocale(),
+				'genreId' => $genre->getId(),
+				'name' => $name,
+				'submissionId' => $submission->getId(),
+			]
+		);
+		$submissionFileId = Repo::submissionFile()->add($submissionFileObj, $request);
+		$submissionFileObj = Repo::submissionFile()->get($submissionFileId);
+
+		unlink($tmpFile); // remove temporary file
+		return $submissionFileObj;
 	}
 
 	/**
@@ -1067,8 +1204,12 @@ class JatsParserPlugin extends GenericPlugin
 			$formattedCitation = $this->_formatUrlsInText($reference);
 
 			$htmlString .= "\t";
+			
+			// Flecha para retornar a la cita en el texto (usa enlace real para activar :target)
+			$arrow = ' <a href="#citation_' . $id . '" class="return-arrow" title="' . __('common.return') . '">&#8593;</a>';
+			
 			// Apply semantic class to the list item
-			$htmlString .= '<li class="citation-item" id="' . $id . '">' . $formattedCitation . '</li>';
+			$htmlString .= '<li class="citation-item" id="' . $id . '">' . $formattedCitation . $arrow . '</li>';
 			$htmlString .= "<br/>\n";
 		}
 		$htmlString .= '</' . $containerTag . '>';
