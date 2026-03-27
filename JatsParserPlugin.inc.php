@@ -378,8 +378,6 @@ class JatsParserPlugin extends GenericPlugin
 			return $author->_data; // Extrae solo el contenido de '_data', así es más sencillo el acceso desde todos lados
 		}, $authors);
 
-		error_log('publication pages: ' . $publication->getData('pages'));
-
 		$metadata = [
 			'publication_pages' => $publication->getData('pages'),
 			'section_title' => $section?->getLocalizedTitle(),
