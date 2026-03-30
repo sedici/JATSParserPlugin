@@ -510,6 +510,9 @@ class JatsParserPlugin extends GenericPlugin
 			$html = $matches[1];
 		}
 
+		// Inyectar navegación bidireccional de footnotes (anclas + flechas ↑)
+		$html = \JATSParser\TemplateHandler\HTML\HTMLProcessingService::injectFootnoteNavigation($html);
+
 		// Inyectamos estilos quirúrgicos para la previsualización (Tablas, figuras, citas, etc)
 		// Solo incluimos los estilos esenciales del cuerpo del artículo según lo solicitado
 		$css = <<<CSS
@@ -627,13 +630,17 @@ class JatsParserPlugin extends GenericPlugin
 				padding-left: 20px;
 				transition: background-color 0.3s ease;
 			}
+			.footnote-label {
+				font-weight: bold;
+				color: #31849b;
+			}
 			
-			/* Resaltado del texto de la referencia al redirigirse a ella desde una cita */
-			.citation-item:target {
-				background-color: #fff3cd;
-				box-shadow: -4px 0 0 0 #ffc107;
-				padding-left: 28px; /* Más espacio entre la línea y el texto */
-				margin-left: -8px;  /* Desplaza la línea un poco hacia afuera */
+			/* Resaltado del texto de la referencia/nota al redirigirse a ella desde una cita */
+			.citation-item:target, .footnote-item:target {
+				background-color: #ffe69c;
+				box-shadow: -4px 0 0 0 #e5a100;
+				padding-left: 28px;
+				margin-left: -8px;
 				border-radius: 2px;
 			}
 
@@ -641,10 +648,11 @@ class JatsParserPlugin extends GenericPlugin
 				display: none;
 			}
 
-			/* Resaltado de la cita en el texto al volver desde la referencia */
-			a[id^="citation_"]:target + a {
-				background-color: #fff3cd;
-				box-shadow: 0 0 0 2px #fff3cd;
+			/* Resaltado de la cita en el texto al volver desde la referencia o nota */
+			a[id^="citation_"]:target + a,
+			a[id^="citation_"]:target + sup a {
+				background-color: #ffe69c;
+				box-shadow: 0 0 0 2px #ffe69c;
 				border-radius: 2px;
 				transition: background-color 0.5s ease;
 			}
@@ -825,6 +833,8 @@ class JatsParserPlugin extends GenericPlugin
 			// (mismo procesamiento que el flujo del PDF, así la previsualización HTML queda consistente)
 			$htmlString = $this->_setReferences($newPublication, $localeKey, $htmlString, $jatsFilePath);
 			$htmlString = $this->_setFootnotes($newPublication, $localeKey, $htmlString);
+
+
 
 			$newPublication->setData('jatsParser::fullText', $htmlString, $localeKey);
 		}
@@ -1760,7 +1770,7 @@ class JatsParserPlugin extends GenericPlugin
 			}
 
 			// Format the footnote using semantic classes instead of inline styles
-			$htmlString .= '<div class="footnote-item" id="fn-' . htmlspecialchars($fnId) . '">';
+			$htmlString .= '<div class="footnote-item" id="' . htmlspecialchars($fnId) . '">';
 			$htmlString .= '<span class="footnote-label">' . htmlspecialchars($label) . ' </span>';
 			$htmlString .= '<span class="footnote-content">' . $content . '</span>';
 			$htmlString .= '</div>';
