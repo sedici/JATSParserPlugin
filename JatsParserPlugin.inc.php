@@ -361,9 +361,9 @@ class JatsParserPlugin extends GenericPlugin
 			}
 		}
 
-		//Obtener la fecha de aceptación del envío si se saltea la etapa de revisión
+		//Obtener la fecha de aceptación del envío si se saltea la etapa de revisión (ej: QuickSubmit)
 		if (!$acceptedDate) {
-			$acceptedDate = $submission->getDateStatusModified();
+			$acceptedDate = $submission->getDateSubmitted();
 		}
 
 		$licenseUrl = !empty($publication->getData('licenseUrl')) ? $publication->getData('licenseUrl') : $journal->getData('licenseUrl');
