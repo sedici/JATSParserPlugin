@@ -541,6 +541,8 @@ class JatsParserPlugin extends GenericPlugin
 				margin-left: auto;
 				margin-right: auto;
 				page-break-inside: avoid;
+				table-layout: fixed;
+				width: 100%;
 			}
 
 			a.table {
@@ -552,6 +554,8 @@ class JatsParserPlugin extends GenericPlugin
 				border: 1px solid #333;
 				text-align: center;
 				vertical-align: middle;
+				word-wrap: break-word;
+				overflow-wrap: break-word;
 			}
 
 			.table th {
