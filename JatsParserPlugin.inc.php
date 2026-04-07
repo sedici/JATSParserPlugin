@@ -976,30 +976,6 @@ class JatsParserPlugin extends GenericPlugin
 					Repo::galley()->delete($pdfGalley);
 				}
 			}
-
-			// --- Crear galley para HTML  ---
-			$htmlGalleyId = $this->createGalley($localeKey, $newPublication, 'plugins.generic.jatsParser.publication.galley.html.label');
-
-			// Obtener el galley HTML usando Repo
-			$htmlGalley = Repo::galley()
-				->getCollector()
-				->filterByPublicationIds([$newPublication->getId()])
-				->getMany()
-				->first(function ($g) use ($htmlGalleyId) {
-					return $g->getBestGalleyId() === $htmlGalleyId;
-				});
-
-			if ($htmlGalley) {
-				// Crear archivo de sumisión del HTML
-				$htmlSubmissionFile = $this->_setHtmlSubmissionFile($html, $newPublication, $htmlGalley);
-				if ($htmlSubmissionFile) {
-					Repo::galley()->edit($htmlGalley, [
-						'submissionFileId' => $htmlSubmissionFile->getId(),
-					]);
-				} else {
-					Repo::galley()->delete($htmlGalley);
-				}
-			}
 		}
 
 		return false;
@@ -1019,68 +995,6 @@ class JatsParserPlugin extends GenericPlugin
 		$articleGalley->setLabel(__($translationLabelKey));
 		$articleGalley = Repo::galley()->add($articleGalley);
 		return $articleGalley;
-	}
-
-	/**
-	 * @param string $htmlString the generated HTML to be saved as file
-	 * @param Publication $publication publication associated with a submission file
-	 * @brief creates a new HTML submission file
-	 */
-	private function _setHtmlSubmissionFile(string $htmlString, Publication $publication, Galley $galley)
-	{
-		$submission = Repo::submission()->get($publication->getData('submissionId'));
-		$request = $this->getRequest();
-
-		// Ensure HTML structure is valid for standalone presentation
-		$htmlContent = "<!DOCTYPE html>\n<html lang=\"{$galley->getLocale()}\">\n<head>\n<meta charset=\"utf-8\">\n<title>{$publication->getLocalizedTitle(null, 'html')}</title>\n</head>\n<body>\n{$htmlString}\n</body>\n</html>";
-
-		// Create a temporary file
-		$tmpFile = tempnam(sys_get_temp_dir(), 'jatsParserHtml');
-		file_put_contents($tmpFile, $htmlContent);
-
-		$submissionFile = Repo::submissionFile();
-		$submissionDir = $submissionFile->getSubmissionDir($submission->getData('contextId'), $submission->getId());
-
-		$fileId = Services::get('file')->add(
-			$tmpFile,
-			$submissionDir . DIRECTORY_SEPARATOR . uniqid() . '.html'
-		);
-
-		$jatsFileId = $publication->getData('jatsParser::fullTextFileId', $galley->getLocale());
-		$jatsFile = $submissionFile->get($jatsFileId);
-
-		$name = [];
-		if ($jatsFile) {
-			foreach ($jatsFile->getData('name') as $locale => $sourceName) {
-				$name[$locale] = pathinfo($sourceName, PATHINFO_FILENAME) . '.html';
-			}
-		} else {
-			$name[$galley->getLocale()] = 'article.html';
-		}
-
-		$genreDao = DAORegistry::getDAO('GenreDAO');
-		/** @var GenreDAO $genreDao */
-		$genre = $genreDao->getByKey('SUBMISSION', $submission->getData('contextId'));
-
-		$submissionFileObj = $submissionFile->newDataObject();
-		$submissionFileObj->setAllData(
-			[
-				'fileId' => $fileId,
-				'assocType' => ASSOC_TYPE_GALLEY,
-				'assocId' => $galley->getId(),
-				'fileStage' => SUBMISSION_FILE_PROOF,
-				'mimetype' => 'text/html',
-				'locale' => $galley->getLocale(),
-				'genreId' => $genre->getId(),
-				'name' => $name,
-				'submissionId' => $submission->getId(),
-			]
-		);
-		$submissionFileId = Repo::submissionFile()->add($submissionFileObj, $request);
-		$submissionFileObj = Repo::submissionFile()->get($submissionFileId);
-
-		unlink($tmpFile); // remove temporary file
-		return $submissionFileObj;
 	}
 
 	/**
