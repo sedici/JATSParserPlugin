@@ -510,9 +510,6 @@ class JatsParserPlugin extends GenericPlugin
 			$html = $matches[1];
 		}
 
-		// Inyectar navegación bidireccional de footnotes (anclas + flechas ↑)
-		$html = \JATSParser\TemplateHandler\HTML\HTMLProcessingService::injectFootnoteNavigation($html);
-
 		// Inyectamos estilos quirúrgicos para la previsualización (Tablas, figuras, citas, etc)
 		// Solo incluimos los estilos esenciales del cuerpo del artículo según lo solicitado
 		$css = <<<CSS
@@ -544,6 +541,10 @@ class JatsParserPlugin extends GenericPlugin
 				margin-left: auto;
 				margin-right: auto;
 				page-break-inside: avoid;
+			}
+
+			a.table {
+				border: none;
 			}
 
 			.table th, .table td {

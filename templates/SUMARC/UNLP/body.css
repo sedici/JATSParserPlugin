@@ -46,6 +46,14 @@ h5 {
   page-break-inside: avoid;
 }
 
+/* Las citas a tablas (<a class="table">) no deben heredar el borde ni los márgenes de bloque */
+a.table {
+  border: none;
+  margin: 0;
+  display: inline;
+  page-break-inside: auto;
+}
+
 .table th,
 .table td {
   padding: 2mm 5mm;
