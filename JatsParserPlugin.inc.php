@@ -361,9 +361,9 @@ class JatsParserPlugin extends GenericPlugin
 			}
 		}
 
-		//Obtener la fecha de aceptación del envío si se saltea la etapa de revisión
+		//Obtener la fecha de aceptación del envío si se saltea la etapa de revisión (ej: QuickSubmit)
 		if (!$acceptedDate) {
-			$acceptedDate = $submission->getDateStatusModified();
+			$acceptedDate = $submission->getDateSubmitted();
 		}
 
 		$licenseUrl = !empty($publication->getData('licenseUrl')) ? $publication->getData('licenseUrl') : $journal->getData('licenseUrl');
@@ -541,6 +541,12 @@ class JatsParserPlugin extends GenericPlugin
 				margin-left: auto;
 				margin-right: auto;
 				page-break-inside: avoid;
+				table-layout: fixed;
+				width: 100%;
+			}
+
+			a.table {
+				border: none;
 			}
 
 			.table th, .table td {
@@ -548,6 +554,8 @@ class JatsParserPlugin extends GenericPlugin
 				border: 1px solid #333;
 				text-align: center;
 				vertical-align: middle;
+				word-wrap: break-word;
+				overflow-wrap: break-word;
 			}
 
 			.table th {
@@ -627,13 +635,17 @@ class JatsParserPlugin extends GenericPlugin
 				padding-left: 20px;
 				transition: background-color 0.3s ease;
 			}
+			.footnote-label {
+				font-weight: bold;
+				color: #31849b;
+			}
 			
-			/* Resaltado del texto de la referencia al redirigirse a ella desde una cita */
-			.citation-item:target {
-				background-color: #fff3cd;
-				box-shadow: -4px 0 0 0 #ffc107;
-				padding-left: 28px; /* Más espacio entre la línea y el texto */
-				margin-left: -8px;  /* Desplaza la línea un poco hacia afuera */
+			/* Resaltado del texto de la referencia/nota al redirigirse a ella desde una cita */
+			.citation-item:target, .footnote-item:target {
+				background-color: #ffe69c;
+				box-shadow: -4px 0 0 0 #e5a100;
+				padding-left: 28px;
+				margin-left: -8px;
 				border-radius: 2px;
 			}
 
@@ -641,10 +653,11 @@ class JatsParserPlugin extends GenericPlugin
 				display: none;
 			}
 
-			/* Resaltado de la cita en el texto al volver desde la referencia */
-			a[id^="citation_"]:target + a {
-				background-color: #fff3cd;
-				box-shadow: 0 0 0 2px #fff3cd;
+			/* Resaltado de la cita en el texto al volver desde la referencia o nota */
+			a[id^="citation_"]:target + a,
+			a[id^="citation_"]:target + sup a {
+				background-color: #ffe69c;
+				box-shadow: 0 0 0 2px #ffe69c;
 				border-radius: 2px;
 				transition: background-color 0.5s ease;
 			}
@@ -826,6 +839,8 @@ class JatsParserPlugin extends GenericPlugin
 			$htmlString = $this->_setReferences($newPublication, $localeKey, $htmlString, $jatsFilePath);
 			$htmlString = $this->_setFootnotes($newPublication, $localeKey, $htmlString);
 
+
+
 			$newPublication->setData('jatsParser::fullText', $htmlString, $localeKey);
 		}
 
@@ -966,30 +981,6 @@ class JatsParserPlugin extends GenericPlugin
 					Repo::galley()->delete($pdfGalley);
 				}
 			}
-
-			// --- Crear galley para HTML  ---
-			$htmlGalleyId = $this->createGalley($localeKey, $newPublication, 'plugins.generic.jatsParser.publication.galley.html.label');
-
-			// Obtener el galley HTML usando Repo
-			$htmlGalley = Repo::galley()
-				->getCollector()
-				->filterByPublicationIds([$newPublication->getId()])
-				->getMany()
-				->first(function ($g) use ($htmlGalleyId) {
-					return $g->getBestGalleyId() === $htmlGalleyId;
-				});
-
-			if ($htmlGalley) {
-				// Crear archivo de sumisión del HTML
-				$htmlSubmissionFile = $this->_setHtmlSubmissionFile($html, $newPublication, $htmlGalley);
-				if ($htmlSubmissionFile) {
-					Repo::galley()->edit($htmlGalley, [
-						'submissionFileId' => $htmlSubmissionFile->getId(),
-					]);
-				} else {
-					Repo::galley()->delete($htmlGalley);
-				}
-			}
 		}
 
 		return false;
@@ -1009,68 +1000,6 @@ class JatsParserPlugin extends GenericPlugin
 		$articleGalley->setLabel(__($translationLabelKey));
 		$articleGalley = Repo::galley()->add($articleGalley);
 		return $articleGalley;
-	}
-
-	/**
-	 * @param string $htmlString the generated HTML to be saved as file
-	 * @param Publication $publication publication associated with a submission file
-	 * @brief creates a new HTML submission file
-	 */
-	private function _setHtmlSubmissionFile(string $htmlString, Publication $publication, Galley $galley)
-	{
-		$submission = Repo::submission()->get($publication->getData('submissionId'));
-		$request = $this->getRequest();
-
-		// Ensure HTML structure is valid for standalone presentation
-		$htmlContent = "<!DOCTYPE html>\n<html lang=\"{$galley->getLocale()}\">\n<head>\n<meta charset=\"utf-8\">\n<title>{$publication->getLocalizedTitle(null, 'html')}</title>\n</head>\n<body>\n{$htmlString}\n</body>\n</html>";
-
-		// Create a temporary file
-		$tmpFile = tempnam(sys_get_temp_dir(), 'jatsParserHtml');
-		file_put_contents($tmpFile, $htmlContent);
-
-		$submissionFile = Repo::submissionFile();
-		$submissionDir = $submissionFile->getSubmissionDir($submission->getData('contextId'), $submission->getId());
-
-		$fileId = Services::get('file')->add(
-			$tmpFile,
-			$submissionDir . DIRECTORY_SEPARATOR . uniqid() . '.html'
-		);
-
-		$jatsFileId = $publication->getData('jatsParser::fullTextFileId', $galley->getLocale());
-		$jatsFile = $submissionFile->get($jatsFileId);
-
-		$name = [];
-		if ($jatsFile) {
-			foreach ($jatsFile->getData('name') as $locale => $sourceName) {
-				$name[$locale] = pathinfo($sourceName, PATHINFO_FILENAME) . '.html';
-			}
-		} else {
-			$name[$galley->getLocale()] = 'article.html';
-		}
-
-		$genreDao = DAORegistry::getDAO('GenreDAO');
-		/** @var GenreDAO $genreDao */
-		$genre = $genreDao->getByKey('SUBMISSION', $submission->getData('contextId'));
-
-		$submissionFileObj = $submissionFile->newDataObject();
-		$submissionFileObj->setAllData(
-			[
-				'fileId' => $fileId,
-				'assocType' => ASSOC_TYPE_GALLEY,
-				'assocId' => $galley->getId(),
-				'fileStage' => SUBMISSION_FILE_PROOF,
-				'mimetype' => 'text/html',
-				'locale' => $galley->getLocale(),
-				'genreId' => $genre->getId(),
-				'name' => $name,
-				'submissionId' => $submission->getId(),
-			]
-		);
-		$submissionFileId = Repo::submissionFile()->add($submissionFileObj, $request);
-		$submissionFileObj = Repo::submissionFile()->get($submissionFileId);
-
-		unlink($tmpFile); // remove temporary file
-		return $submissionFileObj;
 	}
 
 	/**
@@ -1760,7 +1689,7 @@ class JatsParserPlugin extends GenericPlugin
 			}
 
 			// Format the footnote using semantic classes instead of inline styles
-			$htmlString .= '<div class="footnote-item" id="fn-' . htmlspecialchars($fnId) . '">';
+			$htmlString .= '<div class="footnote-item" id="' . htmlspecialchars($fnId) . '">';
 			$htmlString .= '<span class="footnote-label">' . htmlspecialchars($label) . ' </span>';
 			$htmlString .= '<span class="footnote-content">' . $content . '</span>';
 			$htmlString .= '</div>';
