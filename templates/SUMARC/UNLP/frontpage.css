@@ -113,9 +113,9 @@
 .frontpage-author-info {
     font-family: "Arial", sans-serif;
     font-size: 10pt;
-    margin-bottom: 12px;
+    margin-bottom: 2px;
     line-height: 1.4;
-    margin-top: 45px;
+    margin-top: 30px;
 }
 
 .frontpage-orcid-logo {
@@ -264,7 +264,7 @@
 
 .frontpage-logo-cell {
     vertical-align: right;
-    padding-right: 0px;
+    padding-right: 15px;
 }
 
 .frontpage-header-hr-cell {
