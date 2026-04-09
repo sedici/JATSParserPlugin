@@ -537,7 +537,7 @@ class JatsParserPlugin extends GenericPlugin
 				border: 1px solid #333;
 				border-collapse: collapse;
 				margin-top: 10px;
-				margin-bottom: 40px;
+				margin-bottom: 0px;
 				margin-left: auto;
 				margin-right: auto;
 				page-break-inside: avoid;
@@ -564,7 +564,7 @@ class JatsParserPlugin extends GenericPlugin
 			}
 
 			.title, .notes, .caption-title, .caption-notes, caption {
-				text-align: justify;
+				text-align: center;
 			}
 
 			.figure, img {
@@ -574,7 +574,7 @@ class JatsParserPlugin extends GenericPlugin
 			}
 
 			caption {
-				text-align: left;
+				text-align: center;
 				margin-top: 15px;
 				margin-bottom: 4px;
 				font-weight: bold;
@@ -583,7 +583,8 @@ class JatsParserPlugin extends GenericPlugin
 			.table-notes {
 				display: block;
 				margin-top: 5px;
-				text-align: left;
+				margin-bottom: 40px;
+				text-align: center;
 				font-size: 12px;
 			}
 
