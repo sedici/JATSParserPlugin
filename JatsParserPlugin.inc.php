@@ -573,6 +573,26 @@ class JatsParserPlugin extends GenericPlugin
 				display: block;
 			}
 
+			figure {
+				display: block;
+				width: 100%;
+				text-align: center;
+				margin-top: 25px;
+				margin-bottom: 25px;
+			}
+
+			figure img {
+				display: block;
+				margin: 0 auto;
+				max-width: 100%;
+			}
+
+			.caption-title, .caption-notes {
+				display: block;
+				text-align: center;
+				width: 100%;
+			}
+
 			caption {
 				text-align: center;
 				margin-top: 15px;
