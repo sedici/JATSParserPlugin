@@ -367,7 +367,7 @@ class JatsParserPlugin extends GenericPlugin
 		}
 
 		$licenseUrl = !empty($publication->getData('licenseUrl')) ? $publication->getData('licenseUrl') : $journal->getData('licenseUrl');
-		if (!str_ends_with($licenseUrl, "/")) {
+		if ($licenseUrl && !str_ends_with($licenseUrl, "/")) {
 			$licenseUrl .= "/";
 		}
 
