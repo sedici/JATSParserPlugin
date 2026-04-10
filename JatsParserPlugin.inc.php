@@ -522,9 +522,14 @@ class JatsParserPlugin extends GenericPlugin
 				font-size: 14px;
 			}
 
-			h2, h3, h4, h5, h1, p, a, span, .table, li, ul, ol {
+			p, a, span, .table, li, ul, ol {
 				font-family: 'FreeSerif', sans-serif;
 				text-align: justify;
+			}
+
+			h1, h2, h3, h4, h5 {
+				font-family: 'FreeSerif', sans-serif;
+				text-align: left;
 			}
 
 			h1, h2, h3, h4, h5 {

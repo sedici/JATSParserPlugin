@@ -7,11 +7,6 @@ p {
   font-size: 14px;
 }
 
-h2,
-h3,
-h4,
-h5,
-h1,
 p,
 a,
 span,
@@ -21,6 +16,15 @@ ul,
 ol {
   font-family: 'FreeSerif', sans-serif;
   text-align: justify;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: 'FreeSerif', sans-serif;
+  text-align: left;
 }
 
 h1,
