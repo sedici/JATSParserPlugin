@@ -13,7 +13,8 @@ span,
 .table,
 li,
 ul,
-ol {
+ol,
+cite {
   font-family: 'FreeSerif', sans-serif;
   text-align: justify;
   line-height: 1.3;
@@ -135,11 +136,14 @@ blockquote {
 }
 
 blockquote p,
-blockquote span {
-  font-size: 12px;
+blockquote span,
+blockquote cite,
+blockquote cite * {
+  font-size: 12px !important;
 }
 
 blockquote cite {
-  font-size: 12px;
-  text-align: right;
+  text-align: left !important;
+  display: block !important;
+  margin-top: 10px !important;
 }
