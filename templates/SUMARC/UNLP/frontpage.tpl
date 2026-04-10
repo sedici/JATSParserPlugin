@@ -87,7 +87,7 @@
             {call name="getMetadata" pre="<h4 class='frontpage-article-subtitle'>" search={$subtitles.{$locale_key}} post="</h4>"}
 
             {foreach from=$lang_keys item=key name=keys}
-                {if $locale_key != $key}
+                {if $locale_key != $key && ( (isset($titles.$key) && $titles.$key) || (isset($subtitles.$key) && $subtitles.$key) )}
                     <h5 class="frontpage-article-lang-title">
                         {call name="getMetadata" pre="<span>" search={$titles.{$key}} post="</span>."}
                         {call name="getMetadata" pre="<span>" search={$subtitles.{$key}} post="</span>"}
@@ -156,7 +156,7 @@
                 {/if}
             {/foreach}
 
-            <table class="frontpage-license-info" style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <table class="frontpage-license-info" style="width: 100%; border-collapse: collapse; margin-top: 0px;">
                 <tr>
                     <td style="width: 40px; vertical-align: middle;">
                         {call name="getDoubleMetadata"

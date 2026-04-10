@@ -1,6 +1,6 @@
 .frontpage-body {
     font-family: 'Philosopher', sans-serif;
-    line-height: 1.6;
+    line-height: 1.3;
     margin: 0;
     padding: 0;
     background-color: #ffffff;
@@ -113,9 +113,9 @@
 .frontpage-author-info {
     font-family: "Arial", sans-serif;
     font-size: 10pt;
-    margin-bottom: 12px;
+    margin-bottom: 2px;
     line-height: 1.4;
-    margin-top: 45px;
+    margin-top: 30px;
 }
 
 .frontpage-orcid-logo {
@@ -209,8 +209,8 @@
 
 .frontpage-license-image {
     max-width: auto;
-    max-height: 20px;
-    margin-right: 10px;
+    max-height: 25px;
+    margin-right: 0px;
 }
 
 .frontpage-page-footer {
@@ -264,7 +264,7 @@
 
 .frontpage-logo-cell {
     vertical-align: right;
-    padding-right: 0px;
+    padding-right: 15px;
 }
 
 .frontpage-header-hr-cell {
@@ -283,7 +283,7 @@
 }
 
 .frontpage-license-image {
-    width: 90px;
+    width: 100px;
     vertical-align: middle;
 }
 

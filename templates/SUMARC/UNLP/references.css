@@ -1,14 +1,23 @@
-.references-section, h2, a, ul, span, p, li, ol {
+.references-section,
+h2,
+a,
+ul,
+span,
+p,
+li,
+ol {
   font-family: 'FreeSerif';
   text-align: justify;
+  line-height: 1.3;
 }
 
 li {
   font-size: 14px;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
-a, .citation-url{
+a,
+.citation-url {
   text-decoration: bold;
   color: rgb(61, 145, 191);
 }
@@ -23,5 +32,5 @@ ul {
   text-decoration: bold;
   color: black;
   margin-top: 15px;
-  margin-bottom: 5px;
+  margin-bottom: 15px;
 }

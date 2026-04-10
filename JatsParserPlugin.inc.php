@@ -367,6 +367,9 @@ class JatsParserPlugin extends GenericPlugin
 		}
 
 		$licenseUrl = !empty($publication->getData('licenseUrl')) ? $publication->getData('licenseUrl') : $journal->getData('licenseUrl');
+		if ($licenseUrl && !str_ends_with($licenseUrl, "/")) {
+			$licenseUrl .= "/";
+		}
 
 		// Separar por "/"
 		list($anio, $mes, $dia) = explode('/', str_replace('-', '/', $submission->getDatePublished()));
@@ -522,9 +525,14 @@ class JatsParserPlugin extends GenericPlugin
 				font-size: 14px;
 			}
 
-			h2, h3, h4, h5, h1, p, a, span, .table, li, ul, ol {
+			p, a, span, .table, li, ul, ol {
 				font-family: 'FreeSerif', sans-serif;
 				text-align: justify;
+			}
+
+			h1, h2, h3, h4, h5 {
+				font-family: 'FreeSerif', sans-serif;
+				text-align: left;
 			}
 
 			h1, h2, h3, h4, h5 {
@@ -537,7 +545,7 @@ class JatsParserPlugin extends GenericPlugin
 				border: 1px solid #333;
 				border-collapse: collapse;
 				margin-top: 10px;
-				margin-bottom: 40px;
+				margin-bottom: 0px;
 				margin-left: auto;
 				margin-right: auto;
 				page-break-inside: avoid;
@@ -564,7 +572,7 @@ class JatsParserPlugin extends GenericPlugin
 			}
 
 			.title, .notes, .caption-title, .caption-notes, caption {
-				text-align: justify;
+				text-align: center;
 			}
 
 			.figure, img {
@@ -573,8 +581,28 @@ class JatsParserPlugin extends GenericPlugin
 				display: block;
 			}
 
+			figure {
+				display: block;
+				width: 100%;
+				text-align: center;
+				margin-top: 25px;
+				margin-bottom: 25px;
+			}
+
+			figure img {
+				display: block;
+				margin: 0 auto;
+				max-width: 100%;
+			}
+
+			.caption-title, .caption-notes {
+				display: block;
+				text-align: center;
+				width: 100%;
+			}
+
 			caption {
-				text-align: left;
+				text-align: center;
 				margin-top: 15px;
 				margin-bottom: 4px;
 				font-weight: bold;
@@ -583,7 +611,8 @@ class JatsParserPlugin extends GenericPlugin
 			.table-notes {
 				display: block;
 				margin-top: 5px;
-				text-align: left;
+				margin-bottom: 40px;
+				text-align: center;
 				font-size: 12px;
 			}
 
@@ -594,6 +623,17 @@ class JatsParserPlugin extends GenericPlugin
 				border-left-style: solid;
 				padding: 0 0 0 15px;
 				margin: 5px 0 5px 30px;
+			}
+
+			blockquote p, blockquote span, blockquote cite {
+				font-size: 12px !important;
+				line-height: 1.5 !important;
+				margin: 2 !important;
+			}
+
+			blockquote cite {
+				display: block;
+				text-align: right;
 			}
 			
 			/* Desplazamiento suave para los anclajes de las citas */
