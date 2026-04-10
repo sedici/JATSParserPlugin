@@ -209,8 +209,8 @@
 
 .frontpage-license-image {
     max-width: auto;
-    max-height: 20px;
-    margin-right: 10px;
+    max-height: 25px;
+    margin-right: 0px;
 }
 
 .frontpage-page-footer {
@@ -283,7 +283,7 @@
 }
 
 .frontpage-license-image {
-    width: 90px;
+    width: 100px;
     vertical-align: middle;
 }
 
