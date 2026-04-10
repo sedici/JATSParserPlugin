@@ -595,6 +595,12 @@ class JatsParserPlugin extends GenericPlugin
 				max-width: 100%;
 			}
 
+			/* Asegurar que la figura y cualquier fila se mantengan dentro del límite */
+			.figure, figure {
+				margin-left: auto;
+				margin-right: auto;
+			}
+
 			.caption-title, .caption-notes {
 				display: block;
 				text-align: center;
