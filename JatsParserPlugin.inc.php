@@ -621,6 +621,17 @@ class JatsParserPlugin extends GenericPlugin
 				padding: 0 0 0 15px;
 				margin: 5px 0 5px 30px;
 			}
+
+			blockquote p, blockquote span, blockquote cite {
+				font-size: 12px !important;
+				line-height: 1.5 !important;
+				margin: 2 !important;
+			}
+
+			blockquote cite {
+				display: block;
+				text-align: right;
+			}
 			
 			/* Desplazamiento suave para los anclajes de las citas */
 			html {

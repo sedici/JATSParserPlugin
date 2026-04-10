@@ -130,10 +130,16 @@ blockquote {
   border-left-color: #31849b;
   border-left-width: 4px;
   border-left-style: solid;
-  padding-top: 0px;
-  padding-bottom: 0px;
-  padding-left: 15px;
-  margin-left: 30px;
-  margin-top: 5px;
-  margin-bottom: 5px;
+  padding: 0 0 0 15px;
+  margin: 5px 0 5px 30px;
+}
+
+blockquote p,
+blockquote span {
+  font-size: 12px;
+}
+
+blockquote cite {
+  font-size: 12px;
+  text-align: right;
 }
