@@ -140,6 +140,8 @@ blockquote span,
 blockquote cite,
 blockquote cite * {
   font-size: 12px;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 blockquote cite {
