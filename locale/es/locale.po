@@ -289,3 +289,6 @@ msgstr "Reestablecer todo"
 
 msgid "plugins.generic.jatsParser.pdf.parts_table.reset_all_confirm"
 msgstr "¿Está seguro de que desea eliminar todas las modificaciones de la plantilla? Esta acción es irreversible."
+
+msgid "plugins.generic.jatsParser.pdf.file.delete_prompt"
+msgstr "Está a punto de eliminar este archivo, esta acción es irreversible. ¿Desea continuar?"
