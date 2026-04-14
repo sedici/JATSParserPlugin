@@ -10,12 +10,12 @@
                     {translate key="plugins.generic.jatsParser.pdf.selected.template.title"} {$selectedTemplate|escape}
                 </h3>
 
-                <button style="
-                    padding: 0.6rem 1.2rem; background-color: #1075b9; color: #ffffff; font-weight: 600;
-                    font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;
+                <a href="{$go_back_url}" style="
+                    display: inline-block; padding: 0.6rem 1.2rem; background-color: #1075b9; color: #ffffff; font-weight: 600;
+                    font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s; text-decoration: none;
                 ">
-                    <a style="text-decoration: none; color: white;" href="{$go_back_url}">{translate key="plugins.generic.jatsParser.pdf.parts_table.cancel"}</a>
-                </button>
+                    {translate key="plugins.generic.jatsParser.pdf.parts_table.cancel"}
+                </a>
             </div>
 
 
@@ -142,12 +142,12 @@
                     font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;
                 ">{translate key="plugins.generic.jatsParser.pdf.parts_table.save"}</button>
 
-                <button style="
-                    padding: 0.6rem 1.2rem; background-color: #1075b9ff; color: #ffffff; font-weight: 600;
-                    font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;
+                <a onclick="return confirm('{translate key="plugins.generic.jatsParser.pdf.parts_table.reset_all_confirm"}');" href="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="resetAllParts" template=$selectedTemplate}" style="
+                    display: inline-block; padding: 0.6rem 1.2rem; background-color: #aa0707ff; color: #ffffff; font-weight: 600;
+                    font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s; text-decoration: none;
                 ">
-                    <a style="text-decoration: none; color: white;" href="{$go_back_url}">{translate key="plugins.generic.jatsParser.pdf.parts_table.cancel"}</a>
-                </button>
+                    {translate key="plugins.generic.jatsParser.pdf.parts_table.reset_all"}
+                </a>
             </div>
 
             <div style="display:flex; gap:0.5rem;">

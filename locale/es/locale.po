@@ -264,7 +264,7 @@ msgid "plugins.generic.jatsParser.pdf.custom_css"
 msgstr "CSS Personalizado"
 
 msgid "plugins.generic.jatsParser.pdf.parts_table.cancel"
-msgstr "Cancelar"
+msgstr "Volver"
 
 msgid "plugins.generic.jatsParser.pdf.parts_table.save"
 msgstr "Guardar"
@@ -283,3 +283,9 @@ msgstr "Configuración intermedia"
 
 msgid "plugins.generic.jatsParser.pdf.advanced_config"
 msgstr "Configuración avanzada"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.reset_all"
+msgstr "Reestablecer todo"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.reset_all_confirm"
+msgstr "¿Está seguro de que desea eliminar todas las modificaciones de la plantilla? Esta acción es irreversible."
