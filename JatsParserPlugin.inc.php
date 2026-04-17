@@ -552,7 +552,7 @@ class JatsParserPlugin extends GenericPlugin
 
 			p, a, span, .table, li, ul, ol {
 				font-family: 'FreeSerif', sans-serif;
-				text-align: justify;
+				text-align: left;
 			}
 
 			h1, h2, h3, h4, h5 {
