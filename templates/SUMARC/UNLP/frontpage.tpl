@@ -130,7 +130,7 @@
                 </span>
             </div>
             <div class="frontpage-keywords-container">
-                {call name="isMetadataSet" display="<span class='frontpage-keywords-label'> {$translations.{$locale_key}.keywords} | </span>" search="{$keywords_texts.{$locale_key}}"}
+                {call name="isMetadataSet" display="<span class='frontpage-keywords-label'> {$translations.{$locale_key}.keywords} | </span>" search=$keywords_texts.$locale_key}
                 <span class="frontpage-keywords-list">
                     {foreach from=$keywords_texts.{$locale_key} item=keyword name=keywords}
                         {call name="getMetadata" pre="<span class='frontpage-keyword'>" search={$keyword} post="</span>{if !$smarty.foreach.keywords.last}, {/if}"}
@@ -146,7 +146,7 @@
                         </span>
                     </div>
                     <div class="frontpage-keywords-container">
-                        {call name="isMetadataSet" display="<span class='frontpage-keywords-label'> {$translations.{$key}.keywords} | </span>" search="{$keywords_texts.{$key}}"}
+                        {call name="isMetadataSet" display="<span class='frontpage-keywords-label'> {$translations.{$key}.keywords} | </span>" search=$keywords_texts.$key}
                         <span class="frontpage-keywords-list">
                             {foreach from=$keywords_texts.{$key} item=keyword name=keywords}
                                 {call name="getMetadata" pre="<span class='frontpage-keyword'>" search={$keyword} post="</span>{if !$smarty.foreach.keywords.last}, {/if}"}
