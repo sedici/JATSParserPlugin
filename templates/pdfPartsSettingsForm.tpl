@@ -3,6 +3,17 @@
         {csrf}
         {include file="controllers/notification/inPlaceNotification.tpl" notificationId="jatsParserSettingsFormNotification"}
 
+        {if !empty($validationErrors)}
+            <div role="alert" style="margin-top: 1rem; margin-bottom: 1rem; padding: 1rem; background-color: #fee2e2; color: #b91c1c; border-radius: 6px; border: 1px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; font-weight: 700;">{translate key="common.error"}</h4>
+                <ul style="margin: 0; padding-left: 1.5rem;">
+                {foreach from=$validationErrors item=errorMsg}
+                    <li>{$errorMsg|escape}</li>
+                {/foreach}
+                </ul>
+            </div>
+        {/if}
+
         {fbvFormArea id="filePartsArea"}
             
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; margin-top: 10px;">

@@ -12,6 +12,7 @@ class JatsParserPartsForm extends Form
 
 	var $_journalId;
 	var $_plugin;
+	var $validationErrors = [];
 
 	function __construct($plugin, $journalId)
 	{
@@ -52,6 +53,7 @@ class JatsParserPartsForm extends Form
             'go_back_url' => $goBackUrl,
             'selectedTemplate' => $config['selected_template'],
             'filesInformation' => $parts,
+            'validationErrors' => $this->validationErrors,
         ]);
 
         return parent::fetch($request, $template, $display);
@@ -90,7 +92,37 @@ class JatsParserPartsForm extends Form
 				$targetFilePath = $templateDir . $fileName;
 
 				if (move_uploaded_file($fileInfo['tmp_name'], $targetFilePath)) {
-					$status .= "Archivo guardado con éxito en: " . $targetFilePath;
+					if (pathinfo($fileName, PATHINFO_EXTENSION) === 'tpl') {
+						$smarty = new \Smarty();
+						$security = new \Smarty_Security($smarty);
+						$security->php_functions = array('isset');
+						$security->static_classes = array(null);
+						$security->php_modifiers = array('escape', 'count', 'date_format', 'replace', 'trim'); 
+						$security->allow_php_templates = false;
+						$security->allow_constants = false;
+						$security->allow_super_globals = false;
+						$security->allow_php_tag = false;
+						
+						$smarty->enableSecurity($security);
+						$security->secure_dir[] = dirname($targetFilePath);
+						
+						try {
+							$template = $smarty->createTemplate('file:' . $targetFilePath);
+							$template->compileTemplateSource();
+							$status .= "File saved and validated successfully at: " . $targetFilePath . "\n";
+						} catch (\Exception $e) {
+							@unlink($targetFilePath);
+							
+							// Sanitizar el mensaje de error para evitar divulgar la ruta privada
+							$safeErrorMessage = str_replace('file:' . $targetFilePath, $fileName, $e->getMessage());
+							
+							$errorMsg = 'Security error in uploaded template (' . $fileName . '): ' . $safeErrorMessage;
+							$status .= $errorMsg . "\n";
+							$this->validationErrors[] = $errorMsg;
+						}
+					} else {
+						$status .= "Archivo guardado con éxito en: " . $targetFilePath;
+					}
 				} else {
 					$status .= 'Error al mover el archivo subido.';
 				}
