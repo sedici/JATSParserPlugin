@@ -224,6 +224,31 @@ class JatsParserPlugin extends GenericPlugin
 				$form->display($request);
 
 				return true;
+			case 'resetAllParts':
+				$context = $request->getContext();
+				$this->import('JatsParserPartsForm');
+				$form = new JatsParserPartsForm($this, $context->getId());
+
+				$template = $request->getUserVar('template');
+				$fileManager = new PrivateFileManager();
+				$path = $fileManager->getBasePath() . "/journals/" . $context->getId() . "/jatsParser_templates/$template/";
+
+				if (is_dir($path)) {
+					$files = array_diff(scandir($path), array('.', '..'));
+					foreach ($files as $file) {
+						if (is_file("$path/$file")) {
+							unlink("$path/$file");
+						}
+					}
+				}
+
+				$templateMgr = TemplateManager::getManager($request);
+				$templateMgr->registerPlugin('function', 'plugin_url', [$this, 'smartyPluginUrl']);
+				$templateMgr->assign('jatsParserPlugin', $this);
+
+				$form->display($request);
+
+				return true;
 			case 'downloadCurrentTemplate':
 				$context = $request->getContext();
 				$this->import('JatsParserPartsForm');
@@ -527,7 +552,7 @@ class JatsParserPlugin extends GenericPlugin
 
 			p, a, span, .table, li, ul, ol {
 				font-family: 'FreeSerif', sans-serif;
-				text-align: justify;
+				text-align: left;
 			}
 
 			h1, h2, h3, h4, h5 {
@@ -593,6 +618,12 @@ class JatsParserPlugin extends GenericPlugin
 				display: block;
 				margin: 0 auto;
 				max-width: 100%;
+			}
+
+			/* Asegurar que la figura y cualquier fila se mantengan dentro del límite */
+			.figure, figure {
+				margin-left: auto;
+				margin-right: auto;
 			}
 
 			.caption-title, .caption-notes {
