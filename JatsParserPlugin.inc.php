@@ -387,7 +387,7 @@ class JatsParserPlugin extends GenericPlugin
 		$metadata = [
 			'publication_pages' => $publication->getData('pages'),
 			'section_title' => $section?->getLocalizedTitle(),
-			'citation_style' => $plugin->getSetting($context->getId(), 'citationStyle'),
+			'citation_style' => $plugin->getCitationStyle($context),
 			'publication_id' => $publication->getId(),
 			'doi' => $publication->getDoi(),
 			'journal_id' => $journal->getId(),
@@ -1130,7 +1130,7 @@ class JatsParserPlugin extends GenericPlugin
 		$numberedCitations = Configuration::getNumberedReferences();
 		$context = Application::get()->getRequest()->getContext();
 		$plugin = PluginRegistry::getPlugin('generic', 'jatsparserplugin'); /* @var $plugin JATSParserPlugin */
-		$citationStyle = $plugin->getSetting($context->getId(), 'citationStyle');
+		$citationStyle = $plugin->getCitationStyle($context);
 
 		//Obtain xml jats file
 		// Create a JATSDocument instance
@@ -1145,7 +1145,7 @@ class JatsParserPlugin extends GenericPlugin
 
 		//$locale_key = $context->getPrimaryLocale();
 		$formattedLocaleKey = str_replace('_', '-', $locale);
-		$citationStyle = $plugin->getSetting($context->getId(), 'citationStyle');
+		// $citationStyle ya fue obtenido arriba con getCitationStyle(), no es necesario releerlo.
 		$dateFormat = $context->getSetting('dateFormatShort');
 		if (is_array($dateFormat)) {
 			// Extract date format based on PUBLICATION locale (article language), not galley locale
