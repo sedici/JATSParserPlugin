@@ -8,4 +8,4 @@
   {/if}
 </style>
 
-<h2 class="footnotes-title">{if isset($translations.$locale_key.footnotes)}{$translations.$locale_key.footnotes}{/if}</h2>
+<h2 class="footnotes-title">{$translations.{$locale_key}.footnotes}</h2>
