@@ -84,7 +84,9 @@
 
         <div class="frontpage-article-body">
             {call name="getMetadata" pre="<h3 class='frontpage-article-title'>" search={$article_title} post="</h3>"}
-            {call name="getMetadata" pre="<h4 class='frontpage-article-subtitle'>" search={$subtitles.{$locale_key}} post="</h4>"}
+            {if is_array($subtitles) && isset($subtitles.$locale_key)}
+                {call name="getMetadata" pre="<h4 class='frontpage-article-subtitle'>" search=$subtitles.$locale_key post="</h4>"}
+            {/if}
 
             {foreach from=$lang_keys item=key name=keys}
                 {if $locale_key != $key && ( (isset($titles.$key) && $titles.$key) || (isset($subtitles.$key) && $subtitles.$key) )}
