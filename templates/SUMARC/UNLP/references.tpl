@@ -6,4 +6,4 @@
 
 <break />
 
-<h2 class="references-title">{$translations.{$locale_key}.references}</h2>
+<h2 class="references-title">{if isset($translations.$locale_key.references)}{$translations.$locale_key.references}{/if}</h2>
