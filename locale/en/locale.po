@@ -246,7 +246,7 @@ msgid "plugins.generic.jatsParser.pdf.custom_css"
 msgstr "Custom CSS"
 
 msgid "plugins.generic.jatsParser.pdf.parts_table.cancel"
-msgstr "Cancel"
+msgstr "Return"
 
 msgid "plugins.generic.jatsParser.pdf.parts_table.save"
 msgstr "Save"
@@ -268,3 +268,9 @@ msgstr "Advanced configuration"
 
 msgid "plugins.generic.jatsParser.pdf.file.delete_prompt"
 msgstr "You're about to delete this file, this action is irreversible. Do you want to continue?"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.reset_all"
+msgstr "Reset all"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.reset_all_confirm"
+msgstr "Are you sure you want to remove all template modifications? This action is irreversible."

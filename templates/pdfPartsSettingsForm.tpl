@@ -3,6 +3,17 @@
         {csrf}
         {include file="controllers/notification/inPlaceNotification.tpl" notificationId="jatsParserSettingsFormNotification"}
 
+        {if !empty($validationErrors)}
+            <div role="alert" style="margin-top: 1rem; margin-bottom: 1rem; padding: 1rem; background-color: #fee2e2; color: #b91c1c; border-radius: 6px; border: 1px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; font-weight: 700;">{translate key="common.error"}</h4>
+                <ul style="margin: 0; padding-left: 1.5rem;">
+                {foreach from=$validationErrors item=errorMsg}
+                    <li>{$errorMsg|escape}</li>
+                {/foreach}
+                </ul>
+            </div>
+        {/if}
+
         {fbvFormArea id="filePartsArea"}
             
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; margin-top: 10px;">
@@ -10,12 +21,12 @@
                     {translate key="plugins.generic.jatsParser.pdf.selected.template.title"} {$selectedTemplate|escape}
                 </h3>
 
-                <button style="
-                    padding: 0.6rem 1.2rem; background-color: #1075b9; color: #ffffff; font-weight: 600;
-                    font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;
+                <a href="{$go_back_url}" style="
+                    display: inline-block; padding: 0.6rem 1.2rem; background-color: #1075b9; color: #ffffff; font-weight: 600;
+                    font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s; text-decoration: none;
                 ">
-                    <a style="text-decoration: none; color: white;" href="{$go_back_url}">{translate key="plugins.generic.jatsParser.pdf.parts_table.cancel"}</a>
-                </button>
+                    {translate key="plugins.generic.jatsParser.pdf.parts_table.cancel"}
+                </a>
             </div>
 
 
@@ -47,7 +58,7 @@
                                             </td>
                                             <td style="padding: 0.75rem 1rem; text-align: center; font-size: 1rem;">{if !$fileInfo.public}<span style="font-size:1.25rem;color:#dc2626;">✓</span>{else}<span style="font-size:1.25rem;color:#9ca3af;">✗</span>{/if}</td>
                                             <td style="padding: 0.75rem 1rem; text-align: center; font-size: 1rem;">{if $fileInfo.public}<span style="font-size:1.25rem;color:#16a34a;">✓</span>{else}<span style="font-size:1.25rem;color:#9ca3af;">✗</span>{/if}</td>
-                                            <td style="padding: 0.75rem 1rem; font-size: 0.875rem; color: #6b7280;">{if !$fileInfo.public}<a onclick="return confirm('Are you sure you want to delete {$fileInfo.filename}?');" href="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="resetPart" partName=$fileInfo.filename template=$selectedTemplate}" style="text-decoration: none; padding: 0.6rem 1.2rem; background-color: #aa0707ff; color: #ffffff; font-weight: 600; font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;">{translate key="plugins.generic.jatsParser.pdf.reset"}</a>{else}<div style="display:flex;gap:0.5rem;"><input type="file" accept="image/png, image/jpeg, image/jpg, .tiff, .svg" name="{$partName|escape}" /><input type="hidden" name="partName[]" value="{$partName|escape}" /></div>{/if}</td>
+                                                <td style="padding: 0.75rem 1rem; font-size: 0.875rem; color: #6b7280;">{if !$fileInfo.public}<a onclick="return confirm('{translate key="plugins.generic.jatsParser.pdf.file.delete_prompt" escape="javascript"} \n\nArchivo: {$fileInfo.filename|escape:"javascript"}');" href="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="resetPart" partName=$fileInfo.filename template=$selectedTemplate}" style="text-decoration: none; padding: 0.6rem 1.2rem; background-color: #aa0707ff; color: #ffffff; font-weight: 600; font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;">{translate key="plugins.generic.jatsParser.pdf.reset"}</a>{else}<div style="display:flex;gap:0.5rem;"><input type="file" accept="image/png, image/jpeg, image/jpg, .tiff, .svg" name="{$partName|escape}" /><input type="hidden" name="partName[]" value="{$partName|escape}" /></div>{/if}</td>
                                         </tr>
                                     {/if}
                                 {/foreach}
@@ -80,7 +91,7 @@
                                             </td>
                                             <td style="padding: 0.75rem 1rem; text-align: center; font-size: 1rem;">{if !$fileInfo.public}<span style="font-size:1.25rem;color:#dc2626;">✓</span>{else}<span style="font-size:1.25rem;color:#9ca3af;">✗</span>{/if}</td>
                                             <td style="padding: 0.75rem 1rem; text-align: center; font-size: 1rem;">{if $fileInfo.public}<span style="font-size:1.25rem;color:#16a34a;">✓</span>{else}<span style="font-size:1.25rem;color:#9ca3af;">✗</span>{/if}</td>
-                                            <td style="padding: 0.75rem 1rem; font-size: 0.875rem; color: #6b7280;">{if !$fileInfo.public}<a onclick="return confirm('Are you sure you want to delete {$fileInfo.filename}?');" href="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="resetPart" partName=$fileInfo.filename template=$selectedTemplate}" style="text-decoration: none; padding: 0.6rem 1.2rem; background-color: #aa0707ff; color: #ffffff; font-weight: 600; font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;">{translate key="plugins.generic.jatsParser.pdf.reset"}</a>{else}<div style="display:flex;gap:0.5rem;"><input type="file" accept=".css" name="{$partName|escape}" /><input type="hidden" name="partName[]" value="{$partName|escape}" /></div>{/if}</td>
+                                                <td style="padding: 0.75rem 1rem; font-size: 0.875rem; color: #6b7280;">{if !$fileInfo.public}<a onclick="return confirm('{translate key="plugins.generic.jatsParser.pdf.file.delete_prompt" escape="javascript"} \n\nArchivo: {$fileInfo.filename|escape:"javascript"}');" href="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="resetPart" partName=$fileInfo.filename template=$selectedTemplate}" style="text-decoration: none; padding: 0.6rem 1.2rem; background-color: #aa0707ff; color: #ffffff; font-weight: 600; font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;">{translate key="plugins.generic.jatsParser.pdf.reset"}</a>{else}<div style="display:flex;gap:0.5rem;"><input type="file" accept=".css" name="{$partName|escape}" /><input type="hidden" name="partName[]" value="{$partName|escape}" /></div>{/if}</td>
                                         </tr>
                                     {/if}
                                 {/foreach}
@@ -113,7 +124,7 @@
                                             </td>
                                             <td style="padding: 0.75rem 1rem; text-align: center; font-size: 1rem;">{if !$fileInfo.public}<span style="font-size:1.25rem;color:#dc2626;">✓</span>{else}<span style="font-size:1.25rem;color:#9ca3af;">✗</span>{/if}</td>
                                             <td style="padding: 0.75rem 1rem; text-align: center; font-size: 1rem;">{if $fileInfo.public}<span style="font-size:1.25rem;color:#16a34a;">✓</span>{else}<span style="font-size:1.25rem;color:#9ca3af;">✗</span>{/if}</td>
-                                            <td style="padding: 0.75rem 1rem; font-size: 0.875rem; color: #6b7280;">{if !$fileInfo.public}<a onclick="return confirm('Are you sure you want to delete {$fileInfo.filename}?');" href="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="resetPart" partName=$fileInfo.filename template=$selectedTemplate}" style="text-decoration: none; padding: 0.6rem 1.2rem; background-color: #aa0707ff; color: #ffffff; font-weight: 600; font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;">{translate key="plugins.generic.jatsParser.pdf.reset"}</a>{else}<div style="display:flex;gap:0.5rem;"><input type="file" accept=".tpl" name="{$partName|escape}" /><input type="hidden" name="partName[]" value="{$partName|escape}" /></div>{/if}</td>
+                                                <td style="padding: 0.75rem 1rem; font-size: 0.875rem; color: #6b7280;">{if !$fileInfo.public}<a onclick="return confirm('{translate key="plugins.generic.jatsParser.pdf.file.delete_prompt" escape="javascript"} \n\nArchivo: {$fileInfo.filename|escape:"javascript"}');" href="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="resetPart" partName=$fileInfo.filename template=$selectedTemplate}" style="text-decoration: none; padding: 0.6rem 1.2rem; background-color: #aa0707ff; color: #ffffff; font-weight: 600; font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;">{translate key="plugins.generic.jatsParser.pdf.reset"}</a>{else}<div style="display:flex;gap:0.5rem;"><input type="file" accept=".tpl" name="{$partName|escape}" /><input type="hidden" name="partName[]" value="{$partName|escape}" /></div>{/if}</td>
                                         </tr>
                                     {/if}
                                 {/foreach}
@@ -142,12 +153,12 @@
                     font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;
                 ">{translate key="plugins.generic.jatsParser.pdf.parts_table.save"}</button>
 
-                <button style="
-                    padding: 0.6rem 1.2rem; background-color: #1075b9ff; color: #ffffff; font-weight: 600;
-                    font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;
+                <a onclick="return confirm('{translate key="plugins.generic.jatsParser.pdf.parts_table.reset_all_confirm"}');" href="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="resetAllParts" template=$selectedTemplate}" style="
+                    display: inline-block; padding: 0.6rem 1.2rem; background-color: #aa0707ff; color: #ffffff; font-weight: 600;
+                    font-size: 0.95rem; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s; text-decoration: none;
                 ">
-                    <a style="text-decoration: none; color: white;" href="{$go_back_url}">{translate key="plugins.generic.jatsParser.pdf.parts_table.cancel"}</a>
-                </button>
+                    {translate key="plugins.generic.jatsParser.pdf.parts_table.reset_all"}
+                </a>
             </div>
 
             <div style="display:flex; gap:0.5rem;">
