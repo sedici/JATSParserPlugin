@@ -14,7 +14,7 @@ cd plugins/generic
 git clone --recursive https://github.com/sedici/JATSParserPlugin.git jatsParser
 ```
 
-👉 3. Moverse a la rama stable-3_4:
+👉 3. Moverse a la rama stable-3_4 tanto en JATSParserPlugin como en su submódulo "jatsParser":
 ```
 git checkout stable-3_4
 ```
