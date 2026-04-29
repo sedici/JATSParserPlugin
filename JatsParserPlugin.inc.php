@@ -1150,7 +1150,6 @@ class JatsParserPlugin extends GenericPlugin
 	 */
 	private function _setReferences(Publication $publication, string $locale, string $htmlString, $jatsPath): string
 	{
-
 		#$rawCitations = $publication->getData('citationsRaw'); //References
 		#if (empty($rawCitations)) return $htmlString;
 
