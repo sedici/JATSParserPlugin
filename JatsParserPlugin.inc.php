@@ -59,15 +59,15 @@ class JatsParserPlugin extends GenericPlugin
 		if (parent::register($category, $path, $mainContextId)) {
 
 			if ($this->getEnabled()) {
-				HookRegistry::add('Template::Workflow::Publication', array($this, 'publicationTemplateData'));
-				HookRegistry::add('Schema::get::publication', array($this, 'addToSchema'));
-				HookRegistry::add('LoadHandler', array($this, 'loadFullTextAssocHandler'));
-				HookRegistry::add('Publication::edit', array($this, 'editPublicationFullText'));
-				HookRegistry::add('Templates::Article::Main', array($this, 'displayFullText'));
-				HookRegistry::add('TemplateManager::display', array($this, 'themeSpecificStyles'));
-				HookRegistry::add('Form::config::before', array($this, 'addCitationsFormFields'));
-				HookRegistry::add('Publication::edit', array($this, 'editPublicationReferences'));
-				HookRegistry::add('Publication::edit', array($this, 'createAllGalleys'));
+				HookRegistry::register('Template::Workflow::Publication', array($this, 'publicationTemplateData'));
+				HookRegistry::register('Schema::get::publication', array($this, 'addToSchema'));
+				HookRegistry::register('LoadHandler', array($this, 'loadFullTextAssocHandler'));
+				HookRegistry::register('Publication::edit', array($this, 'editPublicationFullText'));
+				HookRegistry::register('Templates::Article::Main', array($this, 'displayFullText'));
+				HookRegistry::register('TemplateManager::display', array($this, 'themeSpecificStyles'));
+				HookRegistry::register('Form::config::before', array($this, 'addCitationsFormFields'));
+				HookRegistry::register('Publication::edit', array($this, 'editPublicationReferences'));
+				HookRegistry::register('Publication::edit', array($this, 'createAllGalleys'));
 			}
 
 			return true;
@@ -392,7 +392,7 @@ class JatsParserPlugin extends GenericPlugin
 		}
 
 		$licenseUrl = !empty($publication->getData('licenseUrl')) ? $publication->getData('licenseUrl') : $journal->getData('licenseUrl');
-		if ($licenseUrl && !str_ends_with($licenseUrl, "/")) {
+		if ($licenseUrl && substr($licenseUrl, -1) !== "/") {
 			$licenseUrl .= "/";
 		}
 
@@ -411,7 +411,7 @@ class JatsParserPlugin extends GenericPlugin
 
 		$metadata = [
 			'publication_pages' => $publication->getData('pages'),
-			'section_title' => $section?->getLocalizedTitle(),
+			'section_title' => $section ? $section->getLocalizedTitle() : null,
 			'citation_style' => $plugin->getCitationStyle($context),
 			'publication_id' => $publication->getId(),
 			'doi' => $publication->getDoi(),
