@@ -24,30 +24,18 @@ import('lib.pkp.classes.file.PKPPublicFileManager');
 import('lib.pkp.classes.linkAction.LinkAction');
 import('lib.pkp.classes.linkAction.request.AjaxModal');
 import('lib.pkp.classes.linkAction.request.RedirectAction');
+import('lib.pkp.classes.core.JSONMessage');
 
-use PKP\decision\Decision;
-use PKP\citation\CitationListTokenizerFilter;
 use JATSParser\PDF\PDFConfig\Translations;
 use JATSParser\PDF\PDFConfig\Configuration;
 use JATSParser\Body\Document;
 use JATSParser\HTML\Document as HTMLDocument;
 use \PKP\components\forms\FormComponent;
-use APP\facades\Repo;
-use PKP\core\JSONMessage;
 use JATSParser\Body\Document as JATSDocument;
-use PKP\components\forms\Processors\ReferencesProcessor;
 
-use APP\core\Request;
-use APP\notification\NotificationManager;
 use JATSParser\TemplateHandler\HTML\HTMLOutputStrategy;
 use JATSParser\TemplateHandler\PDF\PDFCreationService;
 use JATSParser\TemplateHandler\PDF\PDFOutputStrategy;
-use PKP\locale\Locale;
-use PKP\galley\Galley;
-
-use PKP\db\DAORegistry;
-use PKP\facades\Locale as FacadesLocale;
-use PKP\file\PrivateFileManager;
 
 define("CREATE_PDF_QUERY", "download=pdf");
 
