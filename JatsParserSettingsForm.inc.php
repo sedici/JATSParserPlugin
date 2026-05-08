@@ -14,8 +14,8 @@
  */
 import('lib.pkp.classes.form.Form');
 
-use PKP\form\validation\FormValidatorPost;
-use PKP\form\validation\FormValidatorCSRF;
+import('lib.pkp.classes.form.validation.FormValidatorPost');
+import('lib.pkp.classes.form.validation.FormValidatorCSRF');
 
 class JatsParserSettingsForm extends Form
 {

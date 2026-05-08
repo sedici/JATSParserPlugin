@@ -2,10 +2,10 @@
 import('lib.pkp.classes.form.Form');
 
 use JATSParser\TemplateHandler\PDF\PDFCreationService;
-use PKP\file\PrivateFileManager;
-use PKP\form\validation\FormValidatorPost;
-use PKP\form\validation\FormValidatorCSRF;
-use PKP\form\validation\FormValidatorRegExp;
+import('lib.pkp.classes.file.PrivateFileManager');
+import('lib.pkp.classes.form.validation.FormValidatorPost');
+import('lib.pkp.classes.form.validation.FormValidatorCSRF');
+import('lib.pkp.classes.form.validation.FormValidatorRegExp');
 
 class JatsParserPartsForm extends Form
 {
