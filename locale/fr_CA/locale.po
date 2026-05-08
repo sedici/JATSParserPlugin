@@ -1,128 +1,234 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2021-03-01T09:34:26+00:00\n"
-"PO-Revision-Date: 2021-03-01T09:34:26+00:00\n"
-"Language: \n"
 
 msgid "plugins.generic.jatsParser.displayName"
+msgstr "Plugin JATSParser"
+
+msgid "plugins.generic.jatsparser.displayName"
 msgstr "Plugin JATSParser"
 
 msgid "plugins.generic.jatsParser.description"
 msgstr "Le plugin transforme le XML JATS en HTML et PDF pour l’affichage sur l’interface publique de la revue"
 
+msgid "plugins.generic.jatsparser.description"
+msgstr "Le plugin transforme le XML JATS en HTML et PDF pour l’affichage sur l’interface publique de la revue"
+
 msgid "plugins.generic.jatsParser.article.fulltext.availableLocale"
+msgstr "Le texte intégral de l’article est disponible pour cette langue :"
+
+msgid "plugins.generic.jatsparser.article.fulltext.availableLocale"
 msgstr "Le texte intégral de l’article est disponible pour cette langue :"
 
 msgid "plugins.generic.jatsParser.article.fulltext.availableLocales"
 msgstr "Le texte intégral de l’article est disponible pour ces langues :"
 
+msgid "plugins.generic.jatsparser.article.fulltext.availableLocales"
+msgstr "Le texte intégral de l’article est disponible pour ces langues :"
+
 msgid "plugins.generic.jatsParser.workflow.settings"
+msgstr "Paramètres de JATS Parser"
+
+msgid "plugins.generic.jatsparser.workflow.settings"
 msgstr "Paramètres de JATS Parser"
 
 msgid "plugins.generic.jatsParser.settings.description"
 msgstr "Menu des paramètres du plugin JATSParser"
 
+msgid "plugins.generic.jatsparser.settings.description"
+msgstr "Menu des paramètres du plugin JATSParser"
+
 msgid "plugins.generic.jatsParser.settings.covert.pdf"
+msgstr "Activer la conversion de JATS XML en PDF"
+
+msgid "plugins.generic.jatsparser.settings.covert.pdf"
 msgstr "Activer la conversion de JATS XML en PDF"
 
 msgid "plugins.generic.jatsParser.galley.import"
 msgstr "Importation des épreuves JATS XML"
 
+msgid "plugins.generic.jatsparser.galley.import"
+msgstr "Importation des épreuves JATS XML"
+
 msgid "plugins.generic.jatsParser.galley.import.description"
+msgstr "Cette option permet d’enregistrer les épreuves JATS XML comme texte intégral dans toutes les publications de la revue. L’importation est ignorée si une publication possède déjà un texte intégral pour une épreuve donnée. L’importation commence immédiatement après l’enregistrement du formulaire."
+
+msgid "plugins.generic.jatsparser.galley.import.description"
 msgstr "Cette option permet d’enregistrer les épreuves JATS XML comme texte intégral dans toutes les publications de la revue. L’importation est ignorée si une publication possède déjà un texte intégral pour une épreuve donnée. L’importation commence immédiatement après l’enregistrement du formulaire."
 
 msgid "plugins.generic.jatsParser.galley.import.title"
 msgstr "Importer le texte intégral depuis les épreuves"
 
+msgid "plugins.generic.jatsparser.galley.import.title"
+msgstr "Importer le texte intégral depuis les épreuves"
+
 msgid "plugins.generic.jatsParser.publication.jats.fulltext"
+msgstr "Texte intégral"
+
+msgid "plugins.generic.jatsparser.publication.jats.fulltext"
 msgstr "Texte intégral"
 
 msgid "plugins.generic.jatsParser.publication.jats.fulltext.success"
 msgstr "Téléversement du texte intégral réussi"
 
+msgid "plugins.generic.jatsparser.publication.jats.fulltext.success"
+msgstr "Téléversement du texte intégral réussi"
+
 msgid "plugins.generic.jatsParser.publication.jats.label"
+msgstr "Créer un texte intégral"
+
+msgid "plugins.generic.jatsparser.publication.jats.label"
 msgstr "Créer un texte intégral"
 
 msgid "plugins.generic.jatsParser.publication.jats.description"
 msgstr "Sélectionnez un fichier prêt pour la production au format JATS XML afin de créer le texte intégral."
 
+msgid "plugins.generic.jatsparser.publication.jats.description"
+msgstr "Sélectionnez un fichier prêt pour la production au format JATS XML afin de créer le texte intégral."
+
 msgid "plugins.generic.jatsParser.publication.jats.descriptionEmpty"
+msgstr "La liste des fichiers JATS XML est vide. Veuillez téléverser le fichier dans l’étape de production et il apparaîtra ci-dessous pour la génération du texte intégral."
+
+msgid "plugins.generic.jatsparser.publication.jats.descriptionEmpty"
 msgstr "La liste des fichiers JATS XML est vide. Veuillez téléverser le fichier dans l’étape de production et il apparaîtra ci-dessous pour la génération du texte intégral."
 
 msgid "plugins.generic.jatsParser.publication.jats.references.label"
 msgstr "Récupérer les références depuis le JATS XML ?"
 
+msgid "plugins.generic.jatsparser.publication.jats.references.label"
+msgstr "Récupérer les références depuis le JATS XML ?"
+
 msgid "plugins.generic.jatsParser.publication.jats.references.description"
+msgstr "La liste des références sera extraite du JATS XML et enregistrée comme partie de la publication. Si des références existent déjà dans la publication, elles seront remplacées."
+
+msgid "plugins.generic.jatsparser.publication.jats.references.description"
 msgstr "La liste des références sera extraite du JATS XML et enregistrée comme partie de la publication. Si des références existent déjà dans la publication, elles seront remplacées."
 
 msgid "plugins.generic.jatsParser.publication.jats.pdf.label"
 msgstr "Créer une épreuve PDF ?"
 
+msgid "plugins.generic.jatsparser.publication.jats.pdf.label"
+msgstr "Créer une épreuve PDF ?"
+
 msgid "plugins.generic.jatsParser.publication.galley.pdf.label"
+msgstr "PDF"
+
+msgid "plugins.generic.jatsparser.publication.galley.pdf.label"
 msgstr "PDF"
 
 msgid "plugins.generic.jatsParser.publication.galley.html.label"
 msgstr "HTML"
 
+msgid "plugins.generic.jatsparser.publication.galley.html.label"
+msgstr "HTML"
+
 msgid "plugins.generic.jatsParser.style.acm-sig-proceedings"
+msgstr "ACM"
+
+msgid "plugins.generic.jatsparser.style.acm-sig-proceedings"
 msgstr "ACM"
 
 msgid "plugins.generic.jatsParser.style.acs-nano"
 msgstr "ACS"
 
+msgid "plugins.generic.jatsparser.style.acs-nano"
+msgstr "ACS"
+
 msgid "plugins.generic.jatsParser.style.apa"
+msgstr "APA"
+
+msgid "plugins.generic.jatsparser.style.apa"
 msgstr "APA"
 
 msgid "plugins.generic.jatsParser.style.associacao-brasileira-de-normas-tecnicas"
 msgstr "ABNT"
 
+msgid "plugins.generic.jatsparser.style.associacao-brasileira-de-normas-tecnicas"
+msgstr "ABNT"
+
 msgid "plugins.generic.jatsParser.style.chicago-author-date"
+msgstr "Chicago"
+
+msgid "plugins.generic.jatsparser.style.chicago-author-date"
 msgstr "Chicago"
 
 msgid "plugins.generic.jatsParser.style.harvard-cite-them-right"
 msgstr "Harvard"
 
+msgid "plugins.generic.jatsparser.style.harvard-cite-them-right"
+msgstr "Harvard"
+
 msgid "plugins.generic.jatsParser.style.ieee"
+msgstr "IEEE"
+
+msgid "plugins.generic.jatsparser.style.ieee"
 msgstr "IEEE"
 
 msgid "plugins.generic.jatsParser.style.modern-language-association"
 msgstr "MLA"
 
+msgid "plugins.generic.jatsparser.style.modern-language-association"
+msgstr "MLA"
+
 msgid "plugins.generic.jatsParser.style.turabian-fullnote-bibliography"
+msgstr "Turabian"
+
+msgid "plugins.generic.jatsparser.style.turabian-fullnote-bibliography"
 msgstr "Turabian"
 
 msgid "plugins.generic.jatsParser.style.vancouver"
 msgstr "Vancouver"
 
+msgid "plugins.generic.jatsparser.style.vancouver"
+msgstr "Vancouver"
+
 msgid "plugins.generic.jatsParser.style.custom"
 msgstr "Autres formats de styles de citation"
 
+msgid "plugins.generic.jatsparser.style.custom"
+msgstr "Autres formats de styles de citation"
+
 msgid "plugins.generic.jatsParser.style.description"
-msgstr "Le format de style pour les références analysées par le plugin. Pour d’autres styles, consultez le <a target=\"_blank\" href=\"https://github.com/citation-style-language/styles\">répertoire CSL</a> afin de vérifier s’ils sont pris en charge."
+msgstr "Le format de style pour les références analysées par le plugin. Pour d’autres styles, consultez le <a target=\\\"_blank\\\" href=\\\"https://github.com/citation-style-language/styles\\\">répertoire CSL</a> afin de vérifier s’ils sont pris en charge."
+
+msgid "plugins.generic.jatsparser.style.description"
+msgstr "Le format de style pour les références analysées par le plugin. Pour d’autres styles, consultez le <a target=\\\"_blank\\\" href=\\\"https://github.com/citation-style-language/styles\\\">répertoire CSL</a> afin de vérifier s’ils sont pris en charge."
 
 msgid "plugins.generic.jatsParser.style.label"
+msgstr "ex. : american-medical-association"
+
+msgid "plugins.generic.jatsparser.style.label"
 msgstr "ex. : american-medical-association"
 
 msgid "plugins.generic.jatsParser.publication.jats.links.label"
 msgstr "Formater les liens dans le texte vers les références ?"
 
+msgid "plugins.generic.jatsparser.publication.jats.links.label"
+msgstr "Formater les liens dans le texte vers les références ?"
+
 msgid "plugins.generic.jatsParser.settings.convert.pdf"
+msgstr "Activer la conversion en PDF"
+
+msgid "plugins.generic.jatsparser.settings.convert.pdf"
 msgstr "Activer la conversion en PDF"
 
 msgid "plugins.generic.jatsParser.pdf.abstract"
 msgstr "Résumé"
 
+msgid "plugins.generic.jatsparser.pdf.abstract"
+msgstr "Résumé"
+
 msgid "plugins.generic.jatsParser.publication.jats.citationStyle.label"
 msgstr "Table de citations"
 
+msgid "plugins.generic.jatsparser.publication.jats.citationStyle.label"
+msgstr "Table de citations"
+
 msgid "plugins.generic.jatsParser.citationtable.error.emptyoption"
+msgstr "Erreur : Vous ne pouvez pas enregistrer une valeur de citation vide"
+
+msgid "plugins.generic.jatsparser.citationtable.error.emptyoption"
 msgstr "Erreur : Vous ne pouvez pas enregistrer une valeur de citation vide"
 
 msgid "plugins.generic.citationtable.citations.notfound"
@@ -131,134 +237,270 @@ msgstr "Aucune citation n’a été trouvée dans l’article."
 msgid "plugins.generic.jatsParser.citationtable.titlecontext"
 msgstr "Contexte"
 
+msgid "plugins.generic.jatsparser.citationtable.titlecontext"
+msgstr "Contexte"
+
 msgid "plugins.generic.jatsParser.citationtable.titlereferences"
+msgstr "Références"
+
+msgid "plugins.generic.jatsparser.citationtable.titlereferences"
 msgstr "Références"
 
 msgid "plugins.generic.jatsParser.citationtable.titlefigsandtables"
 msgstr "Tableaux et figures"
 
+msgid "plugins.generic.jatsparser.citationtable.titlefigsandtables"
+msgstr "Tableaux et figures"
+
 msgid "plugins.generic.jatsParser.citationtable.figandtables.titles"
+msgstr "Titres"
+
+msgid "plugins.generic.jatsparser.citationtable.figandtables.titles"
 msgstr "Titres"
 
 msgid "plugins.generic.jatsParser.citationtable.titlecitationstyle"
 msgstr "Style de citation"
 
+msgid "plugins.generic.jatsparser.citationtable.titlecitationstyle"
+msgstr "Style de citation"
+
 msgid "plugins.generic.jatsParser.citationtable.savebuttontext"
+msgstr "Enregistrer"
+
+msgid "plugins.generic.jatsparser.citationtable.savebuttontext"
 msgstr "Enregistrer"
 
 msgid "plugins.generic.jatsParser.citationtable.customtext"
 msgstr "Autre"
 
+msgid "plugins.generic.jatsparser.citationtable.customtext"
+msgstr "Autre"
+
 msgid "plugins.generic.jatsParser.citationtable.citationstyle.twoauthors.separator"
+msgstr "&"
+
+msgid "plugins.generic.jatsparser.citationtable.citationstyle.twoauthors.separator"
 msgstr "&"
 
 msgid "plugins.generic.jatsParser.article.footnotes.title"
 msgstr "Notes de bas de page"
 
+msgid "plugins.generic.jatsparser.article.footnotes.title"
+msgstr "Notes de bas de page"
+
 msgid "plugins.generic.jatsParser.article.references.title"
+msgstr "Références"
+
+msgid "plugins.generic.jatsparser.article.references.title"
 msgstr "Références"
 
 msgid "plugins.generic.jatsParser.figure.title"
 msgstr "Figure"
 
+msgid "plugins.generic.jatsparser.figure.title"
+msgstr "Figure"
+
 msgid "plugins.generic.jatsParser.table.title"
+msgstr "Tableau"
+
+msgid "plugins.generic.jatsparser.table.title"
 msgstr "Tableau"
 
 msgid "plugins.generic.jatsParser.file.not.found"
 msgstr "Des fichiers sont manquants pour le gabarit sélectionné"
 
+msgid "plugins.generic.jatsparser.file.not.found"
+msgstr "Des fichiers sont manquants pour le gabarit sélectionné"
+
 msgid "plugins.generic.jatsParser.template.config"
+msgstr "Configuration du gabarit"
+
+msgid "plugins.generic.jatsparser.template.config"
 msgstr "Configuration du gabarit"
 
 msgid "plugins.generic.jatsParser.margins.config"
 msgstr "Configuration des marges (millimètres)"
 
+msgid "plugins.generic.jatsparser.margins.config"
+msgstr "Configuration des marges (millimètres)"
+
 msgid "plugins.generic.jatsParser.files.config"
+msgstr "Configuration des fichiers"
+
+msgid "plugins.generic.jatsparser.files.config"
 msgstr "Configuration des fichiers"
 
 msgid "plugins.generic.jatsParser.top.margin"
 msgstr "Marge supérieure"
 
+msgid "plugins.generic.jatsparser.top.margin"
+msgstr "Marge supérieure"
+
 msgid "plugins.generic.jatsParser.bottom.margin"
+msgstr "Marge inférieure"
+
+msgid "plugins.generic.jatsparser.bottom.margin"
 msgstr "Marge inférieure"
 
 msgid "plugins.generic.jatsParser.left.margin"
 msgstr "Marge gauche"
 
+msgid "plugins.generic.jatsparser.left.margin"
+msgstr "Marge gauche"
+
 msgid "plugins.generic.jatsParser.right.margin"
+msgstr "Marge droite"
+
+msgid "plugins.generic.jatsparser.right.margin"
 msgstr "Marge droite"
 
 msgid "plugins.generic.jatsParser.empty.template"
 msgstr "Aucun gabarit n'a été sélectionné"
 
+msgid "plugins.generic.jatsparser.empty.template"
+msgstr "Aucun gabarit n'a été sélectionné"
+
 msgid "plugins.generic.jatsParser.pdf.config.button"
+msgstr "Configuration pour les gabarits PDF"
+
+msgid "plugins.generic.jatsparser.pdf.config.button"
 msgstr "Configuration pour les gabarits PDF"
 
 msgid "plugins.generic.jatsParser.pdf.settings.button"
 msgstr "Paramètres PDF"
 
+msgid "plugins.generic.jatsparser.pdf.settings.button"
+msgstr "Paramètres PDF"
+
 msgid "plugins.generic.jatsParser.pdf.empty.template"
+msgstr "Vide"
+
+msgid "plugins.generic.jatsparser.pdf.empty.template"
 msgstr "Vide"
 
 msgid "plugins.generic.jatsParser.pdf.settings.tab"
 msgstr "Paramètres des modèles PDF"
 
+msgid "plugins.generic.jatsparser.pdf.settings.tab"
+msgstr "Paramètres des modèles PDF"
+
 msgid "plugins.generic.jatsParser.pdf.download.template"
+msgstr "Télécharger le modèle"
+
+msgid "plugins.generic.jatsparser.pdf.download.template"
 msgstr "Télécharger le modèle"
 
 msgid "plugins.generic.jatsParser.pdf.error.loading"
 msgstr "Une erreur est survenue lors du chargement de cette page."
 
+msgid "plugins.generic.jatsparser.pdf.error.loading"
+msgstr "Une erreur est survenue lors du chargement de cette page."
+
 msgid "plugins.generic.jatsParser.pdf.upload.file"
+msgstr "Téléverser le fichier"
+
+msgid "plugins.generic.jatsparser.pdf.upload.file"
 msgstr "Téléverser le fichier"
 
 msgid "plugins.generic.jatsParser.pdf.reset"
 msgstr "Réinitialiser par défaut"
 
+msgid "plugins.generic.jatsparser.pdf.reset"
+msgstr "Réinitialiser par défaut"
+
 msgid "plugins.generic.jatsParser.pdf.custom.file"
+msgstr "fichier personnalisé"
+
+msgid "plugins.generic.jatsparser.pdf.custom.file"
 msgstr "fichier personnalisé"
 
 msgid "plugins.generic.jatsParser.pdf.artifact"
 msgstr "Partie"
 
+msgid "plugins.generic.jatsparser.pdf.artifact"
+msgstr "Partie"
+
 msgid "plugins.generic.jatsParser.pdf.plugin.file"
+msgstr "Original"
+
+msgid "plugins.generic.jatsparser.pdf.plugin.file"
 msgstr "Original"
 
 msgid "plugins.generic.jatsParser.pdf.local.file"
 msgstr "Personnalisé"
 
+msgid "plugins.generic.jatsparser.pdf.local.file"
+msgstr "Personnalisé"
+
 msgid "plugins.generic.jatsParser.pdf.file.actions"
+msgstr "Actions"
+
+msgid "plugins.generic.jatsparser.pdf.file.actions"
 msgstr "Actions"
 
 msgid "plugins.generic.jatsParser.pdf.selected.template.title"
 msgstr "Modèle sélectionné :"
 
+msgid "plugins.generic.jatsparser.pdf.selected.template.title"
+msgstr "Modèle sélectionné :"
+
 msgid "plugins.generic.jatsParser.pdf.journal_logo"
+msgstr "Logo de la revue"
+
+msgid "plugins.generic.jatsparser.pdf.journal_logo"
 msgstr "Logo de la revue"
 
 msgid "plugins.generic.jatsParser.pdf.institution_logo"
 msgstr "Logo de l'établissement"
 
+msgid "plugins.generic.jatsparser.pdf.institution_logo"
+msgstr "Logo de l'établissement"
+
 msgid "plugins.generic.jatsParser.pdf.custom_css"
+msgstr "CSS personnalisé"
+
+msgid "plugins.generic.jatsparser.pdf.custom_css"
 msgstr "CSS personnalisé"
 
 msgid "plugins.generic.jatsParser.pdf.parts_table.cancel"
 msgstr "Annuler"
 
+msgid "plugins.generic.jatsparser.pdf.parts_table.cancel"
+msgstr "Annuler"
+
 msgid "plugins.generic.jatsParser.pdf.parts_table.save"
+msgstr "Enregistrer"
+
+msgid "plugins.generic.jatsparser.pdf.parts_table.save"
 msgstr "Enregistrer"
 
 msgid "plugins.generic.jatsParser.pdf.parts_table.download_original"
 msgstr "Télécharger le modèle original"
 
+msgid "plugins.generic.jatsparser.pdf.parts_table.download_original"
+msgstr "Télécharger le modèle original"
+
 msgid "plugins.generic.jatsParser.pdf.parts_table.download_current"
+msgstr "Télécharger le modèle modifié"
+
+msgid "plugins.generic.jatsparser.pdf.parts_table.download_current"
 msgstr "Télécharger le modèle modifié"
 
 msgid "plugins.generic.jatsParser.pdf.basic_config"
 msgstr "Configuration de base"
 
+msgid "plugins.generic.jatsparser.pdf.basic_config"
+msgstr "Configuration de base"
+
 msgid "plugins.generic.jatsParser.pdf.intermediate_config"
+msgstr "Configuration intermédiaire"
+
+msgid "plugins.generic.jatsparser.pdf.intermediate_config"
 msgstr "Configuration intermédiaire"
 
 msgid "plugins.generic.jatsParser.pdf.advanced_config"
 msgstr "Configuration avancée"
+
+msgid "plugins.generic.jatsparser.pdf.advanced_config"
+msgstr "Configuration avancée"
+
