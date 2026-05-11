@@ -34,6 +34,15 @@ sudo apt install php8.1-gd php8.1-mbstring php8.1-curl
 composer install
 ```
 
+## ⚠️ Consideraciones Importantes (Base de Datos)
+
+Para artículos extensos, el HTML generado puede superar el límite de 64KB del tipo de dato `TEXT` por defecto en OJS. Se recomienda encarecidamente cambiar el tipo de columna a `MEDIUMTEXT` para asegurar que el texto completo (full-text) se almacene correctamente sin truncarse:
+
+```sql
+ALTER TABLE publication_settings MODIFY setting_value MEDIUMTEXT;
+```
+
+
 ## ⚙️ Funcionalidades y cambios principales
 
 - Generación de PDF mediante la librería mPDF, utilizando plantillas personalizadas. Estas plantillas tienen 3 niveles de configuración: Principiante (logos), intermedio (CSS) y avanzado (TPLs)
