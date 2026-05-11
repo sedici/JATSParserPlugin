@@ -36,7 +36,7 @@ composer install
 
 ## ⚠️ Consideraciones Importantes (Base de Datos)
 
-Para artículos extensos, el HTML generado puede superar el límite de 64KB del tipo de dato `TEXT` por defecto en OJS 3.3. Se recomienda encarecidamente cambiar el tipo de columna a `MEDIUMTEXT` para asegurar que el texto completo (full-text) se almacene correctamente sin truncarse:
+Para artículos extensos, el HTML generado puede superar el límite de 64KB del tipo de dato `TEXT` por defecto en OJS 3.3. Se recomienda encarecidamente cambiar el tipo de columna a `MEDIUMTEXT` para asegurar que el texto completo (full-text HTML) se almacene correctamente sin ningún error:
 
 ```sql
 ALTER TABLE publication_settings MODIFY setting_value MEDIUMTEXT;
