@@ -108,6 +108,7 @@
 	display: block;
 	text-align: center;
 	width: 100%;
+	font-size: 12px;
 }
 
 .jatsParser__article-fulltext caption {
@@ -115,6 +116,7 @@
 	margin-top: 15px;
 	margin-bottom: 4px;
 	font-weight: bold;
+	font-size: 12px;
 }
 
 .jatsParser__article-fulltext .table-notes {
@@ -151,19 +153,23 @@
 	margin-top: 40px;
 	margin-bottom: 40px;
 }
+
 .jatsParser__article-fulltext .author-biographies-section h2 {
 	margin-bottom: 25px;
 	font-weight: bold;
 }
+
 .jatsParser__article-fulltext .author-bio {
 	margin-bottom: 25px;
 }
+
 .jatsParser__article-fulltext .author-name {
 	font-weight: bold;
 	display: block;
 	margin-bottom: 0px;
 	font-size: 1.05em;
 }
+
 .jatsParser__article-fulltext .author-bio-text p:first-child {
 	margin-top: 4px;
 }
@@ -173,6 +179,7 @@
 	padding-left: 0;
 	margin-left: 0;
 }
+
 .jatsParser__article-fulltext .citation-item {
 	list-style-type: none;
 	margin-bottom: 12px;
@@ -180,6 +187,7 @@
 	padding-left: 20px;
 	transition: background-color 0.3s ease;
 }
+
 .jatsParser__article-fulltext .footnote-label {
 	font-weight: bold;
 	color: #31849b;
@@ -198,8 +206,8 @@
 	display: none;
 }
 
-.jatsParser__article-fulltext a[id^="citation_"]:target + a,
-.jatsParser__article-fulltext a[id^="citation_"]:target + sup a {
+.jatsParser__article-fulltext a[id^="citation_"]:target+a,
+.jatsParser__article-fulltext a[id^="citation_"]:target+sup a {
 	background-color: #ffe69c;
 	box-shadow: 0 0 0 2px #ffe69c;
 	border-radius: 2px;

@@ -516,3 +516,5 @@ msgstr "Are you sure you want to remove all template modifications? This action 
 msgid "plugins.generic.jatsparser.pdf.parts_table.reset_all_confirm"
 msgstr "Are you sure you want to remove all template modifications? This action is irreversible."
 
+msgid "UNLP"
+msgstr "UNLP"

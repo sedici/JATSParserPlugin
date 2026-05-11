@@ -504,3 +504,5 @@ msgstr "Configuração avançada"
 msgid "plugins.generic.jatsparser.pdf.advanced_config"
 msgstr "Configuração avançada"
 
+msgid "UNLP"
+msgstr "UNLP"

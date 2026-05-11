@@ -417,3 +417,5 @@ msgstr "Розширена конфігурація"
 msgid "plugins.generic.jatsparser.pdf.advanced_config"
 msgstr "Розширена конфігурація"
 
+msgid "UNLP"
+msgstr "UNLP"

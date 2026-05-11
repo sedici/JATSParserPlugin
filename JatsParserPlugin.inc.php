@@ -360,12 +360,12 @@ class JatsParserPlugin extends GenericPlugin
 		$acceptedDate = null;
 
 		foreach ($decisions as $decision) {
-			if ($decision['stageId'] === WORKFLOW_STAGE_ID_EXTERNAL_REVIEW && $decision['decision'] === Decision::ACCEPT) {
+			if ($decision['stageId'] === WORKFLOW_STAGE_ID_EXTERNAL_REVIEW && $decision['decision'] === SUBMISSION_EDITOR_DECISION_ACCEPT) {
 				$acceptedDate = $decision['dateDecided']; // Get accepted date of accepted revision stage
 				break;
 			}
 
-			if ($decision['stageId'] === WORKFLOW_STAGE_ID_EXTERNAL_REVIEW && $decision['decision'] === Decision::DECLINE) {
+			if ($decision['stageId'] === WORKFLOW_STAGE_ID_EXTERNAL_REVIEW && $decision['decision'] === SUBMISSION_EDITOR_DECISION_DECLINE) {
 				$acceptedDate = $decision['dateDecided'];
 				break; // Get accepted date of rejected revision stage
 			}
@@ -389,7 +389,8 @@ class JatsParserPlugin extends GenericPlugin
 		$dia  = $partes[2] ?? '';
 		$datePublished = ($dia && $mes && $anio) ? "$dia/$mes/$anio" : '';
 
-		$authors = array_values(iterator_to_array($publication->getData('authors')));
+		$authorsData = $publication->getData('authors');
+		$authors = is_array($authorsData) ? array_values($authorsData) : array_values(iterator_to_array($authorsData));
 		$simplifiedAuthors = array_map(function ($author) {
 			return $author->_data; // Extrae solo el contenido de '_data', así es más sencillo el acceso desde todos lados
 		}, $authors);
@@ -399,13 +400,13 @@ class JatsParserPlugin extends GenericPlugin
 			'section_title' => $section ? $section->getLocalizedTitle() : null,
 			'citation_style' => $plugin->getCitationStyle($context),
 			'publication_id' => $publication->getId(),
-			'doi' => $publication->getDoi(),
+			'doi' => $publication->getData('pub-id::doi'),
 			'journal_id' => $journal->getId(),
 			'authors' => $simplifiedAuthors,
 			'online_issn' => $journal->getData('onlineIssn'),
 			'journal_title' => $journal->getLocalizedData('name'),
 			'journal_issue' => $publication->getData('issueId'),
-			'locale_key' => FacadesLocale::getLocale(),
+			'locale_key' => AppLocale::getLocale(),
 			'article_locale_key' => $publication->getData('locale'),
 			'journal_thumbnail' => $journal->getLocalizedData('journalThumbnail'),
 			'full_title' => $publication->getLocalizedFullTitle($localeKey),
@@ -558,6 +559,8 @@ class JatsParserPlugin extends GenericPlugin
 			]
 		}';
 		$schema->properties->{'jatsParser::fullTextFileId'} = json_decode($propId);
+		$schema->properties->{'jatsParser::fullText'} = json_decode($propText);
+		$schema->properties->{'jatsParser::citationTableData'} = json_decode($propText);
 	}
 
 	/**
@@ -851,7 +854,7 @@ class JatsParserPlugin extends GenericPlugin
 	 * @param Publication $publication publication associated with a submission file
 	 * @brief creates a new PDF submission file
 	 */
-	private function _setPdfSubmissionFile(string $pdfBinaryString, Publication $publication, Galley $galley)
+	private function _setPdfSubmissionFile(string $pdfBinaryString, Publication $publication, $galley)
 	{
 
 		$submission = Services::get('submission')->get($publication->getData('submissionId')); /* @var $submission Submission */
@@ -896,7 +899,7 @@ class JatsParserPlugin extends GenericPlugin
 				'assocId' => $galley->getId(),
 				'fileStage' => SUBMISSION_FILE_PROOF,
 				'mimetype' => 'application/pdf',
-				'locale' => 'uk',
+				'locale' => $galley->getLocale(),
 				'genreId' => $genre->getId(),
 				'name' => $name,
 				'submissionId' => $submission->getId(),
@@ -1049,46 +1052,32 @@ class JatsParserPlugin extends GenericPlugin
 		$output = &$args[2];
 		$publication = $templateMgr->getTemplateVars('publication');
 		$submission = $templateMgr->getTemplateVars('article');
-		
-		$fullTextFileIds = $publication->getData('jatsParser::fullTextFileId');
-		if (empty($fullTextFileIds)) return false;
+		$fullTexts = $publication->getData('jatsParser::fullText');
+
+		$submissionFileId = 0;
+		$submissionFile = null;
 
 		$request = $this->getRequest();
 		$html = null;
 
-		$currentLocale = PKP\facades\Locale::getLocale();
-		if (array_key_exists($currentLocale, $fullTextFileIds)) {
-			$submissionFileId = $fullTextFileIds[$currentLocale];
+		if (empty($fullTexts)) return false;
+		$currentLocale = AppLocale::getLocale();
+		if (array_key_exists($currentLocale, $fullTexts)) {
+			$html = $fullTexts[$currentLocale];
+
+			$submissionFileId = $publication->getData('jatsParser::fullTextFileId', $currentLocale);
 			$submissionFile = Services::get('submissionFile')->get($submissionFileId);
-			if ($submissionFile) {
-				$htmlDocument = $this->getFullTextFromJats($submissionFile);
-				$htmlString = $htmlDocument->saveAsHTML();
-
-				import('lib.pkp.classes.file.PrivateFileManager');
-				$privateFileManager = new PrivateFileManager();
-				$jatsFilePath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $submissionFile->getData('path');
-
-				$htmlString = $this->_setReferences($publication, $currentLocale, $htmlString, $jatsFilePath);
-				$htmlString = $this->_setFootnotes($publication, $currentLocale, $htmlString);
-				$htmlString = $this->_setSupplImgPath($submissionFile, $htmlString, true);
-
-				$html = $htmlString;
-			}
 		} else {
-			$locales = PKP\facades\Locale::getLocales();
+			$locales = AppLocale::getAllLocales();
 			$msg = __('plugins.generic.jatsParser.article.fulltext.availableLocale');
-			if (count($fullTextFileIds) > 1) {
+			if (count($fullTexts) > 1) {
 				$msg = __('plugins.generic.jatsParser.article.fulltext.availableLocales');
 			}
 
 			$html = '<p>' . $msg;
-			end($fullTextFileIds);
-			$lastKey = key($fullTextFileIds);
-			reset($fullTextFileIds);
-			
-			foreach ($fullTextFileIds as $localeKey => $fileId) {
+			foreach ($fullTexts as $localeKey => $fullText) {
 				$html .= ' <a href="' . $request->url(null, 'user', 'setLocale', $localeKey) . '">' . $locales[$localeKey] . '</a>';
-				if ($localeKey !== $lastKey) {
+				if ($fullText !== end($fullTexts)) {
 					$html .= ', ';
 				} else {
 					$html .= '.';
@@ -1103,10 +1092,9 @@ class JatsParserPlugin extends GenericPlugin
 			$html = $this->_setSupplImgPath($submissionFile, $html, true);
 		}
 
+		$request = $this->getRequest();
+		$templateMgr->assign('jatsParserPluginUrl', $request->getBaseUrl() . '/' . $this->getPluginPath());
 		$templateMgr->assign('fullText', $html);
-		// Provide the plugin base URL so the template can load plugin assets
-		$baseUrl = $request->getBaseUrl() . '/' . $this->getPluginPath();
-		$templateMgr->assign('jatsParserPluginUrl', $baseUrl);
 		$output .= $templateMgr->fetch($this->getTemplateResource('articleMainView.tpl'));
 		return false;
 	}
@@ -1119,30 +1107,23 @@ class JatsParserPlugin extends GenericPlugin
 	 */
 	function _setSupplImgPath(SubmissionFile $submissionFile, string $htmlString, bool $useBase64 = false): string
 	{
-
-		$dependentFilesIterator = Services::get('submissionFile')->getMany([
+		$dependentFiles = Services::get('submissionFile')->getMany([
+			'assocTypes' => [ASSOC_TYPE_SUBMISSION_FILE],
+			'assocIds' => [$submissionFile->getId()],
 			'submissionIds' => [$submissionFile->getData('submissionId')],
+			'fileStages' => [SUBMISSION_FILE_DEPENDENT],
 		]);
-		$dependentFilesIterator = array_filter($dependentFilesIterator, function ($file) use ($submissionFile) {
-			return $file->getData('assocType') === ASSOC_TYPE_SUBMISSION_FILE &&
-				$file->getData('assocId') === $submissionFile->getId();
-		});
-
 
 		$request = $this->getRequest();
 		$imageFiles = [];
 
 		$privateFileManager = new PrivateFileManager();
-
 		$genreDao = DAORegistry::getDAO('GenreDAO');
 
-		foreach ($dependentFilesIterator as $dependentFile) {
-
+		foreach ($dependentFiles as $dependentFile) {
 			$genre = $genreDao->getById($dependentFile->getData('genreId'));
-			if ($genre->getCategory() !== GENRE_CATEGORY_ARTWORK) continue; // only art works are supported
-			if (!in_array($dependentFile->getData('mimetype'), self::getSupportedSupplFileTypes())) continue; // check if MIME type is supported
-
-			$submissionId = $submissionFile->getData('submissionId');
+			if (!$genre || ($genre->getCategory() !== GENRE_CATEGORY_ARTWORK && $genre->getCategory() !== GENRE_CATEGORY_OTHER)) continue;
+			if (!in_array($dependentFile->getData('mimetype'), self::getSupportedSupplFileTypes())) continue;
 
 			$imgPath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $dependentFile->getData('path');
 
@@ -1169,15 +1150,15 @@ class JatsParserPlugin extends GenericPlugin
 			}
 		}
 
+		if (empty($imageFiles)) return $htmlString;
 
-		if (empty($imageFiles)) return  $htmlString;
-
-		// Solution from HtmlArticleGalleyPlugin::_getHTMLContents
+		// Substitute paths in HTML
 		foreach ($imageFiles as $originalFileName => $filePath) {
-			$pattern = preg_quote(rawurlencode($originalFileName));
+			$patternEncoded = preg_quote(rawurlencode($originalFileName));
+			$patternLiteral = preg_quote($originalFileName);
 
 			$htmlString = preg_replace(
-				'/([Ss][Rr][Cc]|[Hh][Rr][Ee][Ff]|[Dd][Aa][Tt][Aa])\s*=\s*"([^"]*' . $pattern . ')"/',
+				'/([Ss][Rr][Cc]|[Hh][Rr][Ee][Ff]|[Dd][Aa][Tt][Aa])\s*=\s*"([^"]*(' . $patternEncoded . '|' . $patternLiteral . '))"/',
 				'\1="' . $filePath . '"',
 				$htmlString
 			);
@@ -1267,6 +1248,13 @@ class JatsParserPlugin extends GenericPlugin
 		$templateMgr->addStyleSheet(
 			'citationTableCss',
 			$cssPath,
+		);
+
+		// Cargar preview.css para la previsualización del artículo
+		$request = $this->getRequest();
+		$templateMgr->addStyleSheet(
+			'jatsParserPreview',
+			$request->getBaseUrl() . '/' . $this->getPluginPath() . '/resources/styles/preview.css'
 		);
 		////////////////////////////////////////////
 

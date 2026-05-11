@@ -546,3 +546,5 @@ msgstr "Está a punto de eliminar este archivo, esta acción es irreversible. ¿
 msgid "plugins.generic.jatsparser.pdf.file.delete_prompt"
 msgstr "Está a punto de eliminar este archivo, esta acción es irreversible. ¿Desea continuar?"
 
+msgid "UNLP"
+msgstr "UNLP"
