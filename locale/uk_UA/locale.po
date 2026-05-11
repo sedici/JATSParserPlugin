@@ -6,415 +6,208 @@ msgstr ""
 msgid "plugins.generic.jatsParser.displayName"
 msgstr "JATSParser плагін"
 
-msgid "plugins.generic.jatsparser.displayName"
-msgstr "JATSParser плагін"
-
 msgid "plugins.generic.jatsParser.description"
-msgstr "Перетворює JATS XML в HTML та PDF для відображення на сторінці галереї"
-
-msgid "plugins.generic.jatsparser.description"
 msgstr "Перетворює JATS XML в HTML та PDF для відображення на сторінці галереї"
 
 msgid "plugins.generic.jatsParser.article.fulltext.availableLocale"
 msgstr "Повний текст статті доступний для такої мови:"
 
-msgid "plugins.generic.jatsparser.article.fulltext.availableLocale"
-msgstr "Повний текст статті доступний для такої мови:"
-
 msgid "plugins.generic.jatsParser.article.fulltext.availableLocales"
-msgstr "Повний текст статті доступний для таких мов:"
-
-msgid "plugins.generic.jatsparser.article.fulltext.availableLocales"
 msgstr "Повний текст статті доступний для таких мов:"
 
 msgid "plugins.generic.jatsParser.workflow.settings"
 msgstr "Налаштування JATS парсера"
 
-msgid "plugins.generic.jatsparser.workflow.settings"
-msgstr "Налаштування JATS парсера"
-
 msgid "plugins.generic.jatsParser.settings.description"
-msgstr "Форма налаштувань для плагіна JATSParser"
-
-msgid "plugins.generic.jatsparser.settings.description"
 msgstr "Форма налаштувань для плагіна JATSParser"
 
 msgid "plugins.generic.jatsParser.settings.covert.pdf"
 msgstr "Активувати перетворення JATS XML в PDF"
 
-msgid "plugins.generic.jatsparser.settings.covert.pdf"
-msgstr "Активувати перетворення JATS XML в PDF"
-
 msgid "plugins.generic.jatsParser.galley.import"
-msgstr "Завантаження гранок JATS XML"
-
-msgid "plugins.generic.jatsparser.galley.import"
 msgstr "Завантаження гранок JATS XML"
 
 msgid "plugins.generic.jatsParser.galley.import.description"
 msgstr "Ця опція дозволяє завантажити повний текст для всіх публікацій із гранок у форматі JATS XML. Завантаження не відбудеться якщо публікація вже має повний текст. Імпорт почнеться одразу після збереження цієї форми"
 
-msgid "plugins.generic.jatsparser.galley.import.description"
-msgstr "Ця опція дозволяє завантажити повний текст для всіх публікацій із гранок у форматі JATS XML. Завантаження не відбудеться якщо публікація вже має повний текст. Імпорт почнеться одразу після збереження цієї форми"
-
 msgid "plugins.generic.jatsParser.galley.import.title"
-msgstr "Завантаження повного тексту із гранок"
-
-msgid "plugins.generic.jatsparser.galley.import.title"
 msgstr "Завантаження повного тексту із гранок"
 
 msgid "plugins.generic.jatsParser.publication.jats.fulltext"
 msgstr "Повний текст"
 
-msgid "plugins.generic.jatsparser.publication.jats.fulltext"
-msgstr "Повний текст"
-
 msgid "plugins.generic.jatsParser.publication.jats.fulltext.success"
-msgstr "Повний текст успішно завантажився"
-
-msgid "plugins.generic.jatsparser.publication.jats.fulltext.success"
 msgstr "Повний текст успішно завантажився"
 
 msgid "plugins.generic.jatsParser.publication.jats.label"
 msgstr "Створити повний текст"
 
-msgid "plugins.generic.jatsparser.publication.jats.label"
-msgstr "Створити повний текст"
-
 msgid "plugins.generic.jatsParser.publication.jats.description"
-msgstr "Виберіть зверстаний файл у форматі JATS XML для створення повного тексту."
-
-msgid "plugins.generic.jatsparser.publication.jats.description"
 msgstr "Виберіть зверстаний файл у форматі JATS XML для створення повного тексту."
 
 msgid "plugins.generic.jatsParser.publication.jats.descriptionEmpty"
 msgstr "Список файлів у форматі JATS XML порожній. Будь ласка, завантажте файл на стадії верстки для того, щоб він став доступний для створення повного тексту."
 
-msgid "plugins.generic.jatsparser.publication.jats.descriptionEmpty"
-msgstr "Список файлів у форматі JATS XML порожній. Будь ласка, завантажте файл на стадії верстки для того, щоб він став доступний для створення повного тексту."
-
 msgid "plugins.generic.jatsParser.publication.jats.references.label"
-msgstr "Взяти бібліографічний список з JATS XML файлу?"
-
-msgid "plugins.generic.jatsparser.publication.jats.references.label"
 msgstr "Взяти бібліографічний список з JATS XML файлу?"
 
 msgid "plugins.generic.jatsParser.publication.jats.references.description"
 msgstr "Бібліографічний список буде взятий із JATS XML та збережений як частина публікації. Всі посилання, вже включені у публікацію, будуть переписані."
 
-msgid "plugins.generic.jatsparser.publication.jats.references.description"
-msgstr "Бібліографічний список буде взятий із JATS XML та збережений як частина публікації. Всі посилання, вже включені у публікацію, будуть переписані."
-
 msgid "plugins.generic.jatsParser.publication.jats.pdf.label"
-msgstr "Створити PDF гранку?"
-
-msgid "plugins.generic.jatsparser.publication.jats.pdf.label"
 msgstr "Створити PDF гранку?"
 
 msgid "plugins.generic.jatsParser.publication.galley.pdf.label"
 msgstr "PDF"
 
-msgid "plugins.generic.jatsparser.publication.galley.pdf.label"
-msgstr "PDF"
-
 msgid "plugins.generic.jatsParser.publication.galley.html.label"
-msgstr "HTML"
-
-msgid "plugins.generic.jatsparser.publication.galley.html.label"
 msgstr "HTML"
 
 msgid "plugins.generic.jatsParser.style.acm-sig-proceedings"
 msgstr "ACM"
 
-msgid "plugins.generic.jatsparser.style.acm-sig-proceedings"
-msgstr "ACM"
-
 msgid "plugins.generic.jatsParser.style.acs-nano"
-msgstr "ACS"
-
-msgid "plugins.generic.jatsparser.style.acs-nano"
 msgstr "ACS"
 
 msgid "plugins.generic.jatsParser.style.apa"
 msgstr "APA"
 
-msgid "plugins.generic.jatsparser.style.apa"
-msgstr "APA"
-
 msgid "plugins.generic.jatsParser.style.associacao-brasileira-de-normas-tecnicas"
-msgstr "ABNT"
-
-msgid "plugins.generic.jatsparser.style.associacao-brasileira-de-normas-tecnicas"
 msgstr "ABNT"
 
 msgid "plugins.generic.jatsParser.style.chicago-author-date"
 msgstr "Chicago"
 
-msgid "plugins.generic.jatsparser.style.chicago-author-date"
-msgstr "Chicago"
-
 msgid "plugins.generic.jatsParser.style.harvard-cite-them-right"
-msgstr "Harvard"
-
-msgid "plugins.generic.jatsparser.style.harvard-cite-them-right"
 msgstr "Harvard"
 
 msgid "plugins.generic.jatsParser.style.ieee"
 msgstr "IEEE"
 
-msgid "plugins.generic.jatsparser.style.ieee"
-msgstr "IEEE"
-
 msgid "plugins.generic.jatsParser.style.modern-language-association"
-msgstr "MLA"
-
-msgid "plugins.generic.jatsparser.style.modern-language-association"
 msgstr "MLA"
 
 msgid "plugins.generic.jatsParser.style.turabian-fullnote-bibliography"
 msgstr "Turabian"
 
-msgid "plugins.generic.jatsparser.style.turabian-fullnote-bibliography"
-msgstr "Turabian"
-
 msgid "plugins.generic.jatsParser.style.vancouver"
-msgstr "Vancouver"
-
-msgid "plugins.generic.jatsparser.style.vancouver"
 msgstr "Vancouver"
 
 msgid "plugins.generic.jatsParser.style.custom"
 msgstr "Інші стилі цитувань"
 
-msgid "plugins.generic.jatsparser.style.custom"
-msgstr "Інші стилі цитувань"
-
 msgid "plugins.generic.jatsParser.style.description"
-msgstr "Стиль цитування для посилань, який буде використовуватись плагіном. Для інших стилів цитувань зверніть увагу на <a target=\\\"_blank\\\" href=\\\"https://github.com/citation-style-language/styles\\\">CSL репозиторій</a>, щоб упевнитись що він підтримується."
-
-msgid "plugins.generic.jatsparser.style.description"
 msgstr "Стиль цитування для посилань, який буде використовуватись плагіном. Для інших стилів цитувань зверніть увагу на <a target=\\\"_blank\\\" href=\\\"https://github.com/citation-style-language/styles\\\">CSL репозиторій</a>, щоб упевнитись що він підтримується."
 
 msgid "plugins.generic.jatsParser.style.label"
 msgstr "наприклад: american-medical-association"
 
-msgid "plugins.generic.jatsparser.style.label"
-msgstr "наприклад: american-medical-association"
-
 msgid "plugins.generic.jatsParser.publication.jats.links.label"
-msgstr "Відформатувати посилання на бібліографічний список в тексті статті?"
-
-msgid "plugins.generic.jatsparser.publication.jats.links.label"
 msgstr "Відформатувати посилання на бібліографічний список в тексті статті?"
 
 msgid "plugins.generic.jatsParser.pdf.abstract"
 msgstr "Резюме"
 
-msgid "plugins.generic.jatsparser.pdf.abstract"
-msgstr "Резюме"
-
 msgid "plugins.generic.jatsParser.publication.jats.citationStyle.label"
-msgstr "Таблиця призначення"
-
-msgid "plugins.generic.jatsparser.publication.jats.citationStyle.label"
 msgstr "Таблиця призначення"
 
 msgid "plugins.generic.jatsParser.file.not.found"
 msgstr "Відсутні файли для вибраного шаблону"
 
-msgid "plugins.generic.jatsparser.file.not.found"
-msgstr "Відсутні файли для вибраного шаблону"
-
 msgid "plugins.generic.jatsParser.template.config"
-msgstr "Налаштування шаблону"
-
-msgid "plugins.generic.jatsparser.template.config"
 msgstr "Налаштування шаблону"
 
 msgid "plugins.generic.jatsParser.margins.config"
 msgstr "Налаштування полів (міліметри)"
 
-msgid "plugins.generic.jatsparser.margins.config"
-msgstr "Налаштування полів (міліметри)"
-
 msgid "plugins.generic.jatsParser.files.config"
-msgstr "Налаштування файлів"
-
-msgid "plugins.generic.jatsparser.files.config"
 msgstr "Налаштування файлів"
 
 msgid "plugins.generic.jatsParser.top.margin"
 msgstr "Верхнє поле"
 
-msgid "plugins.generic.jatsparser.top.margin"
-msgstr "Верхнє поле"
-
 msgid "plugins.generic.jatsParser.bottom.margin"
-msgstr "Нижнє поле"
-
-msgid "plugins.generic.jatsparser.bottom.margin"
 msgstr "Нижнє поле"
 
 msgid "plugins.generic.jatsParser.left.margin"
 msgstr "Ліве поле"
 
-msgid "plugins.generic.jatsparser.left.margin"
-msgstr "Ліве поле"
-
 msgid "plugins.generic.jatsParser.right.margin"
-msgstr "Праве поле"
-
-msgid "plugins.generic.jatsparser.right.margin"
 msgstr "Праве поле"
 
 msgid "plugins.generic.jatsParser.empty.template"
 msgstr "Шаблон не вибрано"
 
-msgid "plugins.generic.jatsparser.empty.template"
-msgstr "Шаблон не вибрано"
-
 msgid "plugins.generic.jatsParser.pdf.config.button"
-msgstr "Налаштування для шаблонів PDF"
-
-msgid "plugins.generic.jatsparser.pdf.config.button"
 msgstr "Налаштування для шаблонів PDF"
 
 msgid "plugins.generic.jatsParser.pdf.settings.button"
 msgstr "Налаштування PDF"
 
-msgid "plugins.generic.jatsparser.pdf.settings.button"
-msgstr "Налаштування PDF"
-
 msgid "plugins.generic.jatsParser.pdf.empty.template"
-msgstr "Порожньо"
-
-msgid "plugins.generic.jatsparser.pdf.empty.template"
 msgstr "Порожньо"
 
 msgid "plugins.generic.jatsParser.pdf.settings.tab"
 msgstr "Налаштування шаблонів PDF"
 
-msgid "plugins.generic.jatsparser.pdf.settings.tab"
-msgstr "Налаштування шаблонів PDF"
-
 msgid "plugins.generic.jatsParser.pdf.download.template"
-msgstr "Завантажити шаблон"
-
-msgid "plugins.generic.jatsparser.pdf.download.template"
 msgstr "Завантажити шаблон"
 
 msgid "plugins.generic.jatsParser.pdf.error.loading"
 msgstr "Сталася помилка під час завантаження цієї сторінки."
 
-msgid "plugins.generic.jatsparser.pdf.error.loading"
-msgstr "Сталася помилка під час завантаження цієї сторінки."
-
 msgid "plugins.generic.jatsParser.pdf.upload.file"
-msgstr "Завантажити файл"
-
-msgid "plugins.generic.jatsparser.pdf.upload.file"
 msgstr "Завантажити файл"
 
 msgid "plugins.generic.jatsParser.pdf.reset"
 msgstr "Скинути до початкового"
 
-msgid "plugins.generic.jatsparser.pdf.reset"
-msgstr "Скинути до початкового"
-
 msgid "plugins.generic.jatsParser.pdf.custom.file"
-msgstr "власний файл"
-
-msgid "plugins.generic.jatsparser.pdf.custom.file"
 msgstr "власний файл"
 
 msgid "plugins.generic.jatsParser.pdf.artifact"
 msgstr "Частина"
 
-msgid "plugins.generic.jatsparser.pdf.artifact"
-msgstr "Частина"
-
 msgid "plugins.generic.jatsParser.pdf.plugin.file"
-msgstr "Оригінал"
-
-msgid "plugins.generic.jatsparser.pdf.plugin.file"
 msgstr "Оригінал"
 
 msgid "plugins.generic.jatsParser.pdf.local.file"
 msgstr "Власний"
 
-msgid "plugins.generic.jatsparser.pdf.local.file"
-msgstr "Власний"
-
 msgid "plugins.generic.jatsParser.pdf.file.actions"
-msgstr "Дії"
-
-msgid "plugins.generic.jatsparser.pdf.file.actions"
 msgstr "Дії"
 
 msgid "plugins.generic.jatsParser.pdf.selected.template.title"
 msgstr "Вибраний шаблон:"
 
-msgid "plugins.generic.jatsparser.pdf.selected.template.title"
-msgstr "Вибраний шаблон:"
-
 msgid "plugins.generic.jatsParser.pdf.journal_logo"
-msgstr "Логотип журналу"
-
-msgid "plugins.generic.jatsparser.pdf.journal_logo"
 msgstr "Логотип журналу"
 
 msgid "plugins.generic.jatsParser.pdf.institution_logo"
 msgstr "Логотип установи"
 
-msgid "plugins.generic.jatsparser.pdf.institution_logo"
-msgstr "Логотип установи"
-
 msgid "plugins.generic.jatsParser.pdf.custom_css"
-msgstr "Власний CSS"
-
-msgid "plugins.generic.jatsparser.pdf.custom_css"
 msgstr "Власний CSS"
 
 msgid "plugins.generic.jatsParser.pdf.parts_table.cancel"
 msgstr "Скасувати"
 
-msgid "plugins.generic.jatsparser.pdf.parts_table.cancel"
-msgstr "Скасувати"
-
 msgid "plugins.generic.jatsParser.pdf.parts_table.save"
-msgstr "Зберегти"
-
-msgid "plugins.generic.jatsparser.pdf.parts_table.save"
 msgstr "Зберегти"
 
 msgid "plugins.generic.jatsParser.pdf.parts_table.download_original"
 msgstr "Завантажити оригінальний шаблон"
 
-msgid "plugins.generic.jatsparser.pdf.parts_table.download_original"
-msgstr "Завантажити оригінальний шаблон"
-
 msgid "plugins.generic.jatsParser.pdf.parts_table.download_current"
-msgstr "Завантажити змінений шаблон"
-
-msgid "plugins.generic.jatsparser.pdf.parts_table.download_current"
 msgstr "Завантажити змінений шаблон"
 
 msgid "plugins.generic.jatsParser.pdf.basic_config"
 msgstr "Базова конфігурація"
 
-msgid "plugins.generic.jatsparser.pdf.basic_config"
-msgstr "Базова конфігурація"
-
 msgid "plugins.generic.jatsParser.pdf.intermediate_config"
 msgstr "Проміжна конфігурація"
 
-msgid "plugins.generic.jatsparser.pdf.intermediate_config"
-msgstr "Проміжна конфігурація"
-
 msgid "plugins.generic.jatsParser.pdf.advanced_config"
-msgstr "Розширена конфігурація"
-
-msgid "plugins.generic.jatsparser.pdf.advanced_config"
 msgstr "Розширена конфігурація"
 
 msgid "UNLP"
