@@ -523,8 +523,18 @@ class JatsParserPlugin extends GenericPlugin
 		$html = HTMLOutputStrategy::generateOutput($this, $fileMgr, $journalId, $localeKey, $fileId, $htmlString, $configuration, $metadata, $ojsConfiguration);
 
 		// Me quedo solo con lo que esté dentro del tag <html> del HTML, descartando lo demás
-		if (preg_match('/<html[^>]*>(.*?)<\/html>/is', $html, $matches)) {
-			$html = $matches[1];
+		// Buscamos el inicio desde el principio
+		$startPos = stripos($html, '<html');
+
+		if ($startPos !== false) {
+			$openTagEnd = strpos($html, '>', $startPos);
+
+			// Buscamos el cierre DESDE EL FINAL hacia atrás (Muy eficiente si está al final)
+			$endPos = strripos($html, '</html>');
+
+			if ($openTagEnd !== false && $endPos !== false && $endPos > $openTagEnd) {
+				$html = substr($html, $openTagEnd + 1, $endPos - ($openTagEnd + 1));
+			}
 		}
 
 		$publication->setData('jatsParser::fullText', $html, $localeKey);
