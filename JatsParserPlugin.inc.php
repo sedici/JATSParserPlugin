@@ -555,6 +555,7 @@ class JatsParserPlugin extends GenericPlugin
 		return $html;
 	}
 
+	
 	/**
 	 * Add a property to the publication schema
 	 *
