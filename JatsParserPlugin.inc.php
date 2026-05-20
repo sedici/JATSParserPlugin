@@ -537,214 +537,25 @@ class JatsParserPlugin extends GenericPlugin
 		$html = HTMLOutputStrategy::generateOutput($this, $fileMgr, $journalId, $localeKey, $fileId, $htmlString, $configuration, $metadata, $ojsConfiguration);
 
 		// Me quedo solo con lo que esté dentro del tag <html> del HTML, descartando lo demás
-		if (preg_match('/<html[^>]*>(.*?)<\/html>/is', $html, $matches)) {
-			$html = $matches[1];
-		}
+		// Buscamos el inicio desde el principio
+		$startPos = stripos($html, '<html');
 
-		// Inyectamos estilos quirúrgicos para la previsualización (Tablas, figuras, citas, etc)
-		// Solo incluimos los estilos esenciales del cuerpo del artículo según lo solicitado
-		$css = <<<CSS
-			a {
-				text-decoration: none;
-				color: rgb(61, 145, 191);
-			}
+		if ($startPos !== false) {
+			$openTagEnd = strpos($html, '>', $startPos);
 
-			p {
-				font-size: 14px;
-			}
+			// Buscamos el cierre DESDE EL FINAL hacia atrás (Muy eficiente si está al final)
+			$endPos = strripos($html, '</html>');
 
-			p, a, span, .table, li, ul, ol {
-				font-family: 'FreeSerif', sans-serif;
-				text-align: left;
+			if ($openTagEnd !== false && $endPos !== false && $endPos > $openTagEnd) {
+				$html = substr($html, $openTagEnd + 1, $endPos - ($openTagEnd + 1));
 			}
-
-			h1, h2, h3, h4, h5 {
-				font-family: 'FreeSerif', sans-serif;
-				text-align: left;
-			}
-
-			h1, h2, h3, h4, h5 {
-				margin-top: 40px;
-				margin-bottom: 0px;
-				padding: 0;
-			}
-
-			.table {
-				border: 1px solid #333;
-				border-collapse: collapse;
-				margin-top: 10px;
-				margin-bottom: 0px;
-				margin-left: auto;
-				margin-right: auto;
-				page-break-inside: avoid;
-				table-layout: fixed;
-				width: 100%;
-			}
-
-			a.table {
-				border: none;
-			}
-
-			.table th, .table td {
-				padding: 2mm 5mm;
-				border: 1px solid #333;
-				text-align: center;
-				vertical-align: middle;
-				word-wrap: break-word;
-				overflow-wrap: break-word;
-			}
-
-			.table th {
-				background-color: #f2f2f2;
-				font-weight: bold;
-			}
-
-			.title, .notes, .caption-title, .caption-notes, caption {
-				text-align: center;
-			}
-
-			.figure, img {
-				margin-left: auto;
-				margin-right: auto;
-				display: block;
-			}
-
-			figure {
-				display: block;
-				width: 100%;
-				text-align: center;
-				margin-top: 25px;
-				margin-bottom: 25px;
-			}
-
-			figure img {
-				display: block;
-				margin: 0 auto;
-				max-width: 100%;
-			}
-
-			/* Asegurar que la figura y cualquier fila se mantengan dentro del límite */
-			.figure, figure {
-				margin-left: auto;
-				margin-right: auto;
-			}
-
-			.caption-title, .caption-notes {
-				display: block;
-				text-align: center;
-				width: 100%;
-			}
-
-			caption {
-				text-align: center;
-				margin-top: 15px;
-				margin-bottom: 4px;
-				font-weight: bold;
-			}
-
-			.table-notes {
-				display: block;
-				margin-top: 5px;
-				margin-bottom: 40px;
-				text-align: center;
-				font-size: 12px;
-			}
-
-			blockquote {
-				font-size: 10px;
-				border-left-color: #31849b;
-				border-left-width: 4px;
-				border-left-style: solid;
-				padding: 0 0 0 15px;
-				margin: 5px 0 5px 30px;
-			}
-
-			blockquote p, blockquote span, blockquote cite {
-				font-size: 12px !important;
-				line-height: 1.5 !important;
-				margin: 2 !important;
-			}
-
-			blockquote cite {
-				display: block;
-				text-align: right;
-			}
-			
-			/* Desplazamiento suave para los anclajes de las citas */
-			html {
-				scroll-behavior: smooth;
-			}
-			
-			.author-biographies-section {
-				margin-top: 40px;
-				margin-bottom: 40px;
-			}
-			.author-biographies-section h2 {
-				margin-bottom: 25px;
-				font-weight: bold;
-			}
-			.author-bio {
-				margin-bottom: 25px;
-			}
-			.author-name {
-				font-weight: bold;
-				display: block;
-				margin-bottom: 0px; /* Reducido a cero para contrarrestar el margen del párrafo */
-				font-size: 1.05em;
-			}
-			.author-bio-text p:first-child {
-				margin-top: 4px; /* Un pequeñísimo respiro entre el nombre y el texto */
-			}
-			
-			/* Estilos para limpiar las referencias (quitar viñetas/números) */
-			.citation-list {
-				list-style: none;
-				padding-left: 0;
-				margin-left: 0;
-			}
-			.citation-item {
-				list-style-type: none;
-				margin-bottom: 12px;
-				text-indent: -20px;
-				padding-left: 20px;
-				transition: background-color 0.3s ease;
-			}
-			.footnote-label {
-				font-weight: bold;
-				color: #31849b;
-			}
-			
-			/* Resaltado del texto de la referencia/nota al redirigirse a ella desde una cita */
-			.citation-item:target, .footnote-item:target {
-				background-color: #ffe69c;
-				box-shadow: -4px 0 0 0 #e5a100;
-				padding-left: 28px;
-				margin-left: -8px;
-				border-radius: 2px;
-			}
-
-			section.item.references {
-				display: none;
-			}
-
-			/* Resaltado de la cita en el texto al volver desde la referencia o nota */
-			a[id^="citation_"]:target + a,
-			a[id^="citation_"]:target + sup a {
-				background-color: #ffe69c;
-				box-shadow: 0 0 0 2px #ffe69c;
-				border-radius: 2px;
-				transition: background-color 0.5s ease;
-			}
-			CSS;
-
-		if (!empty($css)) {
-			$html = "<style>\n$css\n</style>\n" . $html;
 		}
 
 		$publication->setData('jatsParser::fullText', $html, $localeKey);
 		return $html;
 	}
 
+	
 	/**
 	 * Add a property to the publication schema
 	 *
@@ -1319,6 +1130,9 @@ class JatsParserPlugin extends GenericPlugin
 		}
 
 		$templateMgr->assign('fullText', $html);
+		// Provide the plugin base URL so the template can load plugin assets
+		$baseUrl = $request->getBaseUrl() . '/' . $this->getPluginPath();
+		$templateMgr->assign('jatsParserPluginUrl', $baseUrl);
 		$output .= $templateMgr->fetch($this->getTemplateResource('articleMainView.tpl'));
 		return false;
 	}
