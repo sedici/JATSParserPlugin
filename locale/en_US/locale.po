@@ -1,15 +1,7 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2021-03-01T09:34:26+00:00\n"
-"PO-Revision-Date: 2021-03-01T09:34:26+00:00\n"
-"Language: \n"
 
 msgid "plugins.generic.jatsParser.displayName"
 msgstr "JATSParser Plugin"
@@ -68,6 +60,9 @@ msgstr "Create PDF Galley?"
 msgid "plugins.generic.jatsParser.publication.galley.pdf.label"
 msgstr "PDF"
 
+msgid "plugins.generic.jatsParser.publication.galley.html.label"
+msgstr "HTML"
+
 msgid "plugins.generic.jatsParser.style.acm-sig-proceedings"
 msgstr "ACM"
 
@@ -102,7 +97,7 @@ msgid "plugins.generic.jatsParser.style.custom"
 msgstr "Other citation style formats"
 
 msgid "plugins.generic.jatsParser.style.description"
-msgstr "The style format for references parsed by the plugin. For other styles, visit <a target=\"_blank\" href=\"https://github.com/citation-style-language/styles\">CSL repository</a> to see if it's supported."
+msgstr "The style format for references parsed by the plugin. For other styles, visit <a target=\\\"_blank\\\" href=\\\"https://github.com/citation-style-language/styles\\\">CSL repository</a> to see if it's supported."
 
 msgid "plugins.generic.jatsParser.style.label"
 msgstr "e.g.: american-medical-association"
@@ -126,19 +121,22 @@ msgid "plugins.generic.citationtable.citations.notfound"
 msgstr "No citations were found in the article."
 
 msgid "plugins.generic.jatsParser.citationtable.titlecontext"
-msgstr "Context"
-
-msgid "plugins.generic.jatsParser.citationtable.titlecontext"
 msgstr "Contexto"
 
 msgid "plugins.generic.jatsParser.citationtable.titlereferences"
 msgstr "References"
 
+msgid "plugins.generic.jatsParser.citationtable.titlefigsandtables"
+msgstr "Tables and Figures"
+
+msgid "plugins.generic.jatsParser.citationtable.figandtables.titles"
+msgstr "Titles"
+
 msgid "plugins.generic.jatsParser.citationtable.titlecitationstyle"
 msgstr "Style of Citation"
 
 msgid "plugins.generic.jatsParser.citationtable.savebuttontext"
-msgstr "Save Citations"
+msgstr "Save"
 
 msgid "plugins.generic.jatsParser.citationtable.customtext"
 msgstr "Other"
@@ -147,7 +145,7 @@ msgid "plugins.generic.jatsParser.citationtable.citationstyle.twoauthors.separat
 msgstr "&"
 
 msgid "plugins.generic.jatsParser.article.footnotes.title"
-msgstr "Footnotes"
+msgstr "Endnotes"
 
 msgid "plugins.generic.jatsParser.article.references.title"
 msgstr "References"
@@ -157,3 +155,111 @@ msgstr "Figure"
 
 msgid "plugins.generic.jatsParser.table.title"
 msgstr "Table"
+
+msgid "plugins.generic.jatsParser.file.not.found"
+msgstr "Missing files for the selected template"
+
+msgid "plugins.generic.jatsParser.template.config"
+msgstr "Templates configuration"
+
+msgid "plugins.generic.jatsParser.margins.config"
+msgstr "Margins configuration (millimeters)"
+
+msgid "plugins.generic.jatsParser.files.config"
+msgstr "Files configuration"
+
+msgid "plugins.generic.jatsParser.top.margin"
+msgstr "Top margin"
+
+msgid "plugins.generic.jatsParser.bottom.margin"
+msgstr "Bottom margin"
+
+msgid "plugins.generic.jatsParser.left.margin"
+msgstr "Left margin"
+
+msgid "plugins.generic.jatsParser.right.margin"
+msgstr "Right margin"
+
+msgid "plugins.generic.jatsParser.empty.template"
+msgstr "No template selected"
+
+msgid "plugins.generic.jatsParser.pdf.settings.button"
+msgstr "PDF Settings"
+
+msgid "plugins.generic.jatsParser.pdf.empty.template"
+msgstr "Empty"
+
+msgid "plugins.generic.jatsParser.pdf.settings.tab"
+msgstr "PDF Template Settings"
+
+msgid "plugins.generic.jatsParser.pdf.download.template"
+msgstr "Download template"
+
+msgid "plugins.generic.jatsParser.pdf.error.loading"
+msgstr "An error occurred while loading this page."
+
+msgid "plugins.generic.jatsParser.pdf.upload.file"
+msgstr "Upload file"
+
+msgid "plugins.generic.jatsParser.pdf.reset"
+msgstr "Reset to default"
+
+msgid "plugins.generic.jatsParser.pdf.custom.file"
+msgstr "custom file"
+
+msgid "plugins.generic.jatsParser.pdf.artifact"
+msgstr "Part"
+
+msgid "plugins.generic.jatsParser.pdf.plugin.file"
+msgstr "Original"
+
+msgid "plugins.generic.jatsParser.pdf.local.file"
+msgstr "Custom"
+
+msgid "plugins.generic.jatsParser.pdf.file.actions"
+msgstr "Actions"
+
+msgid "plugins.generic.jatsParser.pdf.selected.template.title"
+msgstr "Selected Template:"
+
+msgid "plugins.generic.jatsParser.pdf.journal_logo"
+msgstr "Journal logo"
+
+msgid "plugins.generic.jatsParser.pdf.institution_logo"
+msgstr "Institution logo"
+
+msgid "plugins.generic.jatsParser.pdf.custom_css"
+msgstr "Custom CSS"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.cancel"
+msgstr "Return"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.save"
+msgstr "Save"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.download_original"
+msgstr "Download original template"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.download_current"
+msgstr "Download modified template"
+
+msgid "plugins.generic.jatsParser.pdf.basic_config"
+msgstr "Basic configuration"
+
+msgid "plugins.generic.jatsParser.pdf.intermediate_config"
+msgstr "Intermediate configuration"
+
+msgid "plugins.generic.jatsParser.pdf.advanced_config"
+msgstr "Advanced configuration"
+
+msgid "plugins.generic.jatsParser.pdf.file.delete_prompt"
+msgstr "You're about to delete this file, this action is irreversible. Do you want to continue?"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.reset_all"
+msgstr "Reset all"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.reset_all_confirm"
+msgstr "Are you sure you want to remove all template modifications? This action is irreversible."
+
+msgid "UNLP"
+msgstr "UNLP"

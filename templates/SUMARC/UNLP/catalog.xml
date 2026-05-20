@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<catalog>
+  <template_name>UNLP</template_name>
+  <build>
+    <item id="1">frontpage</item>
+    <item id="2">body</item>
+    <item id="3">references</item>
+    <item id="4">footnotes</item>
+    <item id="5">import_css</item>
+  </build>
+  <media>
+    <item id="1">
+      <name>frontpage_css</name>
+      <file>frontpage.css</file>
+    </item>
+    <item id="2">
+      <name>body_css</name>
+      <file>body.css</file>
+    </item>
+    <item id="3">
+      <name>references_css</name>
+      <file>references.css</file>
+    </item>
+    <item id="4">
+      <name>footnotes_css</name>
+      <file>footnotes.css</file>
+    </item>
+    <item id="5">
+      <name>footer_css</name>
+      <file>footer.css</file>
+    </item>
+    <item id="6">
+      <name>header_css</name>
+      <file>header.css</file>
+    </item>
+    <item id="7">
+        <name>journal_logo</name>
+        <file>journal_logo.png</file>
+    </item>
+    <item id="8">
+      <name>institution_logo</name>
+      <file>institution_logo.png</file>
+    </item>
+    <item id="9">
+      <name>custom_css</name>
+      <file>custom_css.css</file>
+    </item>
+  </media>
+  <header>
+    <file>header.tpl</file>
+    <role>header</role>
+  </header>
+  <footer>
+    <file>footer.tpl</file>
+    <role>footer</role>
+  </footer>
+  <frontpage>
+    <file>frontpage.tpl</file>
+    <uses>
+      <use>footer</use>
+    </uses>
+  </frontpage>
+  <body>
+    <file>body.tpl</file>
+    <uses>
+      <use>header</use>
+      <use>footer</use>
+    </uses>
+  </body>
+  <references>
+    <file>references.tpl</file>
+    <uses>
+      <use>header</use>
+      <use>footer</use>
+    </uses>
+  </references>
+  <footnotes>
+    <file>footnotes.tpl</file>
+    <uses>
+      <use>header</use>
+      <use>footer</use>
+    </uses>
+  </footnotes>
+  <import_css>
+    <file>import_css.tpl</file>
+    <uses>
+      <use>footer</use>
+    </uses>
+  </import_css>
+</catalog>

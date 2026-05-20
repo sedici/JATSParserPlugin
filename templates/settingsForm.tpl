@@ -1,4 +1,4 @@
- {**
+{**
  * plugins/generic/JATSParserPlugin/settingsForm.tpl
  *
  * Copyright (c) 2017-2018 Vitalii Bezsheiko
@@ -43,9 +43,9 @@
 	{/fbvFormArea}
 
     {fbvFormArea id="jatsParserGalleyImport" title="plugins.generic.jatsParser.galley.import"}
-		{fbvFormSection for="galleysImport" list=true description="plugins.generic.jatsParser.galley.import.description"}
-			{fbvElement type="checkbox" id="galleysImport" name="galleysImport" label="plugins.generic.jatsParser.galley.import.title"}
-		{/fbvFormSection}
+			{fbvFormSection for="galleysImport" list=true description="plugins.generic.jatsParser.galley.import.description"}
+				{fbvElement type="checkbox" id="galleysImport" name="galleysImport" label="plugins.generic.jatsParser.galley.import.title"}
+			{/fbvFormSection}
     {/fbvFormArea}
 
 	{fbvFormButtons}
