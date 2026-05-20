@@ -1,0 +1,207 @@
+.jatsParser__article-fulltext a {
+	text-decoration: none;
+	color: rgb(61, 145, 191);
+}
+
+.jatsParser__article-fulltext p {
+	font-size: 14px;
+}
+
+.jatsParser__article-fulltext p,
+.jatsParser__article-fulltext a,
+.jatsParser__article-fulltext span,
+.jatsParser__article-fulltext .table,
+.jatsParser__article-fulltext li,
+.jatsParser__article-fulltext ul,
+.jatsParser__article-fulltext ol {
+	font-family: 'FreeSerif', sans-serif;
+	text-align: left;
+}
+
+.jatsParser__article-fulltext h1,
+.jatsParser__article-fulltext h2,
+.jatsParser__article-fulltext h3,
+.jatsParser__article-fulltext h4,
+.jatsParser__article-fulltext h5 {
+	font-family: 'FreeSerif', sans-serif;
+	text-align: left;
+}
+
+.jatsParser__article-fulltext h1,
+.jatsParser__article-fulltext h2,
+.jatsParser__article-fulltext h3,
+.jatsParser__article-fulltext h4,
+.jatsParser__article-fulltext h5 {
+	margin-top: 40px;
+	margin-bottom: 0px;
+	padding: 0;
+}
+
+.jatsParser__article-fulltext .table {
+	border: 1px solid #333;
+	border-collapse: collapse;
+	margin-top: 10px;
+	margin-bottom: 0px;
+	margin-left: auto;
+	margin-right: auto;
+	page-break-inside: avoid;
+	table-layout: fixed;
+	width: 100%;
+}
+
+.jatsParser__article-fulltext a.table {
+	border: none;
+}
+
+.jatsParser__article-fulltext .table th,
+.jatsParser__article-fulltext .table td {
+	padding: 2mm 5mm;
+	border: 1px solid #333;
+	text-align: center;
+	vertical-align: middle;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+}
+
+.jatsParser__article-fulltext .table th {
+	background-color: #f2f2f2;
+	font-weight: bold;
+}
+
+.jatsParser__article-fulltext .title,
+.jatsParser__article-fulltext .notes,
+.jatsParser__article-fulltext .caption-title,
+.jatsParser__article-fulltext .caption-notes,
+.jatsParser__article-fulltext caption {
+	text-align: center;
+}
+
+.jatsParser__article-fulltext .figure,
+.jatsParser__article-fulltext img {
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
+}
+
+.jatsParser__article-fulltext figure {
+	display: block;
+	width: 100%;
+	text-align: center;
+	margin-top: 25px;
+	margin-bottom: 25px;
+}
+
+.jatsParser__article-fulltext figure img {
+	display: block;
+	margin: 0 auto;
+	max-width: 100%;
+}
+
+.jatsParser__article-fulltext .figure,
+.jatsParser__article-fulltext figure {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.jatsParser__article-fulltext .caption-title,
+.jatsParser__article-fulltext .caption-notes {
+	display: block;
+	text-align: center;
+	width: 100%;
+}
+
+.jatsParser__article-fulltext caption {
+	text-align: center;
+	margin-top: 15px;
+	margin-bottom: 4px;
+	font-weight: bold;
+}
+
+.jatsParser__article-fulltext .table-notes {
+	display: block;
+	margin-top: 5px;
+	margin-bottom: 40px;
+	text-align: center;
+	font-size: 12px;
+}
+
+.jatsParser__article-fulltext blockquote {
+	font-size: 10px;
+	border-left-color: #31849b;
+	border-left-width: 4px;
+	border-left-style: solid;
+	padding: 0 0 0 15px;
+	margin: 5px 0 5px 30px;
+}
+
+.jatsParser__article-fulltext blockquote p,
+.jatsParser__article-fulltext blockquote span,
+.jatsParser__article-fulltext blockquote cite {
+	font-size: 12px !important;
+	line-height: 1.5 !important;
+	margin: 2 !important;
+}
+
+.jatsParser__article-fulltext blockquote cite {
+	display: block;
+	text-align: right;
+}
+
+.jatsParser__article-fulltext .author-biographies-section {
+	margin-top: 40px;
+	margin-bottom: 40px;
+}
+.jatsParser__article-fulltext .author-biographies-section h2 {
+	margin-bottom: 25px;
+	font-weight: bold;
+}
+.jatsParser__article-fulltext .author-bio {
+	margin-bottom: 25px;
+}
+.jatsParser__article-fulltext .author-name {
+	font-weight: bold;
+	display: block;
+	margin-bottom: 0px;
+	font-size: 1.05em;
+}
+.jatsParser__article-fulltext .author-bio-text p:first-child {
+	margin-top: 4px;
+}
+
+.jatsParser__article-fulltext .citation-list {
+	list-style: none;
+	padding-left: 0;
+	margin-left: 0;
+}
+.jatsParser__article-fulltext .citation-item {
+	list-style-type: none;
+	margin-bottom: 12px;
+	text-indent: -20px;
+	padding-left: 20px;
+	transition: background-color 0.3s ease;
+}
+.jatsParser__article-fulltext .footnote-label {
+	font-weight: bold;
+	color: #31849b;
+}
+
+.jatsParser__article-fulltext .citation-item:target,
+.jatsParser__article-fulltext .footnote-item:target {
+	background-color: #ffe69c;
+	box-shadow: -4px 0 0 0 #e5a100;
+	padding-left: 28px;
+	margin-left: -8px;
+	border-radius: 2px;
+}
+
+section.item.references {
+	display: none;
+}
+
+.jatsParser__article-fulltext a[id^="citation_"]:target + a,
+.jatsParser__article-fulltext a[id^="citation_"]:target + sup a {
+	background-color: #ffe69c;
+	box-shadow: 0 0 0 2px #ffe69c;
+	border-radius: 2px;
+	transition: background-color 0.5s ease;
+}
