@@ -10,8 +10,9 @@ class FullTextArticleHandler extends ArticleHandler {
 	 * Constructor
 	 */
 	function __construct() {
+		error_log('FullTextArticleHandler::__construct()');
 		parent::__construct();
-		$this->_plugin = PluginRegistry::getPlugin('generic', JATSPARSER_PLUGIN_NAME);
+		$this->_plugin = PluginRegistry::getPlugin('generic', 'jatsParser');
 	}
 
 	/**
@@ -20,6 +21,7 @@ class FullTextArticleHandler extends ArticleHandler {
 	 * @brief download supplementary files for article's full-text
 	 */
 	function downloadFullTextAssoc($args, $request) {
+		error_log('FullTextArticleHandler::downloadFullTextAssoc()');
 		$fileId = $args[2];
 		$dispatcher = $request->getDispatcher(); /** @var $dispatcher Dispatcher */
 		if (empty($fileId) || !$this->article || !$this->publication) $dispatcher->handle404();
@@ -35,15 +37,16 @@ class FullTextArticleHandler extends ArticleHandler {
 
 		// Find if the file is an image dependent from the XML file, from which full-text was generated.
 		import('lib.pkp.classes.submission.SubmissionFile'); // const
+		
 		$dependentFilesIterator = Services::get('submissionFile')->getMany([
-			'assocTypes' => [ASSOC_TYPE_SUBMISSION_FILE],
-			'assocIds' => array_values($fullTextFileIds),
 			'submissionIds' => [$this->article->getId()],
-			'fileStages' => [SUBMISSION_FILE_DEPENDENT],
-			'includeDependentFiles' => true,
 		]);
+		$dependentFilesIterator = array_filter($dependentFilesIterator, function($file) use ($fullTextFileIds) {
+			return $file->getData('assocType') === ASSOC_TYPE_SUBMISSION_FILE &&
+				in_array($file->getData('assocId'), array_values($fullTextFileIds));
+		});
 
-		if (is_null($dependentFilesIterator->current())) $dispatcher->handle404();
+		if (!count($dependentFilesIterator)) $dispatcher->handle404();
 
 		$submissionFile = null;
 		foreach ($dependentFilesIterator as $dependentFile) {
@@ -58,11 +61,16 @@ class FullTextArticleHandler extends ArticleHandler {
 		if (!in_array($submissionFile->getData('mimetype'), $this->_plugin::getSupportedSupplFileTypes())) $dispatcher->handle404();
 
 		// Download file if exists
-		if (!Services::get('file')->fs->has($submissionFile->getData('path'))) {
+		import('lib.pkp.classes.file.PrivateFileManager');
+		$privateFileManager = new PrivateFileManager();
+		$filePath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $submissionFile->getData('path');
+
+		if (!file_exists($filePath)) {
 			$request->getDispatcher()->handle404();
 		}
 
-		$filename = Services::get('file')->formatFilename($submissionFile->getData('path'), $submissionFile->getLocalizedData('name'));
-		Services::get('file')->download($submissionFile->getData('path'), $filename);
+		$filename = $submissionFile->getLocalizedData('name');
+		// Force inline rendering for images instead of forced download
+		$privateFileManager->downloadByPath($filePath, null, true, $filename);
 	}
 }

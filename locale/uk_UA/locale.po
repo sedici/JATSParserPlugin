@@ -1,15 +1,7 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2021-03-01T09:33:47+00:00\n"
-"PO-Revision-Date: 2021-03-01T09:33:47+00:00\n"
-"Language: \n"
 
 msgid "plugins.generic.jatsParser.displayName"
 msgstr "JATSParser плагін"
@@ -68,6 +60,9 @@ msgstr "Створити PDF гранку?"
 msgid "plugins.generic.jatsParser.publication.galley.pdf.label"
 msgstr "PDF"
 
+msgid "plugins.generic.jatsParser.publication.galley.html.label"
+msgstr "HTML"
+
 msgid "plugins.generic.jatsParser.style.acm-sig-proceedings"
 msgstr "ACM"
 
@@ -102,7 +97,7 @@ msgid "plugins.generic.jatsParser.style.custom"
 msgstr "Інші стилі цитувань"
 
 msgid "plugins.generic.jatsParser.style.description"
-msgstr "Стиль цитування для посилань, який буде використовуватись плагіном. Для інших стилів цитувань зверніть увагу на <a target=\"_blank\" href=\"https://github.com/citation-style-language/styles\">CSL репозиторій</a>, щоб упевнитись що він підтримується."
+msgstr "Стиль цитування для посилань, який буде використовуватись плагіном. Для інших стилів цитувань зверніть увагу на <a target=\\\"_blank\\\" href=\\\"https://github.com/citation-style-language/styles\\\">CSL репозиторій</a>, щоб упевнитись що він підтримується."
 
 msgid "plugins.generic.jatsParser.style.label"
 msgstr "наприклад: american-medical-association"
@@ -115,3 +110,105 @@ msgstr "Резюме"
 
 msgid "plugins.generic.jatsParser.publication.jats.citationStyle.label"
 msgstr "Таблиця призначення"
+
+msgid "plugins.generic.jatsParser.file.not.found"
+msgstr "Відсутні файли для вибраного шаблону"
+
+msgid "plugins.generic.jatsParser.template.config"
+msgstr "Налаштування шаблону"
+
+msgid "plugins.generic.jatsParser.margins.config"
+msgstr "Налаштування полів (міліметри)"
+
+msgid "plugins.generic.jatsParser.files.config"
+msgstr "Налаштування файлів"
+
+msgid "plugins.generic.jatsParser.top.margin"
+msgstr "Верхнє поле"
+
+msgid "plugins.generic.jatsParser.bottom.margin"
+msgstr "Нижнє поле"
+
+msgid "plugins.generic.jatsParser.left.margin"
+msgstr "Ліве поле"
+
+msgid "plugins.generic.jatsParser.right.margin"
+msgstr "Праве поле"
+
+msgid "plugins.generic.jatsParser.empty.template"
+msgstr "Шаблон не вибрано"
+
+msgid "plugins.generic.jatsParser.pdf.config.button"
+msgstr "Налаштування для шаблонів PDF"
+
+msgid "plugins.generic.jatsParser.pdf.settings.button"
+msgstr "Налаштування PDF"
+
+msgid "plugins.generic.jatsParser.pdf.empty.template"
+msgstr "Порожньо"
+
+msgid "plugins.generic.jatsParser.pdf.settings.tab"
+msgstr "Налаштування шаблонів PDF"
+
+msgid "plugins.generic.jatsParser.pdf.download.template"
+msgstr "Завантажити шаблон"
+
+msgid "plugins.generic.jatsParser.pdf.error.loading"
+msgstr "Сталася помилка під час завантаження цієї сторінки."
+
+msgid "plugins.generic.jatsParser.pdf.upload.file"
+msgstr "Завантажити файл"
+
+msgid "plugins.generic.jatsParser.pdf.reset"
+msgstr "Скинути до початкового"
+
+msgid "plugins.generic.jatsParser.pdf.custom.file"
+msgstr "власний файл"
+
+msgid "plugins.generic.jatsParser.pdf.artifact"
+msgstr "Частина"
+
+msgid "plugins.generic.jatsParser.pdf.plugin.file"
+msgstr "Оригінал"
+
+msgid "plugins.generic.jatsParser.pdf.local.file"
+msgstr "Власний"
+
+msgid "plugins.generic.jatsParser.pdf.file.actions"
+msgstr "Дії"
+
+msgid "plugins.generic.jatsParser.pdf.selected.template.title"
+msgstr "Вибраний шаблон:"
+
+msgid "plugins.generic.jatsParser.pdf.journal_logo"
+msgstr "Логотип журналу"
+
+msgid "plugins.generic.jatsParser.pdf.institution_logo"
+msgstr "Логотип установи"
+
+msgid "plugins.generic.jatsParser.pdf.custom_css"
+msgstr "Власний CSS"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.cancel"
+msgstr "Скасувати"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.save"
+msgstr "Зберегти"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.download_original"
+msgstr "Завантажити оригінальний шаблон"
+
+msgid "plugins.generic.jatsParser.pdf.parts_table.download_current"
+msgstr "Завантажити змінений шаблон"
+
+msgid "plugins.generic.jatsParser.pdf.basic_config"
+msgstr "Базова конфігурація"
+
+msgid "plugins.generic.jatsParser.pdf.intermediate_config"
+msgstr "Проміжна конфігурація"
+
+msgid "plugins.generic.jatsParser.pdf.advanced_config"
+msgstr "Розширена конфігурація"
+
+msgid "UNLP"
+msgstr "UNLP"

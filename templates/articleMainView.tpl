@@ -10,3 +10,8 @@
 <div class="jatsParser__article-fulltext" id="jatsParserFullText">
 	{$fullText}
 </div>
+
+{* Plugin stylesheet injected from plugin via `jatsParserPluginUrl` *}
+{if $jatsParserPluginUrl}
+<link rel="stylesheet" href="{$jatsParserPluginUrl}/resources/styles/preview.css">
+{/if}
