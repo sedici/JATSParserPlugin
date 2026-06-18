@@ -52,6 +52,7 @@ class JatsParserSettingsForm extends Form
 
 		$this->setData('convertToPdf', $plugin->getSetting($contextId, 'convertToPdf'));
 		$this->setData('citationStyle', $plugin->getSetting($contextId, 'citationStyle'));
+		$this->setData('cslDateFormat', $plugin->getSetting($contextId, 'cslDateFormat'));
 	}
 
 	/**
@@ -59,7 +60,7 @@ class JatsParserSettingsForm extends Form
 	 */
 	function readInputData()
 	{
-		$this->readUserVars(array('convertToPdf', 'citationStyle', 'customStyleInput', 'galleysImport'));
+		$this->readUserVars(array('convertToPdf', 'citationStyle', 'customStyleInput', 'galleysImport', 'cslDateFormat'));
 	}
 
 	/**
@@ -99,6 +100,9 @@ class JatsParserSettingsForm extends Form
 		} else {
 			$plugin->updateSetting($contextId, 'citationStyle', $this->getData('citationStyle'));
 		}
+
+		// CSL Date Format
+		$plugin->updateSetting($contextId, 'cslDateFormat', $this->getData('cslDateFormat'));
 
 		// Import galleys
 		if ($importGalleys = $this->getData('galleysImport')) {
