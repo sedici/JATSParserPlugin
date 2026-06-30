@@ -254,3 +254,12 @@ msgstr "Configuração avançada"
 
 msgid "UNLP"
 msgstr "UNLP"
+
+msgid "plugins.generic.jatsParser.settings.cslDateFormat"
+msgstr "Formato de data (CSL)"
+
+msgid "plugins.generic.jatsParser.settings.cslDateFormat.description"
+msgstr "Especifique o formato de data para injetar no CSL (ex. d \de F \de Y para mostrar 24 de janeiro de 2026). Se deixado em branco, Y-m-d será usado por padrão."
+
+msgid "plugins.generic.jatsParser.settings.cslDateFormat.tokens"
+msgstr "<strong>Tokens disponíveis:</strong><br/><ul><li><strong>d</strong>: Dia com zero inicial (01-31)</li><li><strong>j</strong>: Dia sem zero inicial (1-31)</li><li><strong>m</strong>: Mês com zero inicial (01-12)</li><li><strong>n</strong>: Mês sem zero inicial (1-12)</li><li><strong>M</strong>: Nome curto do mês (jan, fev)</li><li><strong>F</strong>: Nome completo do mês (janeiro, fevereiro)</li><li><strong>Y</strong>: Ano (2025)</li></ul>"

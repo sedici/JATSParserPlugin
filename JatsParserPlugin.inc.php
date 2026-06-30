@@ -763,11 +763,9 @@ class JatsParserPlugin extends GenericPlugin
 		$citationStyle = $this->getCitationStyle($context);
 
 		$lang = str_replace('_', '-', $submissionFile->getSubmissionLocale());
-		$dateFormat = $context->getSetting('dateFormatShort');
-		if (is_array($dateFormat)) {
-			// Extract date format based on specific submission locale
-			$locale = $submissionFile->getSubmissionLocale(); 
-			$dateFormat = $dateFormat[$locale] ?? reset($dateFormat);
+		$dateFormat = $this->getSetting($context->getId(), 'cslDateFormat');
+		if (empty($dateFormat)) {
+			$dateFormat = 'Y-m-d';
 		}
 		$htmlDocument->setReferences($citationStyle, $lang, false, $dateFormat);
 
@@ -960,13 +958,9 @@ class JatsParserPlugin extends GenericPlugin
 		//$locale_key = $context->getPrimaryLocale();
 		$formattedLocaleKey = str_replace('_', '-', $locale);
 		// $citationStyle ya fue obtenido arriba con getCitationStyle(), no es necesario releerlo.
-		$dateFormat = $context->getSetting('dateFormatShort');
-		if (is_array($dateFormat)) {
-			// Extract date format based on PUBLICATION locale (article language), not galley locale
-			$pubLocale = $publication->getData('locale');
-			
-			// Try full locale (en_US), then short locale (en), then fallback
-			$dateFormat = $dateFormat[$pubLocale] ?? $dateFormat[substr($pubLocale, 0, 2)] ?? reset($dateFormat);
+		$dateFormat = $this->getSetting($context->getId(), 'cslDateFormat');
+		if (empty($dateFormat)) {
+			$dateFormat = 'Y-m-d';
 		}
 
 		$htmlDoc->setReferences($citationStyle, $formattedLocaleKey, false, $dateFormat);
