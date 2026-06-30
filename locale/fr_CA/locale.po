@@ -262,3 +262,11 @@ msgstr "Configuration intermédiaire"
 
 msgid "plugins.generic.jatsParser.pdf.advanced_config"
 msgstr "Configuration avancée"
+msgid "plugins.generic.jatsParser.settings.cslDateFormat"
+msgstr "Format de date (CSL)"
+
+msgid "plugins.generic.jatsParser.settings.cslDateFormat.description"
+msgstr "Spécifiez le format de date à injecter dans CSL (par ex. d F Y pour afficher 24 janvier 2026). S'il est laissé vide, Y-m-d sera utilisé par défaut."
+
+msgid "plugins.generic.jatsParser.settings.cslDateFormat.tokens"
+msgstr "<strong>Jetons disponibles :</strong><br/><ul><li><strong>d</strong> : Jour avec zéro initial (01-31)</li><li><strong>j</strong> : Jour sans zéro initial (1-31)</li><li><strong>m</strong> : Mois avec zéro initial (01-12)</li><li><strong>n</strong> : Mois sans zéro initial (1-12)</li><li><strong>M</strong> : Nom court du mois (jan, fév)</li><li><strong>F</strong> : Nom complet du mois (janvier, février)</li><li><strong>Y</strong> : Année (2025)</li></ul>"
