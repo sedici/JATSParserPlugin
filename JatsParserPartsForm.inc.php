@@ -93,7 +93,10 @@ class JatsParserPartsForm extends Form
 
 				if (move_uploaded_file($fileInfo['tmp_name'], $targetFilePath)) {
 					if (pathinfo($fileName, PATHINFO_EXTENSION) === 'tpl') {
+						$cacheDir = \TemplateManager::getManager()->compile_dir;
 						$smarty = new \Smarty();
+						$smarty->setCompileDir($cacheDir);
+
 						$security = new \Smarty_Security($smarty);
 						$security->php_functions = array('isset');
 						$security->static_classes = array(null);
@@ -105,6 +108,7 @@ class JatsParserPartsForm extends Form
 						
 						$smarty->enableSecurity($security);
 						$security->secure_dir[] = dirname($targetFilePath);
+						$security->secure_dir[] = $cacheDir;
 						
 						try {
 							$template = $smarty->createTemplate('file:' . $targetFilePath);
