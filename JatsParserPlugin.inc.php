@@ -694,8 +694,8 @@ class JatsParserPlugin extends GenericPlugin
 			// (mismo procesamiento que el flujo del PDF, así la previsualización HTML queda consistente)
 			$htmlString = $this->_setReferences($newPublication, $localeKey, $htmlString, $jatsFilePath);
 			$htmlString = $this->_setFootnotes($newPublication, $localeKey, $htmlString);
-
-
+			// Inyectar flechas de retorno (↑) en las notas al pie hacia su cita en el texto
+			$htmlString = \JATSParser\TemplateHandler\HTML\HTMLProcessingService::injectFootnoteNavigation($htmlString);
 
 			$newPublication->setData('jatsParser::fullText', $htmlString, $localeKey);
 		}
