@@ -5,7 +5,7 @@ use JATSParser\HTML\Reference as HTMLReference;
 use PKP\components\forms\Processors\ReferencesProcessor;
 
 require_once __DIR__ . '/../../Processors/ReferencesProcessor.php';
-require_once __dir__ . '/CitationStyles/ApaCitationTable.php';
+require_once __dir__ . '/CitationStyles/CslCitationTable.php';
 
 class TableHTML {
 
@@ -403,17 +403,13 @@ class TableHTML {
 
     // Make the HTML for the table
     public function makeHtml(): void {
-
-        $className = "PKP\\components\\forms\\CitationStyles\\" . ucfirst($this->citationStyle) . 'CitationTable';
-
         $processedArrayData = $this->processContexts($this->arrayData);
 
-
-        $tableStyle = new $className(
-            $processedArrayData, 
-            $this->absoluteXmlPath, 
-            $this->citationStyle, 
-            $this->publication->getId(), 
+        $tableStyle = new \PKP\components\forms\CitationStyles\CslCitationTable(
+            $processedArrayData,
+            $this->absoluteXmlPath,
+            $this->citationStyle,
+            $this->publication->getId(),
             $this->locale_key
         );
 

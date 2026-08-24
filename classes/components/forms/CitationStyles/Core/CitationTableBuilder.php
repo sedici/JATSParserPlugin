@@ -3,6 +3,7 @@
 require_once __DIR__ . '/Renderers/ApaTableRenderer.php';
 require_once __DIR__ . '/Renderers/ApaReferencesRenderer.php';
 require_once __DIR__ . '/Renderers/ApaFigsTablesRenderer.php';
+require_once __DIR__ . '/Renderers/CslReferencesRenderer.php';
 
 require_once __DIR__ . '/Elements/Messages.php';
 require_once __DIR__ . '/Elements/Buttons.php';
@@ -11,6 +12,7 @@ require_once __DIR__ . '/Elements/Modal.php';
 use PKP\components\forms\CitationStyles\Core\Renderers\ApaTableRenderer;
 use PKP\components\forms\CitationStyles\Core\Renderers\ApaFigsTablesRenderer;
 use PKP\components\forms\CitationStyles\Core\Renderers\ApaReferencesRenderer;
+use PKP\components\forms\CitationStyles\Core\Renderers\CslReferencesRenderer;
 
 use PKP\components\forms\CitationStyles\Core\Elements\Messages;
 use PKP\components\forms\CitationStyles\Core\Elements\Buttons;
@@ -90,15 +92,14 @@ class CitationTableBuilder {
         $html .= '<div class="citation-form-container" style="max-height: 80vh; overflow-y: auto; overflow-x: hidden;">';
         $html .= Messages::getErrorMessageHtml();
 
-        // Instantiate table renderer, figures/tables renderer and references renderer
-        $tableRendererClassname = 'PKP\\components\\forms\\CitationStyles\\Core\\Renderers\\' . ucfirst($this->citationStyle) . 'TableRenderer';
-        $tableRenderer = new $tableRendererClassname($this->xmlPath, $this->citationStyle, $this->publicationId, $this->localeKey);
-        
-        $tableFigsRendererClassname = 'PKP\\components\\forms\\CitationStyles\\Core\\Renderers\\' . ucfirst($this->citationStyle) . 'FigsTablesRenderer';
-        $tableFigsRenderer = new $tableFigsRendererClassname();
+        // ApaTableRenderer handles the modal/tabs/form structure (style-agnostic).
+        $tableRenderer = new ApaTableRenderer($this->xmlPath, $this->citationStyle, $this->publicationId, $this->localeKey);
 
-        $tableReferencesRendererClassname = 'PKP\\components\\forms\\CitationStyles\\Core\\Renderers\\' . ucfirst($this->citationStyle) . 'ReferencesRenderer';
-        $tableReferencesRenderer = new $tableReferencesRendererClassname($this->formatter, $this->xmlPath, $this->citationStyle, $this->publicationId, $this->localeKey);
+        // ApaFigsTablesRenderer handles figure/table cross-reference rows (style-agnostic).
+        $tableFigsRenderer = new ApaFigsTablesRenderer();
+
+        // CslReferencesRenderer renders citation options dynamically via CiteProc for all styles.
+        $tableReferencesRenderer = new CslReferencesRenderer($this->formatter, $this->xmlPath, $this->citationStyle, $this->publicationId, $this->localeKey);
 
         $html .= $tableRenderer->getFormOpening('citationFormAll'); // Open single form for both tabs
         $html .= $tableRenderer->getCitationTabs(); // Tabs header
