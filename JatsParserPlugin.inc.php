@@ -618,7 +618,7 @@ class JatsParserPlugin extends GenericPlugin
 		$localeNames = PKP\facades\Locale::getLocales();
 
 		$locales = array_map(function ($localeKey) use ($localeNames) {
-			return ['key' => $localeKey, 'label' => $localeNames[$localeKey]];
+			return ['key' => $localeKey, 'label' => isset($localeNames[$localeKey]) ? $localeNames[$localeKey]->getDisplayName() : $localeKey];
 		}, $supportedSubmissionLocales);
 
 		/*
@@ -1109,7 +1109,7 @@ class JatsParserPlugin extends GenericPlugin
 
 			$html = '<p>' . $msg;
 			foreach ($fullTexts as $localeKey => $fullText) {
-				$html .= ' <a href="' . $request->url(null, 'user', 'setLocale', $localeKey) . '">' . $locales[$localeKey] . '</a>';
+				$html .= ' <a href="' . $request->url(null, 'user', 'setLocale', $localeKey) . '">' . $locales[$localeKey]->getDisplayName() . '</a>';
 				if ($fullText !== end($fullTexts)) {
 					$html .= ', ';
 				} else {
