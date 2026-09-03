@@ -278,7 +278,7 @@ msgid "plugins.generic.jatsParser.settings.cslDateFormat"
 msgstr "CSL Date Format"
 
 msgid "plugins.generic.jatsParser.settings.cslDateFormat.description"
-msgstr "Specify the date format to inject into CSL (e.g. F j, Y to show January 24, 2026). If left blank, Y-m-d will be used by default."
+msgstr "Specify the date format for bibliographic references (e.g. F j, Y to show January 24, 2026). If left blank, Y-m-d will be used by default."
 
 msgid "plugins.generic.jatsParser.settings.cslDateFormat.tokens"
 msgstr "<strong>Available tokens:</strong><br/><ul><li><strong>d</strong>: Day with leading zero (01-31)</li><li><strong>j</strong>: Day without leading zero (1-31)</li><li><strong>m</strong>: Month with leading zero (01-12)</li><li><strong>n</strong>: Month without leading zero (1-12)</li><li><strong>M</strong>: Short month name (Jan, Feb)</li><li><strong>F</strong>: Full month name (January, February)</li><li><strong>Y</strong>: Year (2025)</li></ul>"

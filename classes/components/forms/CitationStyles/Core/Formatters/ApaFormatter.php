@@ -13,7 +13,7 @@ class ApaFormatter extends AbstractCitationFormatter {
     }
     
     public function formatMultipleAuthorsCitation(array $authors, $year): string {
-        return $authors['data_1']['surname'] . ' et al, ' . $year;
+        return $authors['data_1']['surname'] . ' et al., ' . $year;
     }
     
     public function getCitationSeparator(): string {
