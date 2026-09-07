@@ -292,3 +292,11 @@ msgstr "¿Está seguro de que desea eliminar todas las modificaciones de la plan
 
 msgid "plugins.generic.jatsParser.pdf.file.delete_prompt"
 msgstr "Está a punto de eliminar este archivo, esta acción es irreversible. ¿Desea continuar?"
+msgid "plugins.generic.jatsParser.settings.cslDateFormat"
+msgstr "Formato de fecha (CSL)"
+
+msgid "plugins.generic.jatsParser.settings.cslDateFormat.description"
+msgstr "Especifique el formato de fecha que desea para las referencias bibliográficas (ej. d \de F \de Y para mostrar 24 de enero de 2026). Si se deja en blanco, se utilizará por defecto Y-m-d."
+
+msgid "plugins.generic.jatsParser.settings.cslDateFormat.tokens"
+msgstr "<strong>Tokens disponibles:</strong><br/><ul><li><strong>d</strong>: Día con cero inicial (01-31)</li><li><strong>j</strong>: Día sin cero inicial (1-31)</li><li><strong>m</strong>: Mes con cero inicial (01-12)</li><li><strong>n</strong>: Mes sin cero inicial (1-12)</li><li><strong>M</strong>: Nombre corto del mes (ene, feb)</li><li><strong>F</strong>: Nombre completo del mes (enero, febrero)</li><li><strong>Y</strong>: Año (2025)</li></ul>"

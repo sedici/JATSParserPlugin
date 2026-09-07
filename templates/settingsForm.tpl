@@ -40,6 +40,14 @@
 				{fbvElement type="text" id="customStyleInput" name="customStyleInput" disabled=true label="plugins.generic.jatsParser.style.label"}
 			{/if}
 		{/fbvFormSection}
+
+		{fbvFormSection title="plugins.generic.jatsParser.settings.cslDateFormat"}
+			<p class="pkp_help">{translate key="plugins.generic.jatsParser.settings.cslDateFormat.description"}</p>
+			<div class="pkp_help" style="margin-bottom: 15px;">
+				{translate key="plugins.generic.jatsParser.settings.cslDateFormat.tokens"}
+			</div>
+			{fbvElement type="text" id="cslDateFormat" name="cslDateFormat" value=$cslDateFormat label="plugins.generic.jatsParser.settings.cslDateFormat"}
+		{/fbvFormSection}
 	{/fbvFormArea}
 
     {fbvFormArea id="jatsParserGalleyImport" title="plugins.generic.jatsParser.galley.import"}

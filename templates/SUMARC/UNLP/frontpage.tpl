@@ -83,7 +83,10 @@
         </header>
 
         <div class="frontpage-article-body">
-            {call name="getMetadata" pre="<h3 class='frontpage-article-title'>" search={$full_title} post="</h3>"}
+            <h3 class="frontpage-article-title">
+                {if isset($prefixes.$locale_key)}{call name="getMetadata" search=$prefixes.$locale_key post=" "}{/if}
+                {call name="getMetadata" search=$article_title}
+            </h3>
             {if isset($subtitles.$locale_key)}
                 {call name="getMetadata" pre="<h4 class='frontpage-article-subtitle'>" search=$subtitles.$locale_key post="</h4>"}
             {/if}
