@@ -583,9 +583,31 @@ class JatsParserPlugin extends GenericPlugin
 				"nullable"
 			]
 		}';
+		$propCheck = '{
+			"type": "array",
+			"multilingual": true,
+			"apiSummary": true,
+			"validation": [
+				"nullable"
+			],
+			"items": {
+				"type": "boolean"
+			}
+		}';
+		$propDelete = '{
+			"type": "boolean",
+			"multilingual": true,
+			"apiSummary": true,
+			"validation": [
+				"nullable"
+			]
+		}';
 		$schema->properties->{'jatsParser::fullTextFileId'} = json_decode($propId);
 		$schema->properties->{'jatsParser::fullText'} = json_decode($propText);
 		$schema->properties->{'jatsParser::citationTableData'} = json_decode($propText);
+		$schema->properties->{'jatsParser::generateHtml'} = json_decode($propCheck);
+		$schema->properties->{'jatsParser::deleteHtml'} = json_decode($propDelete);
+		$schema->properties->{'jatsParser::pdfGalley'} = json_decode($propCheck);
 	}
 
 	/**
@@ -664,6 +686,7 @@ class JatsParserPlugin extends GenericPlugin
 		$state['components'][FORM_PUBLICATION_JATS_FULLTEXT] = $form->getConfig();
 		$state['publicationFormIds'][] = FORM_PUBLICATION_JATS_FULLTEXT;
 		$templateMgr->assign('state', $state);
+		$templateMgr->assign('jatsPublicationApiUrl', $latestPublicationApiUrl);
 
 		$templateMgr->display($this->getTemplateResource("workflowJatsFulltext.tpl"));
 	}
@@ -701,34 +724,94 @@ class JatsParserPlugin extends GenericPlugin
 	{
 		$newPublication = $args[0];
 		$params = $args[2];
-		if (!array_key_exists('jatsParser::fullTextFileId', $params)) return false;
 
-		$localePare = $params['jatsParser::fullTextFileId'];
-		foreach ($localePare as $localeKey => $fileId) {
-			if (empty($fileId)) {
-				$newPublication->setData('jatsParser::fullText', null, $localeKey);
-				$newPublication->setData('jatsParser::fullTextFileId', null, $localeKey);
-				continue;
+		// 1. Handle HTML deletion request
+		if (array_key_exists('jatsParser::deleteHtml', $params)) {
+			if (is_array($params['jatsParser::deleteHtml'])) {
+				foreach ($params['jatsParser::deleteHtml'] as $localeKey => $shouldDelete) {
+					if (!empty($shouldDelete)) {
+						\Illuminate\Support\Facades\DB::table('publication_settings')
+							->where('publication_id', '=', (int)$newPublication->getId())
+							->where('setting_name', '=', 'jatsParser::fullText')
+							->where('locale', '=', $localeKey)
+							->delete();
+						$newPublication->setData('jatsParser::fullText', null, $localeKey);
+					}
+				}
+			} elseif (!empty($params['jatsParser::deleteHtml'])) {
+				\Illuminate\Support\Facades\DB::table('publication_settings')
+					->where('publication_id', '=', (int)$newPublication->getId())
+					->where('setting_name', '=', 'jatsParser::fullText')
+					->delete();
+				$newPublication->setData('jatsParser::fullText', null);
 			}
-			$submissionFile = Repo::submissionFile()->get($fileId);
-			$htmlDocument = $this->getFullTextFromJats($submissionFile);
-			$htmlString = $htmlDocument->saveAsHTML();
+			$newPublication->setData('jatsParser::deleteHtml', null);
+		}
 
-			// Obtener el path físico del archivo JATS para _setReferences()
-			import('lib.pkp.classes.file.PrivateFileManager');
-			$privateFileManager = new PrivateFileManager();
-			$jatsFilePath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $submissionFile->getData('path');
+		// 2. Handle XML file selection
+		if (array_key_exists('jatsParser::fullTextFileId', $params) && is_array($params['jatsParser::fullTextFileId'])) {
+			foreach ($params['jatsParser::fullTextFileId'] as $localeKey => $fileId) {
+				if (empty($fileId)) {
+					$newPublication->setData('jatsParser::fullTextFileId', null, $localeKey);
+					\Illuminate\Support\Facades\DB::table('publication_settings')
+						->where('publication_id', '=', (int)$newPublication->getId())
+						->where('setting_name', '=', 'jatsParser::fullText')
+						->where('locale', '=', $localeKey)
+						->delete();
+					$newPublication->setData('jatsParser::fullText', null, $localeKey);
+				} else {
+					$newPublication->setData('jatsParser::fullTextFileId', $fileId, $localeKey);
+				}
+			}
+		}
 
-			// Aplicar referencias formateadas y notas al pie
-			// (mismo procesamiento que el flujo del PDF, así la previsualización HTML queda consistente)
-			$htmlString = $this->_setReferences($newPublication, $localeKey, $htmlString, $jatsFilePath);
-			$htmlString = $this->_setFootnotes($newPublication, $localeKey, $htmlString);
-			// Inyectar flechas de retorno (↑) en las notas al pie hacia su cita en el texto
-			$htmlString = \JATSParser\TemplateHandler\HTML\HTMLProcessingService::injectFootnoteNavigation($htmlString);
+		// 3. Handle HTML generation (independent of whether fullTextFileId was modified in this request)
+		if (array_key_exists('jatsParser::generateHtml', $params) && is_array($params['jatsParser::generateHtml'])) {
+			foreach ($params['jatsParser::generateHtml'] as $localeKey => $genVal) {
+				$shouldGenerateHtml = false;
+				if (is_array($genVal)) {
+					$shouldGenerateHtml = in_array(true, $genVal, true) || in_array(1, $genVal) || in_array('true', $genVal);
+				} elseif (!empty($genVal)) {
+					$shouldGenerateHtml = true;
+				}
 
+				if (!$shouldGenerateHtml) continue;
 
+				$fileId = null;
+				if (isset($params['jatsParser::fullTextFileId'][$localeKey])) {
+					$fileId = $params['jatsParser::fullTextFileId'][$localeKey];
+				}
+				if (empty($fileId)) {
+					$fileId = $newPublication->getData('jatsParser::fullTextFileId', $localeKey);
+				}
 
-			$newPublication->setData('jatsParser::fullText', $htmlString, $localeKey);
+				if (empty($fileId)) continue;
+
+				$submissionFile = Repo::submissionFile()->get($fileId);
+				if ($submissionFile) {
+					$htmlDocument = $this->getFullTextFromJats($submissionFile);
+					$htmlString = $htmlDocument->saveAsHTML();
+
+					import('lib.pkp.classes.file.PrivateFileManager');
+					$privateFileManager = new PrivateFileManager();
+					$jatsFilePath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $submissionFile->getData('path');
+
+					// Inyectar imágenes suplementarias en Base64 para HTML web
+					$htmlString = $this->_setSupplImgPath($submissionFile, $htmlString, true);
+
+					// Aplicar referencias formateadas y notas al pie
+					$htmlString = $this->_setReferences($newPublication, $localeKey, $htmlString, $jatsFilePath);
+					$htmlString = $this->_setFootnotes($newPublication, $localeKey, $htmlString);
+					$htmlString = \JATSParser\TemplateHandler\HTML\HTMLProcessingService::injectFootnoteNavigation($htmlString);
+
+					// Generar y persistir el HTML con la plantilla SUMARC
+					$request = Application::get()->getRequest();
+					$html = $this->htmlCreation($htmlString, $newPublication, $request, $localeKey, $fileId);
+
+					$newPublication->setData('jatsParser::fullText', $html, $localeKey);
+				}
+			}
+			$newPublication->setData('jatsParser::generateHtml', null);
 		}
 
 		return false;
@@ -816,34 +899,43 @@ class JatsParserPlugin extends GenericPlugin
 
 		$localePare = $params['jatsParser::pdfGalley'];
 		foreach ($localePare as $localeKey => $createPdf) {
-			$fullText = $newPublication->getData('jatsParser::fullText', $localeKey);
-			if (empty($fullText)) continue;
-			if (!$createPdf) continue;
-
-			// Set real path to images, attached to the original JATS XML file
-			$jatsFileId = $newPublication->getData('jatsParser::fullTextFileId', $localeKey);
-			$jatsSubmissionFile = Repo::submissionFile()->get($jatsFileId);
-
-
-			if ($jatsSubmissionFile) {
-				import('lib.pkp.classes.file.PrivateFileManager');
-				// Creamos la versión HTML con Base64 para la web/base de datos
-				$fullTextHtml = $this->_setSupplImgPath($jatsSubmissionFile, $fullText, true);
-				// Creamos la versión PDF con rutas locales del servidor
-				$fullTextPdf = $this->_setSupplImgPath($jatsSubmissionFile, $fullText, false);
-				
-				$privateFileManager = new PrivateFileManager();
-				$jatsFilePath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $jatsSubmissionFile->getData('path');
-			} else {
-				$fullTextHtml = $fullText;
-				$fullTextPdf = $fullText;
+			$shouldCreate = false;
+			if (is_array($createPdf)) {
+				$shouldCreate = in_array(true, $createPdf, true) || in_array(1, $createPdf) || in_array('true', $createPdf);
+			} elseif (!empty($createPdf)) {
+				$shouldCreate = true;
 			}
+			if (!$shouldCreate) continue;
 
-			// Convertir a PDF (Usamos Base64 para HTML y Rutas Locales para PDF)
-			$html = $this->htmlCreation($fullTextHtml, $newPublication, $request, $localeKey, $jatsFileId);
+			// Obtener el ID del archivo XML para este idioma
+			$jatsFileId = $newPublication->getData('jatsParser::fullTextFileId', $localeKey);
+			if (empty($jatsFileId) && isset($params['jatsParser::fullTextFileId'][$localeKey])) {
+				$jatsFileId = $params['jatsParser::fullTextFileId'][$localeKey];
+			}
+			if (empty($jatsFileId)) continue;
+
+			$jatsSubmissionFile = Repo::submissionFile()->get($jatsFileId);
+			if (!$jatsSubmissionFile) continue;
+
+			import('lib.pkp.classes.file.PrivateFileManager');
+			$privateFileManager = new PrivateFileManager();
+			$jatsFilePath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $jatsSubmissionFile->getData('path');
+
+			// Parsear el XML directamente en memoria para compilar el PDF de forma desacoplada
+			$htmlDocument = $this->getFullTextFromJats($jatsSubmissionFile);
+			$rawHtml = $htmlDocument->saveAsHTML();
+
+			$pdfSourceHtml = $this->_setReferences($newPublication, $localeKey, $rawHtml, $jatsFilePath);
+			$pdfSourceHtml = $this->_setFootnotes($newPublication, $localeKey, $pdfSourceHtml);
+			$pdfSourceHtml = \JATSParser\TemplateHandler\HTML\HTMLProcessingService::injectFootnoteNavigation($pdfSourceHtml);
+
+			// Inyectar rutas locales del servidor para las imágenes del PDF
+			$fullTextPdf = $this->_setSupplImgPath($jatsSubmissionFile, $pdfSourceHtml, false);
+
+			// Compilar PDF directamente (sin exigir ni tocar el HTML de la base de datos)
 			$pdf = $this->pdfCreation($fullTextPdf, $newPublication, $request, $localeKey, $jatsFileId);
 
-			// --- Crear galley para PDF ---
+			// --- Crear o actualizar galerada para PDF ---
 			$pdfGalleyId = $this->createGalley($localeKey, $newPublication, 'plugins.generic.jatsParser.publication.galley.pdf.label');
 
 			// Obtener el galley PDF usando Repo
@@ -867,6 +959,8 @@ class JatsParserPlugin extends GenericPlugin
 				}
 			}
 		}
+
+		$newPublication->setData('jatsParser::pdfGalley', null);
 
 		return false;
 	}

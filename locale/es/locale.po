@@ -300,3 +300,55 @@ msgstr "Especifique el formato de fecha que desea para las referencias bibliogr�
 
 msgid "plugins.generic.jatsParser.settings.cslDateFormat.tokens"
 msgstr "<strong>Tokens disponibles:</strong><br/><ul><li><strong>d</strong>: Día con cero inicial (01-31)</li><li><strong>j</strong>: Día sin cero inicial (1-31)</li><li><strong>m</strong>: Mes con cero inicial (01-12)</li><li><strong>n</strong>: Mes sin cero inicial (1-12)</li><li><strong>M</strong>: Nombre corto del mes (ene, feb)</li><li><strong>F</strong>: Nombre completo del mes (enero, febrero)</li><li><strong>Y</strong>: Año (2025)</li></ul>"
+
+msgid "plugins.generic.jatsParser.publication.jats.group.sourceXml"
+msgstr "1. Archivo Fuente (JATS XML)"
+
+msgid "plugins.generic.jatsParser.publication.jats.group.sourceXml.description"
+msgstr "Seleccione el archivo XML de producción para este idioma. También puede personalizar las citas asignadas al documento."
+
+msgid "plugins.generic.jatsParser.publication.jats.group.htmlOutput"
+msgstr "2. HTML de Publicación (SUMARC)"
+
+msgid "plugins.generic.jatsParser.publication.jats.group.htmlOutput.description"
+msgstr "Configuración para la visualización del texto completo interactivo en la página del artículo utilizando la plantilla SUMARC."
+
+msgid "plugins.generic.jatsParser.publication.jats.html.label"
+msgstr "Generación de HTML"
+
+msgid "plugins.generic.jatsParser.publication.jats.html.checkboxLabel"
+msgstr "Generar / Actualizar HTML de publicación"
+
+msgid "plugins.generic.jatsParser.publication.jats.html.description"
+msgstr "Transforma el XML y publica el texto completo con la plantilla enriquecida de SUMARC (figuras interactivas, fórmulas y citas) en la página del artículo para este idioma."
+
+msgid "plugins.generic.jatsParser.publication.jats.html.activeTitle"
+msgstr "HTML de publicación activo"
+
+msgid "plugins.generic.jatsParser.publication.jats.html.alertOverwrite"
+msgstr "Atención: El HTML de publicación ya se encuentra generado para este idioma. Si mantiene marcada la casilla anterior al guardar, el contenido actual será sobrescrito con el archivo XML seleccionado."
+
+msgid "plugins.generic.jatsParser.publication.jats.html.deleteBtn"
+msgstr "Eliminar HTML de publicación"
+
+msgid "plugins.generic.jatsParser.publication.jats.html.deleteConfirmTitle"
+msgstr "Confirmar eliminación de HTML"
+
+msgid "plugins.generic.jatsParser.publication.jats.html.deleteConfirmText"
+msgstr "¿Está seguro de que desea eliminar el HTML de publicación para este idioma? El visor enriquecido de SUMARC será retirado de la página web del artículo y la publicación volverá a mostrar la vista nativa de OJS (resumen, metadatos y galeradas)."
+
+msgid "plugins.generic.jatsParser.publication.jats.html.deletedSuccess"
+msgstr "HTML de publicación eliminado correctamente. La publicación ha vuelto a la vista nativa de OJS."
+
+msgid "plugins.generic.jatsParser.publication.jats.group.pdfOutput"
+msgstr "3. Galerada PDF"
+
+msgid "plugins.generic.jatsParser.publication.jats.group.pdfOutput.description"
+msgstr "Configuración para la compilación y registro de la galerada descargable en formato PDF."
+
+msgid "plugins.generic.jatsParser.publication.jats.pdf.checkboxLabel"
+msgstr "Generar Galerada PDF"
+
+msgid "plugins.generic.jatsParser.publication.jats.pdf.description"
+msgstr "Compila y crea (o sobrescribe) de manera independiente la galerada PDF descargable en la sección de Galeradas de OJS a partir del XML seleccionado."
+
