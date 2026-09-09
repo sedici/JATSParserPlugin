@@ -194,7 +194,10 @@
 	border-radius: 2px;
 }
 
-section.item.references {
+/* Hide default OJS citations section only when JATSParser full-text HTML is present */
+.jatsParser__article-fulltext--has-content ~ section.item.references,
+body:has(.jatsParser__article-fulltext--has-content) section.item.references,
+.main_entry:has(.jatsParser__article-fulltext--has-content) section.item.references {
 	display: none;
 }
 

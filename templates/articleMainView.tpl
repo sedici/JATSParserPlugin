@@ -7,11 +7,11 @@
  * @brief Page for displaying JATS XML galley as HTML on article landing page
  *}
 
-<div class="jatsParser__article-fulltext" id="jatsParserFullText">
+<div class="jatsParser__article-fulltext{if $hasFullTextForLocale} jatsParser__article-fulltext--has-content{/if}" id="jatsParserFullText">
 	{$fullText}
 </div>
 
-{* Plugin stylesheet injected from plugin via `jatsParserPluginUrl` *}
-{if $jatsParserPluginUrl}
+{* Plugin stylesheet injected only when full-text is active for the current locale *}
+{if $jatsParserPluginUrl && $hasFullTextForLocale}
 <link rel="stylesheet" href="{$jatsParserPluginUrl}/resources/styles/preview.css">
 {/if}

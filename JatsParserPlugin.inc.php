@@ -1188,12 +1188,14 @@ class JatsParserPlugin extends GenericPlugin
 
 		if (empty($fullTexts)) return false;
 		$currentLocale = PKP\facades\Locale::getLocale();
-		if (array_key_exists($currentLocale, $fullTexts)) {
+		$hasFullTextForLocale = false;
+		if (array_key_exists($currentLocale, $fullTexts) && !empty($fullTexts[$currentLocale])) {
 			$html = $fullTexts[$currentLocale];
 
 			$submissionFileId = $publication->getData('jatsParser::fullTextFileId', $currentLocale);
 			//$submissionFile = Services::get('submissionFile')->get($submissionFileId);
 			$submissionFile = Repo::submissionFile()->get($submissionFileId);
+			$hasFullTextForLocale = true;
 		} else {
 			$locales = PKP\facades\Locale::getLocales();
 			$msg = __('plugins.generic.jatsParser.article.fulltext.availableLocale');
@@ -1201,7 +1203,7 @@ class JatsParserPlugin extends GenericPlugin
 				$msg = __('plugins.generic.jatsParser.article.fulltext.availableLocales');
 			}
 
-			$html = '<p>' . $msg;
+			$html = '<p class="jatsParser__available-locales">' . $msg;
 			foreach ($fullTexts as $localeKey => $fullText) {
 				$html .= ' <a href="' . $request->url(null, 'user', 'setLocale', $localeKey) . '">' . $locales[$localeKey]->getDisplayName() . '</a>';
 				if ($fullText !== end($fullTexts)) {
@@ -1220,6 +1222,7 @@ class JatsParserPlugin extends GenericPlugin
 		}
 
 		$templateMgr->assign('fullText', $html);
+		$templateMgr->assign('hasFullTextForLocale', $hasFullTextForLocale);
 		// Provide the plugin base URL so the template can load plugin assets
 		$baseUrl = $request->getBaseUrl() . '/' . $this->getPluginPath();
 		$templateMgr->assign('jatsParserPluginUrl', $baseUrl);
