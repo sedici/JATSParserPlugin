@@ -100,6 +100,7 @@
                 window.pkp.eventBus.$emit('notify', {translate|json_encode key="plugins.generic.jatsParser.publication.jats.html.deletedSuccess"}, 'success');
             }
             jatsCloseDeleteModal();
+            sessionStorage.setItem('jats_reload_active', '1');
             setTimeout(function() {
                 window.location.reload();
             }, 600);
@@ -107,6 +108,39 @@
         .catch(function(err) {
             alert('Error: ' + err.message);
             if (btn) btn.disabled = false;
+        });
+    }
+
+    // Restaurar automáticamente la pestaña JATSParser si se recargó la página tras guardar o eliminar
+    if (sessionStorage.getItem('jats_reload_active')) {
+        sessionStorage.removeItem('jats_reload_active');
+        var jatsRestoreAttempts = 0;
+        var jatsRestoreInterval = setInterval(function() {
+            jatsRestoreAttempts++;
+            var pubBtn = document.getElementById('publication-button');
+            if (pubBtn) {
+                pubBtn.click();
+                var jatsBtn = document.getElementById('jatsUpload-button');
+                if (jatsBtn) {
+                    jatsBtn.click();
+                    clearInterval(jatsRestoreInterval);
+                }
+            }
+            if (jatsRestoreAttempts > 40) {
+                clearInterval(jatsRestoreInterval);
+            }
+        }, 100);
+    }
+
+    // Escuchar el evento form-success nativo de OJS para recargar al presionar "Guardar"
+    if (window.pkp && window.pkp.eventBus) {
+        window.pkp.eventBus.$on('form-success', function(formId, response) {
+            if (formId === 'jatsUpload') {
+                sessionStorage.setItem('jats_reload_active', '1');
+                setTimeout(function() {
+                    window.location.reload();
+                }, 600);
+            }
         });
     }
 </script>
