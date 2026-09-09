@@ -270,3 +270,79 @@ msgstr "Especifique o formato de data desejado para as referências bibliográfi
 
 msgid "plugins.generic.jatsParser.settings.cslDateFormat.tokens"
 msgstr "<strong>Tokens disponíveis:</strong><br/><ul><li><strong>d</strong>: Dia com zero inicial (01-31)</li><li><strong>j</strong>: Dia sem zero inicial (1-31)</li><li><strong>m</strong>: Mês com zero inicial (01-12)</li><li><strong>n</strong>: Mês sem zero inicial (1-12)</li><li><strong>M</strong>: Nome curto do mês (jan, fev)</li><li><strong>F</strong>: Nome completo do mês (janeiro, fevereiro)</li><li><strong>Y</strong>: Ano (2025)</li></ul>"
+
+msgid "plugins.generic.jatsParser.publication.jats.group.sourceXml"
+msgstr "1. Arquivo Fonte (JATS XML)"
+
+msgid "plugins.generic.jatsParser.publication.jats.group.sourceXml.description"
+msgstr "Selecione o arquivo XML de produção para cada idioma."
+
+msgid "plugins.generic.jatsParser.publication.jats.group.citations"
+msgstr "2. Atribuição de Citações"
+
+msgid "plugins.generic.jatsParser.publication.jats.group.citations.description"
+msgstr "Permite revisar e personalizar a vinculação de citações, referências bibliográficas, figuras e tabelas a partir do arquivo XML selecionado."
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.noXmlSelected"
+msgstr "Selecione um arquivo XML na seção anterior e clique em \"Salvar\" no canto inferior direito para habilitar a atribuição de citações."
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.cardTitle"
+msgstr "Mapeamento de referências e citações"
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.cardDescription"
+msgstr "Abra a tabela interativa para vincular ou ajustar manualmente as citações no texto com suas respectivas referências bibliográficas, figuras ou tabelas de acordo com o estilo de citação configurado na revista."
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.styleLabel"
+msgstr "Estilo ativo"
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.statusConfigured"
+msgstr "Citações personalizadas atribuídas"
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.styleNotSupported"
+msgstr "O estilo de citação atual ({$style}) não requer atribuição manual de citações personalizadas."
+
+msgid "plugins.generic.jatsParser.publication.jats.group.htmlOutput"
+msgstr "3. HTML de Publicação (SUMARC)"
+
+msgid "plugins.generic.jatsParser.publication.jats.group.htmlOutput.description"
+msgstr "Configuração para a visualização do texto completo interativo na página do artigo utilizando o modelo SUMARC."
+
+msgid "plugins.generic.jatsParser.publication.jats.html.label"
+msgstr "Geração de HTML"
+
+msgid "plugins.generic.jatsParser.publication.jats.html.checkboxLabel"
+msgstr "Gerar / Atualizar HTML de publicação"
+
+msgid "plugins.generic.jatsParser.publication.jats.html.description"
+msgstr "Transforma o XML e publica o texto completo com o modelo enriquecido do SUMARC (figuras interativas, fórmulas e citações) na página do artigo para este idioma."
+
+msgid "plugins.generic.jatsParser.publication.jats.html.activeTitle"
+msgstr "HTML de publicação ativo"
+
+msgid "plugins.generic.jatsParser.publication.jats.html.alertOverwrite"
+msgstr "Atenção: O HTML de publicação já se encontra gerado para este idioma. Se mantiver a opção de geração marcada ao salvar, o conteúdo atual será sobrescrito com o arquivo XML selecionado."
+
+msgid "plugins.generic.jatsParser.publication.jats.html.deleteBtn"
+msgstr "Excluir HTML de publicação"
+
+msgid "plugins.generic.jatsParser.publication.jats.html.deleteConfirmTitle"
+msgstr "Confirmar exclusão de HTML"
+
+msgid "plugins.generic.jatsParser.publication.jats.html.deleteConfirmText"
+msgstr "Tem certeza de que deseja excluir o HTML de publicação para este idioma? O visualizador enriquecido do SUMARC será removido da página do artigo e a publicação voltará a exibir a exibição nativa do OJS (resumo, metadados e galés)."
+
+msgid "plugins.generic.jatsParser.publication.jats.html.deletedSuccess"
+msgstr "HTML de publicação excluído com sucesso. A publicação retornou à exibição nativa do OJS."
+
+msgid "plugins.generic.jatsParser.publication.jats.group.pdfOutput"
+msgstr "4. Galé PDF"
+
+msgid "plugins.generic.jatsParser.publication.jats.group.pdfOutput.description"
+msgstr "Configuração para a compilação e registro da galé transferível em formato PDF."
+
+msgid "plugins.generic.jatsParser.publication.jats.pdf.checkboxLabel"
+msgstr "Gerar Galé PDF"
+
+msgid "plugins.generic.jatsParser.publication.jats.pdf.description"
+msgstr "Compila e cria (ou sobrescreve) de forma independente a galé PDF transferível na seção de Galés do OJS a partir do XML selecionado."
+

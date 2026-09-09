@@ -21,19 +21,19 @@
 
 /* VIEW CITATIONS BUTTON */
 .view-btn-citations {
-    margin-top: 10px;
-    padding: 8px 12px;
-    background-color: #2196F3;
+    margin-top: 4px;
+    padding: 8px 16px;
+    background-color: #006798;
     color: white;
     border: none;
     cursor: pointer;
-    transition: transform 0.3s ease, background-color 0.3s ease;
-    border-radius: 5px;
+    transition: background-color 0.2s ease;
+    border-radius: 3px;
     margin-right: 10px;
+    font-size: 0.9rem;
 }
 .view-btn-citations:hover {
-    transform: scale(1.08);
-    background-color: #0b7dda;
+    background-color: #00557d;
 }
 
 /* ERROR MESSAGES */

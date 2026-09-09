@@ -97,14 +97,21 @@ class PublicationJATSUploadForm extends FormComponent {
 			'description' => __('plugins.generic.jatsParser.publication.jats.group.sourceXml.description'),
 		]);
 
-		// 2. Group: HTML Output
+		// 2. Group: Citations Assignment
+		$this->addGroup([
+			'id' => 'citations',
+			'label' => __('plugins.generic.jatsParser.publication.jats.group.citations'),
+			'description' => __('plugins.generic.jatsParser.publication.jats.group.citations.description'),
+		]);
+
+		// 3. Group: HTML Output
 		$this->addGroup([
 			'id' => 'htmlOutput',
 			'label' => __('plugins.generic.jatsParser.publication.jats.group.htmlOutput'),
 			'description' => __('plugins.generic.jatsParser.publication.jats.group.htmlOutput.description'),
 		]);
 
-		// 3. Group: PDF Galley (if enabled in settings)
+		// 4. Group: PDF Galley (if enabled in settings)
 		if ($convertToPdf) {
 			$this->addGroup([
 				'id' => 'pdfOutput',
@@ -125,41 +132,91 @@ class PublicationJATSUploadForm extends FormComponent {
 				'value' => $values,
 			]));
 		
-			$supportedCitationStyles = Configuration::getSupportedCustomCitationStyles();
-
-			// Checking if citation style is supported
-			if ($supportedCitationStyles && in_array(strtolower($citationStyle), $supportedCitationStyles)) {
-				$fileMgr = new PrivateFileManager();
-				
-				// Get the current selected file ID for the primary locale
-				$locale_key = $context->getPrimaryLocale();
-				$selectedFileId = isset($values[$locale_key]) ? $values[$locale_key] : null;
-				
-				// Get the correct submission file and its path based on the selected file ID
-				$relativeFilePath = null;
-				if ($selectedFileId && isset($submissionFilesById[$selectedFileId])) {
-					$selectedFile = $submissionFilesById[$selectedFileId];
-					$relativeFilePath = $selectedFile->getData('path');
-				} else if (!empty($submissionFiles)) {
-					// Fallback to the first file if no selection
-					$firstFile = reset($submissionFiles);
-					$relativeFilePath = $firstFile->getData('path');
+			// SECTION 2: Citations Table
+			$locale_key = $context->getPrimaryLocale();
+			$selectedFileId = isset($values[$locale_key]) ? $values[$locale_key] : null;
+			if (empty($selectedFileId)) {
+				// Check if any other locale has a selected XML file
+				foreach ($values as $loc => $fId) {
+					if (!empty($fId)) {
+						$selectedFileId = $fId;
+						$locale_key = $loc;
+						break;
+					}
 				}
-				
-				if ($relativeFilePath) {
-					$absolutePath = $fileMgr->getBasePath() . DIRECTORY_SEPARATOR . $relativeFilePath;
-					
-					$customPublicationSettingsDao = new CustomPublicationSettingsDAO();
-					$customCitationData = $customPublicationSettingsDao->getSetting($publication->getId(), 'jatsParser::citationTableData', $locale_key);
+			}
 
-					$tableHTML = new TableHTML($citationStyle, $absolutePath, $customCitationData, $publication, $locale_key);
-					$html = $tableHTML->getHtml();
+			if (empty($selectedFileId)) {
+				// No XML selected/saved yet
+				$noXmlNotice = '
+				<div class="pkp_notification" style="margin: 0 0 10px 0; font-weight: normal; text-transform: none;">
+					<div class="notifyInfo">
+						<span class="title">' . __('common.notice') . '</span>
+						<span class="description">' . __('plugins.generic.jatsParser.publication.jats.citations.noXmlSelected') . '</span>
+					</div>
+				</div>';
 
-					$this->addField(new FieldHTML("citationTable", array(
-						'label' => __('plugins.generic.jatsParser.publication.jats.citationStyle.label'),
-						'description' => $html,
-						'groupId' => 'sourceXml',
-					)));
+				$this->addField(new FieldHTML("citationTableEmptyNotice", [
+					'description' => $noXmlNotice,
+					'groupId' => 'citations',
+				]));
+			} else {
+				$supportedCitationStyles = Configuration::getSupportedCustomCitationStyles();
+				if ($supportedCitationStyles && in_array(strtolower($citationStyle), $supportedCitationStyles)) {
+					$fileMgr = new PrivateFileManager();
+					$selectedFile = isset($submissionFilesById[$selectedFileId]) ? $submissionFilesById[$selectedFileId] : null;
+					$relativeFilePath = $selectedFile ? $selectedFile->getData('path') : null;
+
+					if ($relativeFilePath) {
+						$absolutePath = $fileMgr->getBasePath() . DIRECTORY_SEPARATOR . $relativeFilePath;
+						$customPublicationSettingsDao = new CustomPublicationSettingsDAO();
+						$customCitationData = $customPublicationSettingsDao->getSetting($publication->getId(), 'jatsParser::citationTableData', $locale_key);
+
+						$tableHTML = new TableHTML($citationStyle, $absolutePath, $customCitationData, $publication, $locale_key);
+						$tableContent = $tableHTML->getHtml();
+
+						$hasCustomCitations = !empty($customCitationData['fileId']);
+						$statusBadge = $hasCustomCitations
+							? '<span style="display: inline-block; background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; margin-left: 8px;">✓ ' . __('plugins.generic.jatsParser.publication.jats.citations.statusConfigured') . '</span>'
+							: '';
+
+						$cardHtml = '
+						<div style="background: #fafafa; border: 1px solid #e0e0e0; border-radius: 4px; padding: 16px 20px; margin-bottom: 10px;">
+							<div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+								<div>
+									<span style="font-weight: 700; color: #333; font-size: 0.95rem;">' . __('plugins.generic.jatsParser.publication.jats.citations.cardTitle') . '</span>
+									<span style="display: inline-block; background-color: #eef5fa; color: #006798; border: 1px solid #cce2f0; padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; margin-left: 8px;">'
+										. __('plugins.generic.jatsParser.publication.jats.citations.styleLabel') . ': ' . strtoupper(htmlspecialchars($citationStyle)) .
+									'</span>'
+									. $statusBadge . '
+								</div>
+							</div>
+							<p style="margin: 0 0 14px 0; color: #555; font-size: 0.88rem; line-height: 1.45;">'
+								. __('plugins.generic.jatsParser.publication.jats.citations.cardDescription') .
+							'</p>
+							<div>'
+								. $tableContent .
+							'</div>
+						</div>';
+
+						$this->addField(new FieldHTML("citationTable", [
+							'description' => $cardHtml,
+							'groupId' => 'citations',
+						]));
+					}
+				} else {
+					$notSupportedNotice = '
+					<div class="pkp_notification" style="margin: 0 0 10px 0; font-weight: normal; text-transform: none;">
+						<div class="notifyWarning">
+							<span class="title">' . __('common.notice') . '</span>
+							<span class="description">' . __('plugins.generic.jatsParser.publication.jats.citations.styleNotSupported', ['style' => htmlspecialchars($citationStyle)]) . '</span>
+						</div>
+					</div>';
+
+					$this->addField(new FieldHTML("citationTableNotSupported", [
+						'description' => $notSupportedNotice,
+						'groupId' => 'citations',
+					]));
 				}
 			}
 

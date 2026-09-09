@@ -305,10 +305,34 @@ msgid "plugins.generic.jatsParser.publication.jats.group.sourceXml"
 msgstr "1. Archivo Fuente (JATS XML)"
 
 msgid "plugins.generic.jatsParser.publication.jats.group.sourceXml.description"
-msgstr "Seleccione el archivo XML de producción para este idioma. También puede personalizar las citas asignadas al documento."
+msgstr "Seleccione el archivo XML de producción para cada idioma."
+
+msgid "plugins.generic.jatsParser.publication.jats.group.citations"
+msgstr "2. Asignación de Citas"
+
+msgid "plugins.generic.jatsParser.publication.jats.group.citations.description"
+msgstr "Permite revisar y personalizar la vinculación de citas, referencias bibliográficas, figuras y tablas a partir del archivo XML seleccionado."
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.noXmlSelected"
+msgstr "Seleccione un archivo XML en la sección anterior y presione \"Guardar\" en la esquina inferior derecha para asignar las citas."
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.cardTitle"
+msgstr "Mapeo de referencias y citas"
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.cardDescription"
+msgstr "Abra la tabla interactiva para vincular o ajustar manualmente las citas en el texto con sus respectivas referencias bibliográficas, figuras o tablas según el estilo de citación configurado en la revista."
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.styleLabel"
+msgstr "Estilo activo"
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.statusConfigured"
+msgstr "Citas personalizadas asignadas"
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.styleNotSupported"
+msgstr "El estilo de citación actual ({$style}) no requiere asignación manual de citas personalizadas."
 
 msgid "plugins.generic.jatsParser.publication.jats.group.htmlOutput"
-msgstr "2. HTML de Publicación (SUMARC)"
+msgstr "3. HTML de Publicación (SUMARC)"
 
 msgid "plugins.generic.jatsParser.publication.jats.group.htmlOutput.description"
 msgstr "Configuración para la visualización del texto completo interactivo en la página del artículo utilizando la plantilla SUMARC."
@@ -341,7 +365,7 @@ msgid "plugins.generic.jatsParser.publication.jats.html.deletedSuccess"
 msgstr "HTML de publicación eliminado correctamente. La publicación ha vuelto a la vista nativa de OJS."
 
 msgid "plugins.generic.jatsParser.publication.jats.group.pdfOutput"
-msgstr "3. Galerada PDF"
+msgstr "4. Galerada PDF"
 
 msgid "plugins.generic.jatsParser.publication.jats.group.pdfOutput.description"
 msgstr "Configuración para la compilación y registro de la galerada descargable en formato PDF."
@@ -351,4 +375,5 @@ msgstr "Generar Galerada PDF"
 
 msgid "plugins.generic.jatsParser.publication.jats.pdf.description"
 msgstr "Compila y crea (o sobrescribe) de manera independiente la galerada PDF descargable en la sección de Galeradas de OJS a partir del XML seleccionado."
+
 

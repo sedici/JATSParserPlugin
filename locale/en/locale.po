@@ -287,10 +287,34 @@ msgid "plugins.generic.jatsParser.publication.jats.group.sourceXml"
 msgstr "1. Source File (JATS XML)"
 
 msgid "plugins.generic.jatsParser.publication.jats.group.sourceXml.description"
-msgstr "Select the production XML file for this locale. You can also customize citations assigned to this document."
+msgstr "Select the production XML file for each language."
+
+msgid "plugins.generic.jatsParser.publication.jats.group.citations"
+msgstr "2. Citation Assignment"
+
+msgid "plugins.generic.jatsParser.publication.jats.group.citations.description"
+msgstr "Allows reviewing and customizing the linking of citations, bibliographic references, figures, and tables from the selected XML file."
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.noXmlSelected"
+msgstr "Select an XML file in the previous section and click \"Save\" in the lower right corner to enable citation assignment."
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.cardTitle"
+msgstr "Reference and citation mapping"
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.cardDescription"
+msgstr "Open the interactive table to manually map or adjust in-text citations with their respective bibliographic references, figures, or tables according to the journal's configured citation style."
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.styleLabel"
+msgstr "Active style"
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.statusConfigured"
+msgstr "Custom citations configured"
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.styleNotSupported"
+msgstr "The current citation style ({$style}) does not require manual custom citation assignment."
 
 msgid "plugins.generic.jatsParser.publication.jats.group.htmlOutput"
-msgstr "2. Publication HTML (SUMARC)"
+msgstr "3. Publication HTML (SUMARC)"
 
 msgid "plugins.generic.jatsParser.publication.jats.group.htmlOutput.description"
 msgstr "Configuration for displaying full-text interactive HTML on the article page using the SUMARC template."
@@ -323,7 +347,7 @@ msgid "plugins.generic.jatsParser.publication.jats.html.deletedSuccess"
 msgstr "Publication HTML successfully deleted. The publication has reverted to the default OJS view."
 
 msgid "plugins.generic.jatsParser.publication.jats.group.pdfOutput"
-msgstr "3. PDF Galley"
+msgstr "4. PDF Galley"
 
 msgid "plugins.generic.jatsParser.publication.jats.group.pdfOutput.description"
 msgstr "Configuration for compiling and registering an independent downloadable PDF galley."
@@ -333,4 +357,5 @@ msgstr "Generate PDF Galley"
 
 msgid "plugins.generic.jatsParser.publication.jats.pdf.description"
 msgstr "Independently compiles and creates (or updates) a downloadable PDF galley in the OJS Galleys section from the selected XML."
+
 
