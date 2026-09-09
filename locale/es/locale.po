@@ -331,6 +331,9 @@ msgstr "Citas personalizadas asignadas"
 msgid "plugins.generic.jatsParser.publication.jats.citations.styleNotSupported"
 msgstr "El estilo de citación actual ({$style}) no requiere asignación manual de citas personalizadas."
 
+msgid "plugins.generic.jatsParser.publication.jats.citations.selectedXmlLabel"
+msgstr "XML seleccionado"
+
 msgid "plugins.generic.jatsParser.publication.jats.group.htmlOutput"
 msgstr "3. HTML de Publicación (SUMARC)"
 

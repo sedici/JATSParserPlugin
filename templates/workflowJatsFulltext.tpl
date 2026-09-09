@@ -143,4 +143,22 @@
             }
         });
     }
+
+    // Actualizar dinámicamente el nombre del XML en la sección de citas si se cambia la selección de radio
+    document.addEventListener('change', function(e) {
+        if (e.target && e.target.type === 'radio') {
+            var nameAttr = e.target.getAttribute('name') || '';
+            if (nameAttr.indexOf('fullTextFileId') !== -1 || (e.target.closest && e.target.closest('[id*="fullTextFileId"]'))) {
+                var labelElem = e.target.closest('label');
+                var textElem = labelElem ? (labelElem.querySelector('.pkpFormFieldLabel_text') || labelElem) : null;
+                var xmlName = textElem ? textElem.textContent.trim() : '';
+                var badgeName = document.querySelector('.citation-selected-xml-name');
+                if (badgeName && xmlName) {
+                    badgeName.textContent = xmlName;
+                    var badgeElem = document.querySelector('.citation-selected-xml-badge');
+                    if (badgeElem) badgeElem.setAttribute('title', xmlName);
+                }
+            }
+        }
+    });
 </script>

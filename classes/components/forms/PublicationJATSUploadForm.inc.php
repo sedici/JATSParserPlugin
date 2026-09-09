@@ -168,6 +168,14 @@ class PublicationJATSUploadForm extends FormComponent {
 					$relativeFilePath = $selectedFile ? $selectedFile->getData('path') : null;
 
 					if ($relativeFilePath) {
+						$selectedFileName = $selectedFile ? ($selectedFile->getData('name', $locale_key) ?: $selectedFile->getLocalizedData('name')) : null;
+						if (empty($selectedFileName) && $selectedFile) {
+							$selectedFileName = $selectedFile->getData('originalFileName');
+						}
+						if (empty($selectedFileName)) {
+							$selectedFileName = __('common.none');
+						}
+
 						$absolutePath = $fileMgr->getBasePath() . DIRECTORY_SEPARATOR . $relativeFilePath;
 						$customPublicationSettingsDao = new CustomPublicationSettingsDAO();
 						$customCitationData = $customPublicationSettingsDao->getSetting($publication->getId(), 'jatsParser::citationTableData', $locale_key);
@@ -194,9 +202,14 @@ class PublicationJATSUploadForm extends FormComponent {
 							<p style="margin: 0 0 14px 0; color: #555; font-size: 0.88rem; line-height: 1.45;">'
 								. __('plugins.generic.jatsParser.publication.jats.citations.cardDescription') .
 							'</p>
-							<div>'
-								. $tableContent .
-							'</div>
+							<div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">'
+								. $tableContent . '
+								<div class="citation-selected-xml-badge" style="display: inline-flex; align-items: center; gap: 8px; background: #ffffff; border: 1px solid #d0d5dd; border-radius: 4px; padding: 6px 14px; font-size: 0.85rem; color: #344054; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);" title="' . htmlspecialchars($selectedFileName) . '">
+									<span class="fa fa-file-code-o" style="color: #006798; font-size: 1.05rem;" aria-hidden="true"></span>
+									<span style="color: #475467; font-weight: 500;">' . __('plugins.generic.jatsParser.publication.jats.citations.selectedXmlLabel') . ':</span>
+									<strong class="citation-selected-xml-name" style="color: #101828; font-weight: 600; max-width: 380px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' . htmlspecialchars($selectedFileName) . '</strong>
+								</div>
+							</div>
 						</div>';
 
 						$this->addField(new FieldHTML("citationTable", [
