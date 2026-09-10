@@ -298,11 +298,26 @@ msgstr "Estilo ativo"
 msgid "plugins.generic.jatsParser.publication.jats.citations.statusConfigured"
 msgstr "Citações personalizadas atribuídas"
 
+msgid "plugins.generic.jatsParser.publication.jats.citations.statusPending"
+msgstr "Citações pendentes de atribuição"
+
 msgid "plugins.generic.jatsParser.publication.jats.citations.styleNotSupported"
 msgstr "O estilo de citação atual ({$style}) não requer atribuição manual de citações personalizadas."
 
 msgid "plugins.generic.jatsParser.publication.jats.citations.selectedXmlLabel"
 msgstr "XML selecionado"
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.tableXmlLabel"
+msgstr "XML carregado na tabela"
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.modalXmlNotice"
+msgstr "Arquivo XML carregado nesta tabela de citações"
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.savedXmlDiffers"
+msgstr "Atenção: As citações salvas anteriormente correspondem ao arquivo \"{$file}\", mas a tabela atual está trabalhando com o XML atualmente selecionado."
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.noCitationsInXml"
+msgstr "Nenhuma citação ou referência foi detectada neste arquivo XML ({$file}) para atribuir."
 
 msgid "plugins.generic.jatsParser.publication.jats.group.htmlOutput"
 msgstr "3. HTML de Publicação (SUMARC)"
@@ -345,6 +360,9 @@ msgstr "Configuração para a compilação e registro da galé transferível em 
 
 msgid "plugins.generic.jatsParser.publication.jats.pdf.checkboxLabel"
 msgstr "Gerar Galé PDF"
+
+msgid "plugins.generic.jatsParser.publication.jats.pdf.description"
+msgstr "Compila e cria (ou sobrescreve) de forma independente a galé PDF transferível na seção de Galés do OJS a partir do XML selecionado."
 
 msgid "plugins.generic.jatsParser.publication.jats.pdf.description"
 msgstr "Compila e cria (ou sobrescreve) de forma independente a galé PDF transferível na seção de Galés do OJS a partir do XML selecionado."

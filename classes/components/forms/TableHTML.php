@@ -85,12 +85,16 @@ class TableHTML {
      *  - 'figs_tables_citations_data' => [...]
      */
     private $arrayData = array();
+    private $humanXmlFileName = null;
+    private $selectedFileId = null;
 
-    public function __construct(String $citationStyle, ?String $absoluteXmlPath, $customCitationData, $publication, String $locale_key)
+    public function __construct(String $citationStyle, ?String $absoluteXmlPath, $customCitationData, $publication, String $locale_key, ?string $humanXmlFileName = null, $selectedFileId = null)
     {
         $this->locale_key = $locale_key;
         $this->publication = $publication;
         $this->absoluteXmlPath = $absoluteXmlPath;
+        $this->humanXmlFileName = $humanXmlFileName;
+        $this->selectedFileId = $selectedFileId;
         
         // Make sure citationsArray is properly structured even if empty
         $this->dbCitationsData = $customCitationData ?: [];
@@ -118,6 +122,76 @@ class TableHTML {
         return $this->html;
     }
 
+    /**
+     * Checks if the XML document contains any citations (bibliographic or figures/tables)
+     *
+     * @return bool
+     */
+    public function hasCitations(): bool {
+        return !empty($this->arrayData['bibr_citations_data']) || !empty($this->arrayData['figs_tables_citations_data']);
+    }
+
+    /**
+     * Returns true if there is at least one citation in the XML that has not been saved in the DB.
+     *
+     * @return bool
+     */
+    public function hasPendingCitations(): bool {
+        if (!$this->hasCitations()) {
+            return false;
+        }
+        foreach ($this->arrayData['bibr_citations_data'] ?? [] as $item) {
+            if (empty($item['is_saved'])) {
+                return true;
+            }
+        }
+        foreach ($this->arrayData['figs_tables_citations_data'] ?? [] as $item) {
+            if (empty($item['is_saved'])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Gets the saved citations map specifically for the current XML file.
+     * Checks match by submissionFileId, or by exact path/basename.
+     *
+     * @return array
+     */
+    private function getCurrentXmlSavedCitations(): array {
+        if (empty($this->dbCitationsData['fileId']) || !is_array($this->dbCitationsData['fileId'])) {
+            return [];
+        }
+
+        // 1. Direct match by absolute path or basename
+        foreach ($this->dbCitationsData['fileId'] as $savedPath => $citations) {
+            if ($savedPath === $this->absoluteXmlPath || basename($savedPath) === basename($this->absoluteXmlPath)) {
+                return is_array($citations) ? $citations : [];
+            }
+        }
+
+        // 2. If saved by submissionFileId or if current file matches by submissionFileId
+        if (!empty($this->selectedFileId)) {
+            if (isset($this->dbCitationsData['fileId'][$this->selectedFileId]) && is_array($this->dbCitationsData['fileId'][$this->selectedFileId])) {
+                return $this->dbCitationsData['fileId'][$this->selectedFileId];
+            }
+            if (!empty($this->dbCitationsData['submissionFileId']) && (int)$this->dbCitationsData['submissionFileId'] === (int)$this->selectedFileId) {
+                // The single saved fileId entry belongs to this submissionFileId
+                $firstKey = key($this->dbCitationsData['fileId']);
+                return is_array($this->dbCitationsData['fileId'][$firstKey]) ? $this->dbCitationsData['fileId'][$firstKey] : [];
+            }
+        }
+
+        // 3. If there is only one file configured in the DB setting for this publication, use it as fallback
+        if (count($this->dbCitationsData['fileId']) === 1) {
+            $firstKey = key($this->dbCitationsData['fileId']);
+            return is_array($this->dbCitationsData['fileId'][$firstKey]) ? $this->dbCitationsData['fileId'][$firstKey] : [];
+        }
+
+        return [];
+    }
+
     // Merge xrefs (bibr, tables&figs) to get the final array
     public function mergeArrays(){
         $this->mergeBibrCitations();
@@ -128,18 +202,22 @@ class TableHTML {
      * Merge bibr citations into arrayData
      */
     private function mergeBibrCitations(): void {
+        $savedCitations = $this->getCurrentXmlSavedCitations();
+
         foreach ($this->bibrXrefsArray as $xrefId => $data){
             $rids = explode(' ', $data['rid']);
             foreach ($rids as $singleRid) {
                 if (!isset($this->arrayData['bibr_citations_data'][$xrefId])) {
+                    $isSaved = array_key_exists($xrefId, $savedCitations);
                     $this->arrayData['bibr_citations_data'][$xrefId] = [
                         'xrefId' => $xrefId,
                         'rid' => $data['rid'],
                         'context' => $data['context'],
                         'originalText' => $data['originalText'],
                         'references' => [],
-                        'status' => 'default',
-                        'citationText' => ''
+                        'status' => $isSaved ? 'not-default' : 'default',
+                        'citationText' => $isSaved ? $savedCitations[$xrefId] : '',
+                        'is_saved' => $isSaved
                     ];
                 }
                 foreach ($this->referencesArray as $id => $reference) {
@@ -151,13 +229,6 @@ class TableHTML {
                         ];
                     }
                 }
-                foreach ($this->dbCitationsData['fileId'] as $xmlPath => $citations) {
-                    if (isset($citations[$xrefId])) {
-                        $this->arrayData['bibr_citations_data'][$xrefId]['status'] = 'not-default';
-                        $this->arrayData['bibr_citations_data'][$xrefId]['citationText'] = $citations[$xrefId];
-                        break;
-                    }
-                }
             }
         }
     }
@@ -166,8 +237,11 @@ class TableHTML {
      * Merge figs and tables citations into arrayData
      */
     private function mergeFigsTablesCitations(): void {
+        $savedCitations = $this->getCurrentXmlSavedCitations();
+
         foreach ($this->figsAndTablesXRefsArray as $xrefId => $data){
             if (!isset($this->arrayData['figs_tables_citations_data'][$xrefId])) {
+                $isSaved = array_key_exists($xrefId, $savedCitations);
                 $this->arrayData['figs_tables_citations_data'][$xrefId] = [
                     'xrefId' => $xrefId,
                     'rid' => $data['rid'],
@@ -175,8 +249,9 @@ class TableHTML {
                     'originalText' => $data['originalText'],
                     'title' => $data['title'],
                     'refType' => $data['refType'],
-                    'status' => 'default',
-                    'citationText' => ''
+                    'status' => $isSaved ? 'not-default' : 'default',
+                    'citationText' => $isSaved ? $savedCitations[$xrefId] : '',
+                    'is_saved' => $isSaved
                 ];
             }
             $rids = preg_split('/\s+/', trim($data['rid']));
@@ -193,13 +268,6 @@ class TableHTML {
                 $titlesList[] = [ 'id' => $singleRid, 'title' => $titleTxt ];
             }
             $this->arrayData['figs_tables_citations_data'][$xrefId]['titles'] = $titlesList;
-            foreach ($this->dbCitationsData['fileId'] as $xmlPath => $citations) {
-                if (isset($citations[$xrefId])) {
-                    $this->arrayData['figs_tables_citations_data'][$xrefId]['status'] = 'not-default';
-                    $this->arrayData['figs_tables_citations_data'][$xrefId]['citationText'] = $citations[$xrefId];
-                    break;
-                }
-            }
         }
     }
 
@@ -414,7 +482,8 @@ class TableHTML {
             $this->absoluteXmlPath, 
             $this->citationStyle, 
             $this->publication->getId(), 
-            $this->locale_key
+            $this->locale_key,
+            $this->humanXmlFileName
         );
 
         $this->html = $tableStyle->makeHtml();
@@ -444,4 +513,52 @@ class TableHTML {
         }
         return $data;
     }
+
+    /**
+     * Returns a complete map of xrefId => resolved citation text (e.g. for HTML/PDF generators)
+     *
+     * @return array
+     */
+    public function getResolvedCitationsMap(): array {
+        $saved = $this->getCurrentXmlSavedCitations();
+        if (!empty($saved)) {
+            return $saved;
+        }
+
+        $map = [];
+        try {
+            $formatterClass = 'PKP\\components\\forms\\CitationStyles\\Core\\Formatters\\' . ucfirst($this->citationStyle) . 'Formatter';
+            if (class_exists($formatterClass)) {
+                $formatter = new $formatterClass();
+                if (!empty($this->arrayData['bibr_citations_data'])) {
+                    foreach ($this->arrayData['bibr_citations_data'] as $xrefId => $item) {
+                        $references = $item['references'] ?? [];
+                        if (empty($references)) {
+                            $map[$xrefId] = $item['originalText'];
+                            continue;
+                        }
+                        $citationOptions = [];
+                        foreach ($references as $ref) {
+                            $year = $formatter->extractYear($ref['reference'] ?? '');
+                            $authors = $ref['authors'] ?? [];
+                            $count = count($authors);
+                            if ($count === 1) {
+                                $citationOptions[] = $formatter->formatSingleAuthorCitation($authors['data_1'] ?? '', $year);
+                            } elseif ($count === 2) {
+                                $citationOptions[] = $formatter->formatTwoAuthorsCitation($authors['data_1'] ?? '', $authors['data_2'] ?? '', $year);
+                            } else {
+                                $citationOptions[] = $formatter->formatMultipleAuthorsCitation($authors, $year);
+                            }
+                        }
+                        $map[$xrefId] = '(' . implode($formatter->getCitationSeparator(), $citationOptions) . ')';
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // ignore fallback error
+        }
+
+        return $map;
+    }
 }
+

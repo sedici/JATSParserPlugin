@@ -1,5 +1,5 @@
-<link rel="stylesheet" type="text/css" href="/plugins/generic/jatsParser/app/citationTable.css?v=3" />
-<script src="/plugins/generic/jatsParser/app/citationTable.js?v=3"></script>
+<link rel="stylesheet" type="text/css" href="/plugins/generic/jatsParser/app/citationTable.css?v=10" />
+<script src="/plugins/generic/jatsParser/app/citationTable.js?v=5"></script>
 
 <tab id="jatsUpload" label="{translate key="plugins.generic.jatsParser.publication.jats.fulltext"}">
     <pkp-form v-bind="components.{$smarty.const.FORM_PUBLICATION_JATS_FULLTEXT}" @set="set" />
@@ -144,19 +144,29 @@
         });
     }
 
-    // Actualizar dinámicamente el nombre del XML en la sección de citas si se cambia la selección de radio
+    // Advertir si el usuario selecciona otro archivo XML en el selector de arriba sin guardar
     document.addEventListener('change', function(e) {
         if (e.target && e.target.type === 'radio') {
             var nameAttr = e.target.getAttribute('name') || '';
             if (nameAttr.indexOf('fullTextFileId') !== -1 || (e.target.closest && e.target.closest('[id*="fullTextFileId"]'))) {
                 var labelElem = e.target.closest('label');
                 var textElem = labelElem ? (labelElem.querySelector('.pkpFormFieldLabel_text') || labelElem) : null;
-                var xmlName = textElem ? textElem.textContent.trim() : '';
-                var badgeName = document.querySelector('.citation-selected-xml-name');
-                if (badgeName && xmlName) {
-                    badgeName.textContent = xmlName;
-                    var badgeElem = document.querySelector('.citation-selected-xml-badge');
-                    if (badgeElem) badgeElem.setAttribute('title', xmlName);
+                var newlySelectedXml = textElem ? textElem.textContent.trim() : '';
+
+                var badgeElem = document.querySelector('.citation-selected-xml-badge');
+                var currentTableXml = badgeElem ? (badgeElem.getAttribute('data-current-xml') || '').trim() : '';
+
+                var alertBox = document.getElementById('citationUnsavedXmlAlert');
+                var alertText = document.getElementById('citationUnsavedXmlAlertText');
+
+                if (alertBox && alertText && newlySelectedXml && currentTableXml) {
+                    if (newlySelectedXml !== currentTableXml) {
+                        alertText.innerHTML = '<strong>' + {translate|json_encode key="common.notice"} + ':</strong> ' +
+                            'Ha seleccionado "<strong>' + newlySelectedXml + '</strong>" en el selector de arriba. Para que la tabla de citas se genere con este nuevo archivo, presione "Guardar" en la esquina inferior derecha.';
+                        alertBox.style.display = 'flex';
+                    } else {
+                        alertBox.style.display = 'none';
+                    }
                 }
             }
         }

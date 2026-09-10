@@ -765,6 +765,25 @@ class JatsParserPlugin extends GenericPlugin
 			}
 		}
 
+		// Handle Citations Table Data saving
+		if (array_key_exists('jatsParser::citationTableData', $params)) {
+			require_once __DIR__ . '/classes/daos/CustomPublicationSettingsDAO.inc.php';
+			$customPublicationSettingsDao = new \CustomPublicationSettingsDAO();
+			$citationParam = $params['jatsParser::citationTableData'];
+
+			if (is_array($citationParam)) {
+				foreach ($citationParam as $localeKey => $citationJson) {
+					if (!empty($citationJson)) {
+						$jsonString = is_array($citationJson) ? json_encode($citationJson) : $citationJson;
+						$customPublicationSettingsDao->updateSetting($newPublication->getId(), 'jatsParser::citationTableData', $jsonString, $localeKey);
+					}
+				}
+			} elseif (is_string($citationParam) && !empty($citationParam)) {
+				$localeKey = $newPublication->getData('locale') ?: 'es';
+				$customPublicationSettingsDao->updateSetting($newPublication->getId(), 'jatsParser::citationTableData', $citationParam, $localeKey);
+			}
+		}
+
 		// 3. Handle HTML generation (independent of whether fullTextFileId was modified in this request)
 		if (array_key_exists('jatsParser::generateHtml', $params) && is_array($params['jatsParser::generateHtml'])) {
 			foreach ($params['jatsParser::generateHtml'] as $localeKey => $genVal) {

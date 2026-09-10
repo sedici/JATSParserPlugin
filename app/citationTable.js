@@ -1,63 +1,165 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
+    // Function to collect all citation selections from the modal table and build JSON
+    function getCitationsDataFromModal() {
+        let form = document.getElementById('citationFormAll');
+        if (!form) return null;
+
+        let xmlFilePath = form.querySelector('input[name="xmlFilePath"]')?.value || '';
+        let citationStyleName = form.querySelector('input[name="citationStyleName"]')?.value || 'apa';
+        let publicationId = form.querySelector('input[name="publicationId"]')?.value || '';
+        let localeKey = form.querySelector('input[name="locale_key"]')?.value || 'es';
+
+        let citationsMap = {};
+        form.querySelectorAll('.citation-select').forEach(function (select) {
+            let xrefId = select.id.replace('citationStyle_', '');
+            let val = select.value;
+            if (val === 'custom') {
+                let customInput = document.getElementById('customInput_' + xrefId);
+                val = customInput ? customInput.value.trim() : '';
+            }
+            citationsMap[xrefId] = val;
+        });
+
+        return JSON.stringify({
+            citationStyleName: citationStyleName,
+            publicationId: publicationId,
+            locale_key: localeKey,
+            fileId: {
+                [xmlFilePath]: citationsMap
+            }
+        });
+    }
+
+    // Function to save citations directly to the database via process_citations.php
+    function saveCitationsToServer() {
+        let container = document.getElementById('citationFormAll');
+        if (!container) return;
+
+        let xmlFilePath = container.querySelector('input[name="xmlFilePath"]')?.value || '';
+        let citationStyleName = container.querySelector('input[name="citationStyleName"]')?.value || 'apa';
+        let publicationId = container.querySelector('input[name="publicationId"]')?.value || '';
+        let localeKey = container.querySelector('input[name="locale_key"]')?.value || 'es';
+
+        let formData = new FormData();
+        formData.append('xmlFilePath', xmlFilePath);
+        formData.append('citationStyleName', citationStyleName);
+        formData.append('publicationId', publicationId);
+        formData.append('locale_key', localeKey);
+        formData.append('ajax', '1');
+
+        container.querySelectorAll('.citation-select').forEach(function (select) {
+            let xrefId = select.id.replace('citationStyle_', '');
+            let val = select.value;
+            if (val === 'custom') {
+                let customInput = document.getElementById('customInput_' + xrefId);
+                val = customInput ? customInput.value.trim() : '';
+                if (val !== '') {
+                    formData.append('customCitation[' + xrefId + ']', val);
+                }
+            } else {
+                formData.append('citationStyle[' + xrefId + ']', val);
+            }
+        });
+
+        try {
+            fetch('/plugins/generic/jatsParser/classes/components/forms/Helpers/process_citations.php', {
+                method: 'POST',
+                body: formData,
+                keepalive: true
+            }).catch(function (e) {
+                console.error('Error saving citations:', e);
+            });
+        } catch (e) {
+            console.error('Fetch error saving citations:', e);
+        }
+    }
+
+    // Function to sync the citations JSON into the PKP form input and Vue model
+    function syncCitationsToForm() {
+        try {
+            let json = getCitationsDataFromModal();
+            if (!json) return;
+
+            let form = document.getElementById('citationFormAll');
+            let localeKey = form ? (form.querySelector('input[name="locale_key"]')?.value || 'es') : 'es';
+
+            // 1. Update DOM inputs
+            let targetInputs = document.querySelectorAll(
+                'input[name="jatsParser::citationTableData[' + localeKey + ']"], ' +
+                'input[name^="jatsParser::citationTableData[' + localeKey + ']"], ' +
+                'input[name="jatsParser::citationTableData-' + localeKey + '"], ' +
+                'input[name="jatsParser::citationTableData"], ' +
+                'input[name^="jatsParser::citationTableData"]'
+            );
+
+            targetInputs.forEach(function (inp) {
+                inp.value = json;
+                inp.dispatchEvent(new Event('input', { bubbles: true }));
+                inp.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+        } catch (e) {
+            console.error('syncCitationsToForm error:', e);
+        }
+    }
+
+    // Sync on page load
+    setTimeout(syncCitationsToForm, 300);
+
     // Modal open/close
     let openBtn = document.getElementById('openCitationModalBtn');
     let modal = document.getElementById('citationModal');
     let closeBtn = modal ? modal.querySelector('.citation-modal-close') : null;
 
     if (openBtn && modal) {
-        openBtn.addEventListener('click', function() {
+        openBtn.addEventListener('click', function () {
             modal.style.display = 'block';
-            // Activar pestaña por defecto
             let defaultBtn = document.querySelector('.citation-tab-button.is-active') || document.querySelector('.citation-tab-button');
             if (defaultBtn) defaultBtn.click();
+            syncCitationsToForm();
         });
     }
-    if (closeBtn && modal) {
-        closeBtn.addEventListener('click', function() {
-            modal.style.display = 'none';
-        });
+
+    function closeModal() {
+        if (!modal) return;
+        modal.style.display = 'none';
+        syncCitationsToForm();
     }
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeModal);
+    }
+
     if (modal) {
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                modal.style.display = 'none';
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal || e.target.closest('.citation-modal-close-btn')) {
+                closeModal();
             }
         });
     }
 
-    // Tabs delegados
-    document.addEventListener('click', function(e){
+    // Tabs navigation
+    document.addEventListener('click', function (e) {
         let btn = e.target.closest('.citation-tab-button');
         if (!btn) return;
         let target = btn.getAttribute('data-target');
         if (!target) return;
-        document.querySelectorAll('.citation-tab-button').forEach(function(b){
+        document.querySelectorAll('.citation-tab-button').forEach(function (b) {
             b.classList.toggle('is-active', b === btn);
         });
-        document.querySelectorAll('.citation-tab-panel').forEach(function(panel){
+        document.querySelectorAll('.citation-tab-panel').forEach(function (panel) {
             panel.classList.toggle('is-active', '#' + panel.id === target);
         });
     });
 
-    // Spinner styles
-    if (!document.getElementById('citation-saving-style')) {
-        let style = document.createElement('style');
-        style.id = 'citation-saving-style';
-        style.textContent = `
-.citation-saving-spinner{margin-left:8px;width:16px;height:16px;border:2px solid rgba(0,0,0,.2);border-top-color:rgba(0,0,0,.7);border-radius:50%;display:inline-block;vertical-align:middle;animation:citation-spin 1s linear infinite}
-.citation-saving-disabled{opacity:.6;cursor:not-allowed}
-@keyframes citation-spin{to{transform:rotate(360deg)}}`;
-        document.head.appendChild(style);
-    }
-
     if (!modal) return;
 
     // Delegación para selects
-    modal.addEventListener('change', function(event){
+    modal.addEventListener('change', function (event) {
         if (!event.target.classList.contains('citation-select')) return;
         let selectElem = event.target;
         let xrefId = selectElem.id.replace('citationStyle_', '');
         let inputField = document.getElementById('customInput_' + xrefId);
+
         if (selectElem.value !== selectElem.getAttribute('data-original-value')) {
             selectElem.classList.remove('citation-original');
             selectElem.classList.add('citation-modified');
@@ -65,6 +167,7 @@ document.addEventListener('DOMContentLoaded', function() {
             selectElem.classList.remove('citation-modified');
             selectElem.classList.add('citation-original');
         }
+
         if (selectElem.value === 'custom') {
             if (!inputField) {
                 inputField = document.createElement('input');
@@ -79,11 +182,14 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (inputField) {
             inputField.remove();
         }
+
+        syncCitationsToForm();
     });
 
-    modal.addEventListener('input', function(event){
+    modal.addEventListener('input', function (event) {
         if (!event.target.classList.contains('custom-input')) return;
         let inputElem = event.target;
+
         if (inputElem.value.trim() === '') {
             inputElem.classList.add('citation-select-error');
         } else {
@@ -96,46 +202,30 @@ document.addEventListener('DOMContentLoaded', function() {
             inputElem.classList.remove('citation-modified');
             inputElem.classList.add('citation-original');
         }
+
+        syncCitationsToForm();
     });
 
-    // Submit único
-    modal.addEventListener('submit', function(e){
-        let form = e.target.closest('form#citationFormAll');
-        if (!form) return;
-        let submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
-        let savingSpinner = form.querySelector('.citation-saving-spinner');
-        if (!savingSpinner && submitBtn) {
-            savingSpinner = document.createElement('span');
-            savingSpinner.className = 'citation-saving-spinner';
-            savingSpinner.style.display = 'none';
-            submitBtn.insertAdjacentElement('afterend', savingSpinner);
+    // Guardar cambios al presionar el botón general de Guardar de OJS
+    function handleSaveTrigger(e) {
+        try {
+            saveCitationsToServer();
+            syncCitationsToForm();
+        } catch (err) {
+            console.error('Error in handleSaveTrigger:', err);
         }
-        let hasEmpty = false;
-        form.querySelectorAll('.custom-input').forEach(function(input){
-            if (input.value.trim() === '') {
-                hasEmpty = true;
-                input.classList.add('citation-select-error');
-            } else {
-                input.classList.remove('citation-select-error');
-            }
-        });
-        let errorMsg = document.getElementById('citationErrorMessage');
-        if (hasEmpty) {
-            if (errorMsg) errorMsg.style.display = 'block';
-            if (submitBtn && savingSpinner) {
-                savingSpinner.style.display = 'none';
-                submitBtn.disabled = false;
-                submitBtn.classList.remove('citation-saving-disabled');
-            }
-            e.preventDefault();
-            return false;
-        } else {
-            if (errorMsg) errorMsg.style.display = 'none';
-            if (submitBtn && savingSpinner) {
-                submitBtn.disabled = true;
-                submitBtn.classList.add('citation-saving-disabled');
-                savingSpinner.style.display = 'inline-block';
-            }
+    }
+
+    document.addEventListener('click', function (e) {
+        let submitBtn = e.target.closest('button[type="submit"]') || 
+            (e.target.matches && e.target.matches('button[type="submit"]') ? e.target : null) ||
+            e.target.closest('.pkpButton--primary');
+        if (submitBtn) {
+            handleSaveTrigger(e);
         }
-    });
+    }, true);
+
+    document.addEventListener('submit', function (e) {
+        handleSaveTrigger(e);
+    }, true);
 });

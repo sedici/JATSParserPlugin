@@ -90,43 +90,12 @@ class PublicationJATSUploadForm extends FormComponent {
 		$convertToPdf = $plugin->getSetting($context->getId(), 'convertToPdf');
 		$citationStyle = $plugin->getSetting($context->getId(), 'citationStyle');
 
-		// 1. Group: Source XML
-		$this->addGroup([
-			'id' => 'sourceXml',
-			'label' => __('plugins.generic.jatsParser.publication.jats.group.sourceXml'),
-			'description' => __('plugins.generic.jatsParser.publication.jats.group.sourceXml.description'),
-		]);
-
-		// 2. Group: Citations Assignment
-		$this->addGroup([
-			'id' => 'citations',
-			'label' => __('plugins.generic.jatsParser.publication.jats.group.citations'),
-			'description' => __('plugins.generic.jatsParser.publication.jats.group.citations.description'),
-		]);
-
-		// 3. Group: HTML Output
-		$this->addGroup([
-			'id' => 'htmlOutput',
-			'label' => __('plugins.generic.jatsParser.publication.jats.group.htmlOutput'),
-			'description' => __('plugins.generic.jatsParser.publication.jats.group.htmlOutput.description'),
-		]);
-
-		// 4. Group: PDF Galley (if enabled in settings)
-		if ($convertToPdf) {
-			$this->addGroup([
-				'id' => 'pdfOutput',
-				'label' => __('plugins.generic.jatsParser.publication.jats.group.pdfOutput'),
-				'description' => __('plugins.generic.jatsParser.publication.jats.group.pdfOutput.description'),
-			]);
-		}
-
 		if (!empty($options)) {
 			// SECTION 1: Source XML selection
 			$this->addField(new FieldOptions('jatsParser::fullTextFileId', [
-				'label' => __('plugins.generic.jatsParser.publication.jats.label'),
+				'label' => __('plugins.generic.jatsParser.publication.jats.group.sourceXml'),
 				'description' => $msg,
 				'isMultilingual' => true,
-				'groupId' => 'sourceXml',
 				'type' => 'radio',
 				'options' => $options,
 				'value' => $values,
@@ -146,19 +115,29 @@ class PublicationJATSUploadForm extends FormComponent {
 				}
 			}
 
+			$stage2Title = __('plugins.generic.jatsParser.publication.jats.group.citations');
+			$stage2Description = __('plugins.generic.jatsParser.publication.jats.citations.cardDescription');
+
 			if (empty($selectedFileId)) {
 				// No XML selected/saved yet
-				$noXmlNotice = '
-				<div class="pkp_notification" style="margin: 0 0 10px 0; font-weight: normal; text-transform: none;">
-					<div class="notifyInfo">
-						<span class="title">' . __('common.notice') . '</span>
-						<span class="description">' . __('plugins.generic.jatsParser.publication.jats.citations.noXmlSelected') . '</span>
+				$cardHtml = '
+				<div class="jats-citation-stage-card">
+					<div class="jats-citation-stage-title">
+						' . $stage2Title . '
+					</div>
+					<div class="jats-citation-stage-description">
+						' . $stage2Description . '
+					</div>
+					<div class="pkp_notification" style="margin: 0; font-weight: normal; text-transform: none;">
+						<div class="notifyInfo">
+							<span class="title">' . __('common.notice') . '</span>
+							<span class="description">' . __('plugins.generic.jatsParser.publication.jats.citations.noXmlSelected') . '</span>
+						</div>
 					</div>
 				</div>';
 
 				$this->addField(new FieldHTML("citationTableEmptyNotice", [
-					'description' => $noXmlNotice,
-					'groupId' => 'citations',
+					'description' => $cardHtml,
 				]));
 			} else {
 				$supportedCitationStyles = Configuration::getSupportedCustomCitationStyles();
@@ -180,60 +159,85 @@ class PublicationJATSUploadForm extends FormComponent {
 						$customPublicationSettingsDao = new CustomPublicationSettingsDAO();
 						$customCitationData = $customPublicationSettingsDao->getSetting($publication->getId(), 'jatsParser::citationTableData', $locale_key);
 
-						$tableHTML = new TableHTML($citationStyle, $absolutePath, $customCitationData, $publication, $locale_key);
+						$tableHTML = new TableHTML($citationStyle, $absolutePath, $customCitationData, $publication, $locale_key, $selectedFileName, $selectedFileId);
 						$tableContent = $tableHTML->getHtml();
 
-						$hasCustomCitations = !empty($customCitationData['fileId']);
-						$statusBadge = $hasCustomCitations
-							? '<span style="display: inline-block; background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; margin-left: 8px;">✓ ' . __('plugins.generic.jatsParser.publication.jats.citations.statusConfigured') . '</span>'
-							: '';
+						$hasCitationsInXml = $tableHTML->hasCitations();
+						$xmlBadgeHeader = '<span class="citation-selected-xml-badge" data-current-xml="' . htmlspecialchars($selectedFileName) . '" style="display: inline-flex; align-items: center; gap: 6px; background-color: #ffffff; color: #344054; border: 1px solid #d0d5dd; padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 500;" title="' . htmlspecialchars($selectedFileName) . '">
+							<span class="fa fa-file-code-o" style="color: #006798; font-size: 0.85rem;" aria-hidden="true"></span>
+							<strong class="citation-selected-xml-name" style="color: #101828; font-weight: 600; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' . htmlspecialchars($selectedFileName) . '</strong>
+						</span>';
+
+						if (!$hasCitationsInXml) {
+							// El XML no contiene citas ni referencias para mapear
+							$innerBody = '
+							<div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+								<div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
+									' . $xmlBadgeHeader . '
+									<span style="display: inline-block; background-color: #eef5fa; color: #006798; border: 1px solid #cce2f0; padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">'
+										. __('plugins.generic.jatsParser.publication.jats.citations.styleLabel') . ': ' . strtoupper(htmlspecialchars($citationStyle)) .
+									'</span>
+								</div>
+							</div>
+							<div class="pkp_notification" style="margin: 8px 0 0 0; font-weight: normal; text-transform: none;">
+								<div class="notifyInfo">
+									<span class="title">' . __('common.notice') . '</span>
+									<span class="description">' . __('plugins.generic.jatsParser.publication.jats.citations.noCitationsInXml', ['file' => htmlspecialchars($selectedFileName)]) . '</span>
+								</div>
+							</div>';
+						} else {
+							$innerBody = '
+							<div class="jats-citation-stage-row">
+								' . $tableContent . '
+								<div class="jats-citation-stage-badges">
+									' . $xmlBadgeHeader . '
+									<span class="jats-citation-style-badge">'
+										. __('plugins.generic.jatsParser.publication.jats.citations.styleLabel') . ': ' . strtoupper(htmlspecialchars($citationStyle)) .
+									'</span>
+								</div>
+							</div>
+							<div id="citationUnsavedXmlAlert" style="display: none; margin-top: 10px; font-size: 0.85rem; color: #9c4221; background: #fffaf0; border: 1px solid #fbd38d; border-radius: 4px; padding: 8px 12px; align-items: center; gap: 8px;">
+								<span class="fa fa-info-circle" style="font-size: 1rem;"></span>
+								<span id="citationUnsavedXmlAlertText"></span>
+							</div>';
+						}
 
 						$cardHtml = '
-						<div style="background: #fafafa; border: 1px solid #e0e0e0; border-radius: 4px; padding: 16px 20px; margin-bottom: 10px;">
-							<div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
-								<div>
-									<span style="font-weight: 700; color: #333; font-size: 0.95rem;">' . __('plugins.generic.jatsParser.publication.jats.citations.cardTitle') . '</span>
-									<span style="display: inline-block; background-color: #eef5fa; color: #006798; border: 1px solid #cce2f0; padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; margin-left: 8px;">'
-										. __('plugins.generic.jatsParser.publication.jats.citations.styleLabel') . ': ' . strtoupper(htmlspecialchars($citationStyle)) .
-									'</span>'
-									. $statusBadge . '
-								</div>
+						<div class="jats-citation-stage-card">
+							<div class="jats-citation-stage-title">
+								' . $stage2Title . '
 							</div>
-							<p style="margin: 0 0 14px 0; color: #555; font-size: 0.88rem; line-height: 1.45;">'
-								. __('plugins.generic.jatsParser.publication.jats.citations.cardDescription') .
-							'</p>
-							<div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">'
-								. $tableContent . '
-								<div class="citation-selected-xml-badge" style="display: inline-flex; align-items: center; gap: 8px; background: #ffffff; border: 1px solid #d0d5dd; border-radius: 4px; padding: 6px 14px; font-size: 0.85rem; color: #344054; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);" title="' . htmlspecialchars($selectedFileName) . '">
-									<span class="fa fa-file-code-o" style="color: #006798; font-size: 1.05rem;" aria-hidden="true"></span>
-									<span style="color: #475467; font-weight: 500;">' . __('plugins.generic.jatsParser.publication.jats.citations.selectedXmlLabel') . ':</span>
-									<strong class="citation-selected-xml-name" style="color: #101828; font-weight: 600; max-width: 380px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' . htmlspecialchars($selectedFileName) . '</strong>
-								</div>
+							<div class="jats-citation-stage-description">
+								' . $stage2Description . '
 							</div>
+							' . $innerBody . '
 						</div>';
 
 						$this->addField(new FieldHTML("citationTable", [
 							'description' => $cardHtml,
-							'groupId' => 'citations',
 						]));
 					}
 				} else {
 					$notSupportedNotice = '
-					<div class="pkp_notification" style="margin: 0 0 10px 0; font-weight: normal; text-transform: none;">
-						<div class="notifyWarning">
-							<span class="title">' . __('common.notice') . '</span>
-							<span class="description">' . __('plugins.generic.jatsParser.publication.jats.citations.styleNotSupported', ['style' => htmlspecialchars($citationStyle)]) . '</span>
+					<div class="jats-citation-stage-card">
+						<div class="jats-citation-stage-title">
+							' . $stage2Title . '
+						</div>
+						<div class="pkp_notification" style="margin: 0; font-weight: normal; text-transform: none;">
+							<div class="notifyWarning">
+								<span class="title">' . __('common.notice') . '</span>
+								<span class="description">' . __('plugins.generic.jatsParser.publication.jats.citations.styleNotSupported', ['style' => htmlspecialchars($citationStyle)]) . '</span>
+							</div>
 						</div>
 					</div>';
 
 					$this->addField(new FieldHTML("citationTableNotSupported", [
 						'description' => $notSupportedNotice,
-						'groupId' => 'citations',
 					]));
 				}
 			}
 
-			// SECTION 2: HTML Output
+			// SECTION 3: HTML Output
 			$existingFullText = $publication->getData('jatsParser::fullText');
 			$generateHtmlOptions = [];
 
@@ -248,7 +252,7 @@ class PublicationJATSUploadForm extends FormComponent {
 					$htmlContent = $existingFullText;
 				}
 
-				$labelHtml = '<span style="font-weight: 600; display: inline-block; vertical-align: middle;">' . __('plugins.generic.jatsParser.publication.jats.html.checkboxLabel') . '</span>';
+				$labelHtml = '<span style="display: inline-block; vertical-align: middle;">' . __('plugins.generic.jatsParser.publication.jats.html.checkboxLabel') . '</span>';
 
 				if (!empty($htmlContent)) {
 					$labelHtml .= '
@@ -275,24 +279,22 @@ class PublicationJATSUploadForm extends FormComponent {
 
 			$generateHtmlValues = array_fill_keys(array_keys($options), []);
 			$this->addField(new FieldOptions('jatsParser::generateHtml', [
-				'label' => __('plugins.generic.jatsParser.publication.jats.html.label'),
+				'label' => __('plugins.generic.jatsParser.publication.jats.group.htmlOutput'),
 				'description' => __('plugins.generic.jatsParser.publication.jats.html.description'),
 				'type' => 'checkbox',
 				'isMultilingual' => true,
-				'groupId' => 'htmlOutput',
 				'options' => $generateHtmlOptions,
 				'value' => $generateHtmlValues,
 			]));
 
-			// SECTION 3: PDF Galley
+			// SECTION 4: PDF Galley
 			if ($convertToPdf) {
 				$pdfGalleyValues = array_fill_keys(array_keys($options), []);
 				$this->addField(new FieldOptions('jatsParser::pdfGalley', [
-					'label' => __('plugins.generic.jatsParser.publication.jats.pdf.label'),
+					'label' => __('plugins.generic.jatsParser.publication.jats.group.pdfOutput'),
 					'description' => __('plugins.generic.jatsParser.publication.jats.pdf.description'),
 					'type' => 'checkbox',
 					'isMultilingual' => true,
-					'groupId' => 'pdfOutput',
 					'options' => $pdfOptions,
 					'value' => $pdfGalleyValues,
 				]));
@@ -300,7 +302,6 @@ class PublicationJATSUploadForm extends FormComponent {
 		} else {
 			$this->addField(new FieldHTML("addProductionReadyFiles", array(
 				'description' => $msg,
-				'groupId' => 'sourceXml',
 			)));
 		}
 	}

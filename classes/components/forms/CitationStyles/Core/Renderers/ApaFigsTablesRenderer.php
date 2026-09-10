@@ -50,8 +50,9 @@ class ApaFigsTablesRenderer {
         }
 
         $numRows = count($rowsSource);
-        $lastIndex = $numRows -1;
-        $html=''; $first = true;
+        $lastIndex = $numRows - 1;
+        $html = '';
+        $first = true;
         foreach ($rowsSource as $i => $row) {
             $rowClass = 'citation-row' . ($i === $lastIndex ? ' citation-group-last-row' : '');
             $html .= "<tr class='{$rowClass}'>";

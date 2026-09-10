@@ -302,13 +302,19 @@ msgid "plugins.generic.jatsParser.publication.jats.citations.cardTitle"
 msgstr "Reference and citation mapping"
 
 msgid "plugins.generic.jatsParser.publication.jats.citations.cardDescription"
-msgstr "Open the interactive table to manually map or adjust in-text citations with their respective bibliographic references, figures, or tables according to the journal's configured citation style."
+msgstr "Specify the required text for in-text citations using an interactive table, linking them to their corresponding bibliographic references, figures, or tables."
 
 msgid "plugins.generic.jatsParser.publication.jats.citations.styleLabel"
 msgstr "Active style"
 
+msgid "plugins.generic.jatsParser.citationtable.viewcitations"
+msgstr "Modify Citations"
+
 msgid "plugins.generic.jatsParser.publication.jats.citations.statusConfigured"
 msgstr "Custom citations configured"
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.statusPending"
+msgstr "Citations pending assignment"
 
 msgid "plugins.generic.jatsParser.publication.jats.citations.styleNotSupported"
 msgstr "The current citation style ({$style}) does not require manual custom citation assignment."
@@ -316,8 +322,20 @@ msgstr "The current citation style ({$style}) does not require manual custom cit
 msgid "plugins.generic.jatsParser.publication.jats.citations.selectedXmlLabel"
 msgstr "Selected XML"
 
+msgid "plugins.generic.jatsParser.publication.jats.citations.tableXmlLabel"
+msgstr "XML loaded in table"
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.modalXmlNotice"
+msgstr "XML file loaded in this citation table"
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.savedXmlDiffers"
+msgstr "Notice: Previously saved citations belong to file \"{$file}\", but the current table is working with the currently selected XML."
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.noCitationsInXml"
+msgstr "No citations or references were detected in this XML file ({$file}) to assign."
+
 msgid "plugins.generic.jatsParser.publication.jats.group.htmlOutput"
-msgstr "3. Publication HTML (SUMARC)"
+msgstr "3. Publication HTML"
 
 msgid "plugins.generic.jatsParser.publication.jats.group.htmlOutput.description"
 msgstr "Configuration for displaying full-text interactive HTML on the article page using the SUMARC template."
@@ -329,7 +347,7 @@ msgid "plugins.generic.jatsParser.publication.jats.html.checkboxLabel"
 msgstr "Generate / Update Publication HTML"
 
 msgid "plugins.generic.jatsParser.publication.jats.html.description"
-msgstr "Transforms the selected XML and publishes the enriched full-text HTML (interactive figures, formulas, and citations) on the article page for this language."
+msgstr "Generates the SUMARC publication HTML on the article page from the XML file selected in step 1. You can delete it at any time if you wish to return to the original layout."
 
 msgid "plugins.generic.jatsParser.publication.jats.html.activeTitle"
 msgstr "Publication HTML is active"
@@ -359,6 +377,6 @@ msgid "plugins.generic.jatsParser.publication.jats.pdf.checkboxLabel"
 msgstr "Generate PDF Galley"
 
 msgid "plugins.generic.jatsParser.publication.jats.pdf.description"
-msgstr "Independently compiles and creates (or updates) a downloadable PDF galley in the OJS Galleys section from the selected XML."
+msgstr "Generates the downloadable PDF galley in the OJS Galleys section from the XML file selected in step 1."
 
 

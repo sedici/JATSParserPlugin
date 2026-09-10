@@ -44,7 +44,7 @@ class ApaTableRenderer {
      * Returns the opening HTML form tags with necessary hidden fields.
      */
     public function getFormOpening(string $formId = 'citationForm'): string {
-        return "<form method=\"POST\" target=\"_self\" id=\"" . htmlspecialchars($formId) . "\" class=\"citation-form\">"
+        return "<div id=\"" . htmlspecialchars($formId) . "\" class=\"citation-form\">"
             . "<input type=\"hidden\" name=\"xmlFilePath\" value=\"" . htmlspecialchars($this->absoluteXmlPath) . "\">"
             . "<input type=\"hidden\" name=\"citationStyleName\" value=\"" . htmlspecialchars($this->citationStyle) . "\">"
             . "<input type=\"hidden\" name=\"publicationId\" value=\"" . htmlspecialchars($this->publicationId) . "\">"
@@ -55,7 +55,7 @@ class ApaTableRenderer {
      * Returns the closing HTML form tag.
      */
     public function getClosingForm(): string {
-        return '</form>';
+        return '</div>';
     }
 
     /**

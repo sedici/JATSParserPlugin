@@ -86,6 +86,7 @@ abstract class GenericStylesheet {
                 background-color: rgba(255, 193, 7, 0.05);
                 transition: all 0.3s ease;
             }
+
             
             /* FORM CONTROL */
             .citation-form-container .citation-select {

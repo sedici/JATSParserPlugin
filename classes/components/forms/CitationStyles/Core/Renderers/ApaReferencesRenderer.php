@@ -97,10 +97,7 @@ class ApaReferencesRenderer {
 
         foreach ($references as $key => $referenceData) {
             $isLastRowInGroup = ($key === $lastReferenceKey);
-            $rowClass = 'citation-row';
-            if ($isLastRowInGroup) {
-                $rowClass .= ' citation-group-last-row';
-            }
+            $rowClass = 'citation-row' . ($isLastRowInGroup ? ' citation-group-last-row' : '');
 
             $html .= "<tr class='" . $rowClass . "'>";
             

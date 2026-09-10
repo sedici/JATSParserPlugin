@@ -1,11 +1,8 @@
 <?php
 
-import('lib.pkp.classes.db.DAO');
-
-class CustomPublicationSettingsDAO extends DAO {
+class CustomPublicationSettingsDAO {
     /**
-     * Update jatsParser::citationTableData field in publication_settings table
-     * First checks if the record exists, then either updates or inserts
+     * Update setting in publication_settings table
      * @param int $publicationId
      * @param string $settingName
      * @param string $settingValue
@@ -13,71 +10,60 @@ class CustomPublicationSettingsDAO extends DAO {
      */
     public function updateSetting($publicationId, $settingName, $settingValue, $localeKey = null) {
         try {
-            // Check if the record exists
-            $resultGenerator = $this->retrieve(
-                'SELECT COUNT(*) as count FROM publication_settings 
-                 WHERE publication_id = ? AND setting_name = ? AND locale = ?',
-                [$publicationId, $settingName, $localeKey]
-            );
-            
-            $results = iterator_to_array($resultGenerator);
-            $exists = $results[0]->count > 0;
-            
+            $exists = \Illuminate\Support\Facades\DB::table('publication_settings')
+                ->where('publication_id', '=', (int)$publicationId)
+                ->where('setting_name', '=', $settingName)
+                ->where('locale', '=', $localeKey)
+                ->exists();
+
             if ($exists) {
-                // Update existing record
-                $this->update(
-                    'UPDATE publication_settings 
-                     SET setting_value = ?
-                     WHERE publication_id = ? AND setting_name = ? AND locale = ?',
-                    [$settingValue, $publicationId, $settingName, $localeKey]
-                );
+                \Illuminate\Support\Facades\DB::table('publication_settings')
+                    ->where('publication_id', '=', (int)$publicationId)
+                    ->where('setting_name', '=', $settingName)
+                    ->where('locale', '=', $localeKey)
+                    ->update(['setting_value' => $settingValue]);
             } else {
-                // Insert new record
-                $this->update(
-                    'INSERT INTO publication_settings 
-                     (publication_id, setting_name, setting_value, locale)
-                     VALUES (?, ?, ?, ?)',
-                    [$publicationId, $settingName, $settingValue, $localeKey]
-                );
+                \Illuminate\Support\Facades\DB::table('publication_settings')->insert([
+                    'publication_id' => (int)$publicationId,
+                    'setting_name' => $settingName,
+                    'setting_value' => $settingValue,
+                    'locale' => $localeKey,
+                ]);
             }
-        } catch (Exception $e) {
-            error_log("Error updating: " . $e->getMessage());
-            print_r("Error updating: " . $e->getMessage());
+        } catch (\Exception $e) {
+            error_log("CustomPublicationSettingsDAO updateSetting error: " . $e->getMessage());
         }
     }
 
     /**
-     * Get jatsParser::citationTableData field from publication_settings table
+     * Get setting from publication_settings table
      * @param int $publicationId
      * @param string $settingName
-     * @return string|null
+     * @param string $localeKey
+     * @return array|string|null
      */
-    public function getSetting($publicationId, $settingName, $localeKey) {
+    public function getSetting($publicationId, $settingName, $localeKey = null) {
         try {
+            $query = \Illuminate\Support\Facades\DB::table('publication_settings')
+                ->where('publication_id', '=', (int)$publicationId)
+                ->where('setting_name', '=', $settingName);
 
-            $resultGenerator = $this->retrieve(
-                'SELECT setting_value FROM publication_settings 
-                 WHERE publication_id = ? AND setting_name = ? AND locale = ?',
-                [$publicationId, $settingName, $localeKey]
-            );
-
-            $results = iterator_to_array($resultGenerator);
-
-            if (!empty($results)) {
-
-                $firstRow = reset($results);
-                $settingValue = $firstRow->setting_value;
-                
-                $decodedValue = json_decode($settingValue, true);
-
-                return $decodedValue;
-            } else {
-                return null;
+            if ($localeKey !== null) {
+                $query->where('locale', '=', $localeKey);
             }
-        } catch (Exception $e) {
-            print_r("Error al obtener el campo personalizado: " . $e->getMessage());
+
+            $record = $query->first();
+
+            if ($record && isset($record->setting_value)) {
+                $decoded = json_decode($record->setting_value, true);
+                return $decoded !== null ? $decoded : $record->setting_value;
+            }
+
+            return null;
+        } catch (\Exception $e) {
+            error_log("CustomPublicationSettingsDAO getSetting error: " . $e->getMessage());
             return null;
         }
     }
 }
-?>
+
