@@ -83,7 +83,20 @@ document.addEventListener('DOMContentLoaded', function () {
             let form = document.getElementById('citationFormAll');
             let localeKey = form ? (form.querySelector('input[name="locale_key"]')?.value || 'es') : 'es';
 
-            // 1. Update DOM inputs
+            // 1. Update Vue form component hiddenFields (OJS 3.4 FormComponent)
+            let app = window.pkp && window.pkp.registry && window.pkp.registry._instances && window.pkp.registry._instances['app'];
+            if (app && app.components && app.components['jatsUpload']) {
+                let jatsForm = app.components['jatsUpload'];
+                if (!jatsForm.hiddenFields) {
+                    jatsForm.hiddenFields = {};
+                }
+                if (typeof jatsForm.hiddenFields['jatsParser::citationTableData'] !== 'object' || jatsForm.hiddenFields['jatsParser::citationTableData'] === null) {
+                    jatsForm.hiddenFields['jatsParser::citationTableData'] = {};
+                }
+                jatsForm.hiddenFields['jatsParser::citationTableData'][localeKey] = json;
+            }
+
+            // 2. Also update DOM inputs if any exist
             let targetInputs = document.querySelectorAll(
                 'input[name="jatsParser::citationTableData[' + localeKey + ']"], ' +
                 'input[name^="jatsParser::citationTableData[' + localeKey + ']"], ' +
@@ -206,10 +219,9 @@ document.addEventListener('DOMContentLoaded', function () {
         syncCitationsToForm();
     });
 
-    // Guardar cambios al presionar el botón general de Guardar de OJS
+    // Sincronizar cambios en el formulario OJS antes de enviar
     function handleSaveTrigger(e) {
         try {
-            saveCitationsToServer();
             syncCitationsToForm();
         } catch (err) {
             console.error('Error in handleSaveTrigger:', err);

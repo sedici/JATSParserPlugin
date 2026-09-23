@@ -91,6 +91,18 @@ class PublicationJATSUploadForm extends FormComponent {
 		$citationStyle = $plugin->getSetting($context->getId(), 'citationStyle');
 
 		if (!empty($options)) {
+			// Preload existing citation table data for all locales and register as hidden field
+			$customPublicationSettingsDao = new CustomPublicationSettingsDAO();
+			$citationTableValues = [];
+			foreach ($locales as $value) {
+				$loc = $value['key'];
+				$existing = $customPublicationSettingsDao->getSetting($publication->getId(), 'jatsParser::citationTableData', $loc);
+				if (!empty($existing)) {
+					$citationTableValues[$loc] = is_array($existing) ? json_encode($existing) : $existing;
+				}
+			}
+			$this->addHiddenField('jatsParser::citationTableData', (object)$citationTableValues);
+
 			// SECTION 1: Source XML selection
 			$this->addField(new FieldOptions('jatsParser::fullTextFileId', [
 				'label' => __('plugins.generic.jatsParser.publication.jats.group.sourceXml'),
