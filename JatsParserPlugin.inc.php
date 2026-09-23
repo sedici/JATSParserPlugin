@@ -68,6 +68,7 @@ class JatsParserPlugin extends GenericPlugin
 				HookRegistry::add('Form::config::before', array($this, 'addCitationsFormFields'));
 				HookRegistry::add('Publication::edit', array($this, 'editPublicationReferences'));
 				HookRegistry::add('Publication::edit', array($this, 'createAllGalleys'));
+				HookRegistry::add('SubmissionFile::delete::before', array($this, 'onDeleteSubmissionFile'));
 			}
 
 			return true;
@@ -831,6 +832,55 @@ class JatsParserPlugin extends GenericPlugin
 				}
 			}
 			$newPublication->setData('jatsParser::generateHtml', null);
+		}
+
+		return false;
+	}
+
+	/**
+	 * Hook callback for SubmissionFile::delete::before
+	 * Clean up fullTextFileId, fullText, and citationTableData if the source XML file is deleted
+	 *
+	 * @param string $hookName
+	 * @param array $args [$submissionFile]
+	 * @return bool
+	 */
+	public function onDeleteSubmissionFile(string $hookName, array $args): bool
+	{
+		$submissionFile = $args[0] ?? null;
+		if (!$submissionFile) {
+			return false;
+		}
+
+		$fileId = (int) $submissionFile->getId();
+		if (!$fileId) {
+			return false;
+		}
+
+		// Find all publications referencing this fileId as jatsParser::fullTextFileId
+		$affectedSettings = \Illuminate\Support\Facades\DB::table('publication_settings')
+			->where('setting_name', '=', 'jatsParser::fullTextFileId')
+			->where('setting_value', '=', (string) $fileId)
+			->get();
+
+		foreach ($affectedSettings as $setting) {
+			$publicationId = (int) $setting->publication_id;
+			$locale = (string) $setting->locale;
+
+			\Illuminate\Support\Facades\DB::table('publication_settings')
+				->where('publication_id', '=', $publicationId)
+				->where(function ($q) use ($locale) {
+					$q->where('locale', '=', $locale);
+					if (!empty($locale)) {
+						$q->orWhere('locale', '=', '');
+					}
+				})
+				->whereIn('setting_name', [
+					'jatsParser::fullTextFileId',
+					'jatsParser::fullText',
+					'jatsParser::citationTableData'
+				])
+				->delete();
 		}
 
 		return false;
