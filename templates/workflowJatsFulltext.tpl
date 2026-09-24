@@ -54,7 +54,7 @@
         if (btn) {
             e.preventDefault();
             e.stopPropagation();
-            var locale = btn.dataset.locale || (window.pkp && window.pkp.context ? window.pkp.context.currentLocale : 'es');
+            var locale = btn.dataset.locale || (window.pkp && window.pkp.context ? window.pkp.context.currentLocale : (window.pkp && window.pkp.locale ? window.pkp.locale : ''));
             var localeName = btn.dataset.localename || locale;
             jatsOpenDeleteModal(locale, localeName);
         }
@@ -70,8 +70,14 @@
             if (activeLangBtn && activeLangBtn.dataset && activeLangBtn.dataset.locale) {
                 activeLocale = activeLangBtn.dataset.locale;
             } else {
-                activeLocale = (window.pkp && window.pkp.context && window.pkp.context.currentLocale) ? window.pkp.context.currentLocale : 'es';
+                activeLocale = (window.pkp && window.pkp.context && window.pkp.context.currentLocale) ? window.pkp.context.currentLocale : (window.pkp && window.pkp.locale ? window.pkp.locale : '');
             }
+        }
+
+        if (!activeLocale) {
+            console.error('No target locale could be determined for deleting HTML.');
+            if (btn) btn.disabled = false;
+            return;
         }
 
         var payload = {
@@ -92,7 +98,7 @@
             body: JSON.stringify(payload)
         })
         .then(function(response) {
-            if (!response.ok) throw new Error('Error al eliminar HTML');
+            if (!response.ok) throw new Error(response.statusText || 'Request failed');
             return response.json();
         })
         .then(function(data) {
@@ -106,7 +112,7 @@
             }, 600);
         })
         .catch(function(err) {
-            alert('Error: ' + err.message);
+            alert({translate|json_encode key="common.error"} + (err.message ? ': ' + err.message : ''));
             if (btn) btn.disabled = false;
         });
     }

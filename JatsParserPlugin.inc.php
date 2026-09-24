@@ -568,47 +568,20 @@ class JatsParserPlugin extends GenericPlugin
 	public function addToSchema($hookName, $args)
 	{
 		$schema = $args[0];
-		$propId = '{
-			"type": "integer",
-			"multilingual": true,
-			"apiSummary": true,
-			"validation": [
-				"nullable"
-			]
-		}';
-		$propText = '{
-			"type": "string",
-			"multilingual": true,
-			"apiSummary": true,
-			"validation": [
-				"nullable"
-			]
-		}';
-		$propCheck = '{
-			"type": "array",
-			"multilingual": true,
-			"apiSummary": true,
-			"validation": [
-				"nullable"
-			],
-			"items": {
-				"type": "boolean"
-			}
-		}';
-		$propDelete = '{
-			"type": "boolean",
-			"multilingual": true,
-			"apiSummary": true,
-			"validation": [
-				"nullable"
-			]
-		}';
-		$schema->properties->{'jatsParser::fullTextFileId'} = json_decode($propId);
-		$schema->properties->{'jatsParser::fullText'} = json_decode($propText);
-		$schema->properties->{'jatsParser::citationTableData'} = json_decode($propText);
-		$schema->properties->{'jatsParser::generateHtml'} = json_decode($propCheck);
-		$schema->properties->{'jatsParser::deleteHtml'} = json_decode($propDelete);
-		$schema->properties->{'jatsParser::pdfGalley'} = json_decode($propCheck);
+		$baseProp = ['multilingual' => true, 'apiSummary' => true, 'validation' => ['nullable']];
+
+		$schema->properties->{'jatsParser::fullTextFileId'} = (object) array_merge($baseProp, ['type' => 'integer']);
+		$schema->properties->{'jatsParser::fullText'} = (object) array_merge($baseProp, ['type' => 'string']);
+		$schema->properties->{'jatsParser::citationTableData'} = (object) array_merge($baseProp, ['type' => 'string']);
+		$schema->properties->{'jatsParser::generateHtml'} = (object) array_merge($baseProp, [
+			'type' => 'array',
+			'items' => (object) ['type' => 'boolean']
+		]);
+		$schema->properties->{'jatsParser::deleteHtml'} = (object) array_merge($baseProp, ['type' => 'boolean']);
+		$schema->properties->{'jatsParser::pdfGalley'} = (object) array_merge($baseProp, [
+			'type' => 'array',
+			'items' => (object) ['type' => 'boolean']
+		]);
 	}
 
 	/**
@@ -712,6 +685,44 @@ class JatsParserPlugin extends GenericPlugin
 	}
 
 	/**
+	 * Helper to determine if a form checkbox or array of checkboxes was checked
+	 *
+	 * @param mixed $value
+	 * @return bool
+	 */
+	private function isCheckboxChecked($value): bool
+	{
+		if (is_array($value)) {
+			return in_array(true, $value, true) || in_array(1, $value) || in_array('true', $value);
+		}
+		return !empty($value);
+	}
+
+	/**
+	 * Parse JATS XML and enrich HTML with images, references, footnotes and navigation
+	 *
+	 * @param SubmissionFile $submissionFile
+	 * @param Publication $publication
+	 * @param string $localeKey
+	 * @param bool $isBase64Images true for HTML web (base64 data URIs), false for local server paths (PDF)
+	 * @return string
+	 */
+	private function buildEnrichedHtml($submissionFile, $publication, string $localeKey, bool $isBase64Images): string
+	{
+		import('lib.pkp.classes.file.PrivateFileManager');
+		$privateFileManager = new PrivateFileManager();
+		$jatsFilePath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $submissionFile->getData('path');
+
+		$htmlDocument = $this->getFullTextFromJats($submissionFile);
+		$htmlString = $htmlDocument->saveAsHTML();
+
+		$htmlString = $this->_setSupplImgPath($submissionFile, $htmlString, $isBase64Images);
+		$htmlString = $this->_setReferences($publication, $localeKey, $htmlString, $jatsFilePath);
+		$htmlString = $this->_setFootnotes($publication, $localeKey, $htmlString);
+		return \JATSParser\TemplateHandler\HTML\HTMLProcessingService::injectFootnoteNavigation($htmlString);
+	}
+
+	/**
 	 * @param string $hookname
 	 * @param array $args [
 	 *   Publication -> new publication
@@ -788,14 +799,7 @@ class JatsParserPlugin extends GenericPlugin
 		// 3. Handle HTML generation (independent of whether fullTextFileId was modified in this request)
 		if (array_key_exists('jatsParser::generateHtml', $params) && is_array($params['jatsParser::generateHtml'])) {
 			foreach ($params['jatsParser::generateHtml'] as $localeKey => $genVal) {
-				$shouldGenerateHtml = false;
-				if (is_array($genVal)) {
-					$shouldGenerateHtml = in_array(true, $genVal, true) || in_array(1, $genVal) || in_array('true', $genVal);
-				} elseif (!empty($genVal)) {
-					$shouldGenerateHtml = true;
-				}
-
-				if (!$shouldGenerateHtml) continue;
+				if (!$this->isCheckboxChecked($genVal)) continue;
 
 				$fileId = null;
 				if (isset($params['jatsParser::fullTextFileId'][$localeKey])) {
@@ -809,20 +813,7 @@ class JatsParserPlugin extends GenericPlugin
 
 				$submissionFile = Repo::submissionFile()->get($fileId);
 				if ($submissionFile) {
-					$htmlDocument = $this->getFullTextFromJats($submissionFile);
-					$htmlString = $htmlDocument->saveAsHTML();
-
-					import('lib.pkp.classes.file.PrivateFileManager');
-					$privateFileManager = new PrivateFileManager();
-					$jatsFilePath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $submissionFile->getData('path');
-
-					// Inyectar imágenes suplementarias en Base64 para HTML web
-					$htmlString = $this->_setSupplImgPath($submissionFile, $htmlString, true);
-
-					// Aplicar referencias formateadas y notas al pie
-					$htmlString = $this->_setReferences($newPublication, $localeKey, $htmlString, $jatsFilePath);
-					$htmlString = $this->_setFootnotes($newPublication, $localeKey, $htmlString);
-					$htmlString = \JATSParser\TemplateHandler\HTML\HTMLProcessingService::injectFootnoteNavigation($htmlString);
+					$htmlString = $this->buildEnrichedHtml($submissionFile, $newPublication, $localeKey, true);
 
 					// Generar y persistir el HTML con la plantilla SUMARC
 					$request = Application::get()->getRequest();
@@ -968,13 +959,7 @@ class JatsParserPlugin extends GenericPlugin
 
 		$localePare = $params['jatsParser::pdfGalley'];
 		foreach ($localePare as $localeKey => $createPdf) {
-			$shouldCreate = false;
-			if (is_array($createPdf)) {
-				$shouldCreate = in_array(true, $createPdf, true) || in_array(1, $createPdf) || in_array('true', $createPdf);
-			} elseif (!empty($createPdf)) {
-				$shouldCreate = true;
-			}
-			if (!$shouldCreate) continue;
+			if (!$this->isCheckboxChecked($createPdf)) continue;
 
 			// Obtener el ID del archivo XML para este idioma
 			$jatsFileId = $newPublication->getData('jatsParser::fullTextFileId', $localeKey);
@@ -986,20 +971,8 @@ class JatsParserPlugin extends GenericPlugin
 			$jatsSubmissionFile = Repo::submissionFile()->get($jatsFileId);
 			if (!$jatsSubmissionFile) continue;
 
-			import('lib.pkp.classes.file.PrivateFileManager');
-			$privateFileManager = new PrivateFileManager();
-			$jatsFilePath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $jatsSubmissionFile->getData('path');
-
-			// Parsear el XML directamente en memoria para compilar el PDF de forma desacoplada
-			$htmlDocument = $this->getFullTextFromJats($jatsSubmissionFile);
-			$rawHtml = $htmlDocument->saveAsHTML();
-
-			$pdfSourceHtml = $this->_setReferences($newPublication, $localeKey, $rawHtml, $jatsFilePath);
-			$pdfSourceHtml = $this->_setFootnotes($newPublication, $localeKey, $pdfSourceHtml);
-			$pdfSourceHtml = \JATSParser\TemplateHandler\HTML\HTMLProcessingService::injectFootnoteNavigation($pdfSourceHtml);
-
-			// Inyectar rutas locales del servidor para las imágenes del PDF
-			$fullTextPdf = $this->_setSupplImgPath($jatsSubmissionFile, $pdfSourceHtml, false);
+			// Parsear y enriquecer el HTML directamente en memoria para compilar el PDF de forma desacoplada
+			$fullTextPdf = $this->buildEnrichedHtml($jatsSubmissionFile, $newPublication, $localeKey, false);
 
 			// Compilar PDF directamente (sin exigir ni tocar el HTML de la base de datos)
 			$pdf = $this->pdfCreation($fullTextPdf, $newPublication, $request, $localeKey, $jatsFileId);
