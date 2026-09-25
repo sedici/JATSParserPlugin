@@ -2,6 +2,9 @@
 
 require_once __DIR__ . "/TableHTML.php";
 require_once __dir__ . '/../../daos/CustomPublicationSettingsDAO.inc.php';
+require_once __DIR__ . '/CitationStyles/Core/CslCategoryDetector.php';
+
+use PKP\components\forms\CitationStyles\Core\CslCategoryDetector;
 
 import('lib.pkp.classes.file.PrivateFileManager');
 
@@ -152,8 +155,9 @@ class PublicationJATSUploadForm extends FormComponent {
 					'description' => $cardHtml,
 				]));
 			} else {
-				$supportedCitationStyles = Configuration::getSupportedCustomCitationStyles();
-				if ($supportedCitationStyles && in_array(strtolower($citationStyle), $supportedCitationStyles)) {
+				// Show citation table for all styles that have more than one citation form.
+				// Numeric styles (IEEE, Vancouver, etc.) are excluded because they only produce one form (e.g. [1]).
+				if ($citationStyle && CslCategoryDetector::hasMultipleCitationForms($citationStyle)) {
 					$fileMgr = new PrivateFileManager();
 					$selectedFile = isset($submissionFilesById[$selectedFileId]) ? $submissionFilesById[$selectedFileId] : null;
 					$relativeFilePath = $selectedFile ? $selectedFile->getData('path') : null;

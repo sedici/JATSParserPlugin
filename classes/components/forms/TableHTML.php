@@ -5,7 +5,7 @@ use JATSParser\HTML\Reference as HTMLReference;
 use PKP\components\forms\Processors\ReferencesProcessor;
 
 require_once __DIR__ . '/../../Processors/ReferencesProcessor.php';
-require_once __dir__ . '/CitationStyles/ApaCitationTable.php';
+require_once __dir__ . '/CitationStyles/CslCitationTable.php';
 
 class TableHTML {
 
@@ -471,13 +471,9 @@ class TableHTML {
 
     // Make the HTML for the table
     public function makeHtml(): void {
-
-        $className = "PKP\\components\\forms\\CitationStyles\\" . ucfirst($this->citationStyle) . 'CitationTable';
-
         $processedArrayData = $this->processContexts($this->arrayData);
 
-
-        $tableStyle = new $className(
+        $tableStyle = new \PKP\components\forms\CitationStyles\CslCitationTable(
             $processedArrayData, 
             $this->absoluteXmlPath, 
             $this->citationStyle, 
@@ -527,35 +523,62 @@ class TableHTML {
 
         $map = [];
         try {
-            $formatterClass = 'PKP\\components\\forms\\CitationStyles\\Core\\Formatters\\' . ucfirst($this->citationStyle) . 'Formatter';
-            if (class_exists($formatterClass)) {
-                $formatter = new $formatterClass();
-                if (!empty($this->arrayData['bibr_citations_data'])) {
-                    foreach ($this->arrayData['bibr_citations_data'] as $xrefId => $item) {
-                        $references = $item['references'] ?? [];
-                        if (empty($references)) {
-                            $map[$xrefId] = $item['originalText'];
-                            continue;
-                        }
-                        $citationOptions = [];
-                        foreach ($references as $ref) {
-                            $year = $formatter->extractYear($ref['reference'] ?? '');
-                            $authors = $ref['authors'] ?? [];
-                            $count = count($authors);
-                            if ($count === 1) {
-                                $citationOptions[] = $formatter->formatSingleAuthorCitation($authors['data_1'] ?? '', $year);
-                            } elseif ($count === 2) {
-                                $citationOptions[] = $formatter->formatTwoAuthorsCitation($authors['data_1'] ?? '', $authors['data_2'] ?? '', $year);
-                            } else {
-                                $citationOptions[] = $formatter->formatMultipleAuthorsCitation($authors, $year);
-                            }
-                        }
-                        $map[$xrefId] = '(' . implode($formatter->getCitationSeparator(), $citationOptions) . ')';
+            require_once __DIR__ . '/CitationStyles/Core/Renderers/CslReferencesRenderer.php';
+            require_once __DIR__ . '/CitationStyles/Core/Formatters/ApaFormatter.php';
+            $renderer = new \PKP\components\forms\CitationStyles\Core\Renderers\CslReferencesRenderer(
+                new \PKP\components\forms\CitationStyles\Core\Formatters\ApaFormatter(),
+                $this->absoluteXmlPath,
+                $this->citationStyle,
+                $this->publication->getId(),
+                $this->locale_key
+            );
+            if (!empty($this->arrayData['bibr_citations_data'])) {
+                foreach ($this->arrayData['bibr_citations_data'] as $xrefId => $item) {
+                    $references = $item['references'] ?? [];
+                    if (empty($references)) {
+                        $map[$xrefId] = $item['originalText'];
+                        continue;
+                    }
+                    $cslCitation = $renderer->renderCslCitationForXref($references);
+                    if ($cslCitation !== null && $cslCitation !== '') {
+                        $map[$xrefId] = (strpos($cslCitation, '(') === 0) ? $cslCitation : '(' . $cslCitation . ')';
+                    } else {
+                        $map[$xrefId] = $item['originalText'];
                     }
                 }
             }
         } catch (\Throwable $e) {
-            // ignore fallback error
+            try {
+                $formatterClass = 'PKP\\components\\forms\\CitationStyles\\Core\\Formatters\\' . ucfirst($this->citationStyle) . 'Formatter';
+                if (class_exists($formatterClass)) {
+                    $formatter = new $formatterClass();
+                    if (!empty($this->arrayData['bibr_citations_data'])) {
+                        foreach ($this->arrayData['bibr_citations_data'] as $xrefId => $item) {
+                            $references = $item['references'] ?? [];
+                            if (empty($references)) {
+                                $map[$xrefId] = $item['originalText'];
+                                continue;
+                            }
+                            $citationOptions = [];
+                            foreach ($references as $ref) {
+                                $year = $formatter->extractYear($ref['reference'] ?? '');
+                                $authors = $ref['authors'] ?? [];
+                                $count = count($authors);
+                                if ($count === 1) {
+                                    $citationOptions[] = $formatter->formatSingleAuthorCitation($authors['data_1'] ?? '', $year);
+                                } elseif ($count === 2) {
+                                    $citationOptions[] = $formatter->formatTwoAuthorsCitation($authors['data_1'] ?? '', $authors['data_2'] ?? '', $year);
+                                } else {
+                                    $citationOptions[] = $formatter->formatMultipleAuthorsCitation($authors, $year);
+                                }
+                            }
+                            $map[$xrefId] = '(' . implode($formatter->getCitationSeparator(), $citationOptions) . ')';
+                        }
+                    }
+                }
+            } catch (\Throwable $e2) {
+                // ignore fallback error
+            }
         }
 
         return $map;
