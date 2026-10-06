@@ -282,3 +282,101 @@ msgstr "Specify the date format for bibliographic references (e.g. F j, Y to sho
 
 msgid "plugins.generic.jatsParser.settings.cslDateFormat.tokens"
 msgstr "<strong>Available tokens:</strong><br/><ul><li><strong>d</strong>: Day with leading zero (01-31)</li><li><strong>j</strong>: Day without leading zero (1-31)</li><li><strong>m</strong>: Month with leading zero (01-12)</li><li><strong>n</strong>: Month without leading zero (1-12)</li><li><strong>M</strong>: Short month name (Jan, Feb)</li><li><strong>F</strong>: Full month name (January, February)</li><li><strong>Y</strong>: Year (2025)</li></ul>"
+
+msgid "plugins.generic.jatsParser.publication.jats.group.sourceXml"
+msgstr "1. Source File (JATS XML)"
+
+msgid "plugins.generic.jatsParser.publication.jats.group.sourceXml.description"
+msgstr "Select the production XML file for each language."
+
+msgid "plugins.generic.jatsParser.publication.jats.group.citations"
+msgstr "2. Citation Assignment"
+
+msgid "plugins.generic.jatsParser.publication.jats.group.citations.description"
+msgstr "Allows reviewing and customizing the linking of citations, bibliographic references, figures, and tables from the selected XML file."
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.noXmlSelected"
+msgstr "Select an XML file in the previous section and click \"Save\" in the lower right corner to enable citation assignment."
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.cardTitle"
+msgstr "Reference and citation mapping"
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.cardDescription"
+msgstr "Specify the required text for in-text citations using an interactive table, linking them to their corresponding bibliographic references, figures, or tables."
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.styleLabel"
+msgstr "Active style"
+
+msgid "plugins.generic.jatsParser.citationtable.viewcitations"
+msgstr "Modify Citations"
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.statusConfigured"
+msgstr "Custom citations configured"
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.statusPending"
+msgstr "Citations pending assignment"
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.styleNotSupported"
+msgstr "The current citation style ({$style}) does not require manual custom citation assignment."
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.selectedXmlLabel"
+msgstr "Selected XML"
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.tableXmlLabel"
+msgstr "XML loaded in table"
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.modalXmlNotice"
+msgstr "XML file loaded in this citation table"
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.savedXmlDiffers"
+msgstr "Notice: Previously saved citations belong to file \"{$file}\", but the current table is working with the currently selected XML."
+
+msgid "plugins.generic.jatsParser.publication.jats.citations.noCitationsInXml"
+msgstr "No citations or references were detected in this XML file ({$file}) to assign."
+
+msgid "plugins.generic.jatsParser.publication.jats.group.htmlOutput"
+msgstr "3. Publication HTML"
+
+msgid "plugins.generic.jatsParser.publication.jats.group.htmlOutput.description"
+msgstr "Configuration for displaying full-text interactive HTML on the article page using the SUMARC template."
+
+msgid "plugins.generic.jatsParser.publication.jats.html.label"
+msgstr "HTML Generation"
+
+msgid "plugins.generic.jatsParser.publication.jats.html.checkboxLabel"
+msgstr "Generate / Update Publication HTML"
+
+msgid "plugins.generic.jatsParser.publication.jats.html.description"
+msgstr "Generates the SUMARC publication HTML on the article page from the XML file selected in step 1. You can delete it at any time if you wish to return to the original layout."
+
+msgid "plugins.generic.jatsParser.publication.jats.html.activeTitle"
+msgstr "Publication HTML is active"
+
+msgid "plugins.generic.jatsParser.publication.jats.html.alertOverwrite"
+msgstr "Notice: Publication HTML is already generated for this language. If you keep the generation option selected upon saving, current content will be overwritten with the selected XML file."
+
+msgid "plugins.generic.jatsParser.publication.jats.html.deleteBtn"
+msgstr "Delete Publication HTML"
+
+msgid "plugins.generic.jatsParser.publication.jats.html.deleteConfirmTitle"
+msgstr "Confirm Publication HTML Deletion"
+
+msgid "plugins.generic.jatsParser.publication.jats.html.deleteConfirmText"
+msgstr "Are you sure you want to delete the publication HTML for this language? The SUMARC enriched viewer will be removed from the article landing page, reverting to OJS's default display."
+
+msgid "plugins.generic.jatsParser.publication.jats.html.deletedSuccess"
+msgstr "Publication HTML successfully deleted. The publication has reverted to the default OJS view."
+
+msgid "plugins.generic.jatsParser.publication.jats.group.pdfOutput"
+msgstr "4. PDF Galley"
+
+msgid "plugins.generic.jatsParser.publication.jats.group.pdfOutput.description"
+msgstr "Configuration for compiling and registering an independent downloadable PDF galley."
+
+msgid "plugins.generic.jatsParser.publication.jats.pdf.checkboxLabel"
+msgstr "Generate PDF Galley"
+
+msgid "plugins.generic.jatsParser.publication.jats.pdf.description"
+msgstr "Generates the downloadable PDF galley in the OJS Galleys section from the XML file selected in step 1."
+
+

@@ -1,5 +1,13 @@
 <?php
 
+if (!class_exists('\Illuminate\Support\Facades\DB')) {
+	$bootstrapPath = dirname(__DIR__, 7) . '/tools/bootstrap.php';
+	if (file_exists($bootstrapPath)) {
+		require_once $bootstrapPath;
+	}
+}
+
+
 require_once __DIR__ . '/../../../daos/CustomPublicationSettingsDAO.inc.php';
 
 $isCli = (PHP_SAPI === 'cli');
@@ -34,7 +42,14 @@ if ($isPost && !empty($_POST['citationStyleName'])) {
 		// echo '<pre>' . json_encode($unifiedArray, JSON_PRETTY_PRINT) . '</pre>'; // debug opcional
 	}
 
-	// Redirigir solo en entorno web
+	// Responder JSON si es petición AJAX
+	if (isset($_REQUEST['ajax']) || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')) {
+		header('Content-Type: application/json');
+		echo json_encode(['status' => 'success']);
+		exit();
+	}
+
+	// Redirigir solo en entorno web estándar
 	if (!$isCli) {
 		$redirect = $_SERVER['REQUEST_URI'] ?? '/';
 		header("Location: " . $redirect);

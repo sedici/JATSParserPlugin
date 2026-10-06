@@ -16,8 +16,9 @@ abstract class GenericCitationTable {
     protected $publicationId;
     protected $localeKey;
     protected $formatter;
+    protected $humanXmlFileName;
     
-    public function __construct(array $arrayData, string $absoluteXmlPath, string $citationStyle, int $publicationId, string $localeKey) {
+    public function __construct(array $arrayData, string $absoluteXmlPath, string $citationStyle, int $publicationId, string $localeKey, ?string $humanXmlFileName = null) {
         $this->arrayData = $arrayData;
 
         $this->bibrCitationsData = $arrayData['bibr_citations_data'] ?? [];
@@ -27,6 +28,7 @@ abstract class GenericCitationTable {
         $this->citationStyle = $citationStyle;
         $this->publicationId = $publicationId;
         $this->localeKey = $localeKey;
+        $this->humanXmlFileName = $humanXmlFileName;
         
         $this->initFormatter();
     }
@@ -41,7 +43,8 @@ abstract class GenericCitationTable {
             $this->absoluteXmlPath, 
             $this->citationStyle, 
             $this->publicationId, 
-            $this->localeKey
+            $this->localeKey,
+            $this->humanXmlFileName
         );
         
         return $builder->build();

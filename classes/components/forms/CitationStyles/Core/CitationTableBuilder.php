@@ -3,6 +3,7 @@
 require_once __DIR__ . '/Renderers/ApaTableRenderer.php';
 require_once __DIR__ . '/Renderers/ApaReferencesRenderer.php';
 require_once __DIR__ . '/Renderers/ApaFigsTablesRenderer.php';
+require_once __DIR__ . '/Renderers/CslReferencesRenderer.php';
 
 require_once __DIR__ . '/Elements/Messages.php';
 require_once __DIR__ . '/Elements/Buttons.php';
@@ -11,6 +12,7 @@ require_once __DIR__ . '/Elements/Modal.php';
 use PKP\components\forms\CitationStyles\Core\Renderers\ApaTableRenderer;
 use PKP\components\forms\CitationStyles\Core\Renderers\ApaFigsTablesRenderer;
 use PKP\components\forms\CitationStyles\Core\Renderers\ApaReferencesRenderer;
+use PKP\components\forms\CitationStyles\Core\Renderers\CslReferencesRenderer;
 
 use PKP\components\forms\CitationStyles\Core\Elements\Messages;
 use PKP\components\forms\CitationStyles\Core\Elements\Buttons;
@@ -43,7 +45,8 @@ class CitationTableBuilder {
     private $publicationId;
     
     /* Locale key for internationalization */
-    private $localeKey;
+    /* Human friendly name of the XML file */
+    private $humanXmlFileName;
 
     /**
      * Constructor for the CitationTableBuilder
@@ -54,6 +57,7 @@ class CitationTableBuilder {
      * @param string $citationStyle The citation style to be used (e.g., 'apa')
      * @param int $publicationId ID of the publication being processed
      * @param string $localeKey Locale key for internationalization
+     * @param string|null $humanXmlFileName Human friendly XML name
      */
     public function __construct(
         $formatter,
@@ -62,7 +66,8 @@ class CitationTableBuilder {
         string $xmlPath,
         string $citationStyle,
         int $publicationId,
-        string $localeKey
+        string $localeKey,
+        ?string $humanXmlFileName = null
     ) {
         $this->formatter = $formatter;
         $this->bibrCitationData = $bibrCitationData;
@@ -71,6 +76,7 @@ class CitationTableBuilder {
         $this->citationStyle = $citationStyle;
         $this->publicationId = $publicationId;
         $this->localeKey = $localeKey;
+        $this->humanXmlFileName = $humanXmlFileName;
     }
     
     /** 
@@ -90,15 +96,20 @@ class CitationTableBuilder {
         $html .= '<div class="citation-form-container" style="max-height: 80vh; overflow-y: auto; overflow-x: hidden;">';
         $html .= Messages::getErrorMessageHtml();
 
-        // Instantiate table renderer, figures/tables renderer and references renderer
-        $tableRendererClassname = 'PKP\\components\\forms\\CitationStyles\\Core\\Renderers\\' . ucfirst($this->citationStyle) . 'TableRenderer';
-        $tableRenderer = new $tableRendererClassname($this->xmlPath, $this->citationStyle, $this->publicationId, $this->localeKey);
-        
-        $tableFigsRendererClassname = 'PKP\\components\\forms\\CitationStyles\\Core\\Renderers\\' . ucfirst($this->citationStyle) . 'FigsTablesRenderer';
-        $tableFigsRenderer = new $tableFigsRendererClassname();
+        $displayXmlName = !empty($this->humanXmlFileName) ? $this->humanXmlFileName : basename($this->xmlPath);
+        $html .= '<div class="citation-modal-xml-notice" style="background: #eef5fa; border: 1px solid #cce2f0; border-left: 4px solid #006798; border-radius: 4px; padding: 9px 14px; margin-bottom: 14px; font-size: 0.88rem; color: #006798; display: flex; align-items: center; gap: 8px;">'
+            . '<span class="fa fa-file-code-o" style="font-size: 1.05rem;" aria-hidden="true"></span>'
+            . '<span><strong>' . __('plugins.generic.jatsParser.publication.jats.citations.modalXmlNotice') . ':</strong> ' . htmlspecialchars($displayXmlName) . '</span>'
+            . '</div>';
 
-        $tableReferencesRendererClassname = 'PKP\\components\\forms\\CitationStyles\\Core\\Renderers\\' . ucfirst($this->citationStyle) . 'ReferencesRenderer';
-        $tableReferencesRenderer = new $tableReferencesRendererClassname($this->formatter, $this->xmlPath, $this->citationStyle, $this->publicationId, $this->localeKey);
+        // ApaTableRenderer handles the modal/tabs/form structure (style-agnostic).
+        $tableRenderer = new ApaTableRenderer($this->xmlPath, $this->citationStyle, $this->publicationId, $this->localeKey);
+
+        // ApaFigsTablesRenderer handles figure/table cross-reference rows (style-agnostic).
+        $tableFigsRenderer = new ApaFigsTablesRenderer();
+
+        // CslReferencesRenderer renders citation options dynamically via CiteProc for all styles.
+        $tableReferencesRenderer = new CslReferencesRenderer($this->formatter, $this->xmlPath, $this->citationStyle, $this->publicationId, $this->localeKey);
 
         $html .= $tableRenderer->getFormOpening('citationFormAll'); // Open single form for both tabs
         $html .= $tableRenderer->getCitationTabs(); // Tabs header
@@ -134,8 +145,12 @@ class CitationTableBuilder {
 
         $html .= '</div>'; // end panels wrapper
 
-        // Single save button for the entire form
-        $html .= Buttons::getFormSaveButton();
+        // Close button at bottom of modal
+        $html .= '<div style="margin-top: 18px; display: flex; justify-content: flex-end; padding-top: 12px; border-top: 1px solid #e0e0e0;">'
+            . '<button type="button" class="pkpButton citation-modal-close-btn" onclick="document.getElementById(\'citationModal\').style.display=\'none\';">'
+            . __('common.close')
+            . '</button>'
+            . '</div>';
         $html .= $tableRenderer->getClosingForm();
 
         $html .= '</div>'; // citation-form-container

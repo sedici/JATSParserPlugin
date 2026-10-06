@@ -26,7 +26,8 @@ class Buttons {
      * @return string HTML markup for the view citations button
      */
     public static function getViewCitationsButton(): string {
-        return '<button type="button" id="openCitationModalBtn" class="view-btn-citations">'
+        return '<button type="button" id="openCitationModalBtn" class="pkpButton view-btn-citations">'
+            . '<span class="fa fa-list-alt" aria-hidden="true"></span> '
             . __('plugins.generic.jatsParser.citationtable.viewcitations') .
             '</button>';
     }

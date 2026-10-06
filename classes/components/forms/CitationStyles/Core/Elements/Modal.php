@@ -8,6 +8,6 @@
         }
 
         public static function getClosingCitationModal(){
-            return '</div></div></div>';
+            return '</div></div>';
         }
     }
