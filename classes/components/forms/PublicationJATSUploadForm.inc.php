@@ -45,6 +45,7 @@ class PublicationJATSUploadForm extends FormComponent {
 		$options = [];
 		$generateHtmlOptions = [];
 		$pdfOptions = [];
+		$epubOptions = [];
 		$submissionFilesById = []; // Array to store submission files by ID for easy lookup later
 		
 		foreach ($locales as $value) {
@@ -80,6 +81,11 @@ class PublicationJATSUploadForm extends FormComponent {
 			$pdfOptions[$locale][] = array(
 				'value' => true,
 				'label' => __('plugins.generic.jatsParser.publication.jats.pdf.checkboxLabel')
+			);
+
+			$epubOptions[$locale][] = array(
+				'value' => true,
+				'label' => __('plugins.generic.jatsParser.publication.jats.epub.checkboxLabel')
 			);
 		}
 
@@ -315,6 +321,18 @@ class PublicationJATSUploadForm extends FormComponent {
 					'value' => $pdfGalleyValues,
 				]));
 			}
+
+			// SECTION 5: EPUB Galley
+			$epubGalleyValues = array_fill_keys(array_keys($options), []);
+			$this->addField(new FieldOptions('jatsParser::epubGalley', [
+				'label' => __('plugins.generic.jatsParser.publication.jats.group.epubOutput'),
+				'description' => __('plugins.generic.jatsParser.publication.jats.epub.description'),
+				'type' => 'checkbox',
+				'isMultilingual' => true,
+				'options' => $epubOptions,
+				'value' => $epubGalleyValues,
+			]));
+			
 		} else {
 			$this->addField(new FieldHTML("addProductionReadyFiles", array(
 				'description' => $msg,
