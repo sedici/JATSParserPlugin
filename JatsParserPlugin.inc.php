@@ -556,7 +556,6 @@ class JatsParserPlugin extends GenericPlugin
 		return $html;
 	}
 
-	
 	/**
 	 * Add a property to the publication schema
 	 *
@@ -579,6 +578,10 @@ class JatsParserPlugin extends GenericPlugin
 		]);
 		$schema->properties->{'jatsParser::deleteHtml'} = (object) array_merge($baseProp, ['type' => 'boolean']);
 		$schema->properties->{'jatsParser::pdfGalley'} = (object) array_merge($baseProp, [
+			'type' => 'array',
+			'items' => (object) ['type' => 'boolean']
+		]);
+		$schema->properties->{'jatsParser::epubGalley'} = (object) array_merge($baseProp, [
 			'type' => 'array',
 			'items' => (object) ['type' => 'boolean']
 		]);
