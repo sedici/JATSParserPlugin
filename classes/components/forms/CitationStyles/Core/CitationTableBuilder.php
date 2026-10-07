@@ -1,7 +1,6 @@
 <?php namespace PKP\components\forms\CitationStyles\Core;
 
 require_once __DIR__ . '/Renderers/ApaTableRenderer.php';
-require_once __DIR__ . '/Renderers/ApaReferencesRenderer.php';
 require_once __DIR__ . '/Renderers/ApaFigsTablesRenderer.php';
 require_once __DIR__ . '/Renderers/CslReferencesRenderer.php';
 
@@ -11,7 +10,6 @@ require_once __DIR__ . '/Elements/Modal.php';
 
 use PKP\components\forms\CitationStyles\Core\Renderers\ApaTableRenderer;
 use PKP\components\forms\CitationStyles\Core\Renderers\ApaFigsTablesRenderer;
-use PKP\components\forms\CitationStyles\Core\Renderers\ApaReferencesRenderer;
 use PKP\components\forms\CitationStyles\Core\Renderers\CslReferencesRenderer;
 
 use PKP\components\forms\CitationStyles\Core\Elements\Messages;
