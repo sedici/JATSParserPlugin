@@ -7,18 +7,6 @@
 class Buttons {
 
     /**
-     * Generates the HTML for the form's save button
-     * This button is used to submit the citations styles selected in the form
-     * 
-     * @return string HTML markup for the save button
-     */
-    public static function getFormSaveButton() {
-        return '<button type="submit" class="save-btn-citations">
-                    ' . __('plugins.generic.jatsParser.citationtable.savebuttontext') . '
-                </button>';
-    }
-
-    /**
      * Generates the HTML for the button that opens the citations modal
      * This button triggers the display of a modal containing the citation table with 
      * all the citations information

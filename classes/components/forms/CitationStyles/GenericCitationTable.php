@@ -1,6 +1,5 @@
 <?php namespace PKP\components\forms\CitationStyles;
 
-require_once __DIR__ . '/../Helpers/process_citations.php';
 require_once __DIR__ . '/Core/CitationTableBuilder.php';
 require_once __DIR__ . '/Core/Formatters/AbstractCitationFormatter.php';
 
