@@ -53,6 +53,12 @@ class CslReferencesRenderer {
     private $citeProc = null;
 
     /**
+     * Cached parsed JATS references indexed by reference ID
+     * @var array|null
+     */
+    private $jatsRefsById = null;
+
+    /**
      * Constructor for the CSL References Renderer
      */
     public function __construct(AbstractCitationFormatter $formatter, string $absoluteXmlPath, string $citationStyle, int $publicationId, string $localeKey) {
@@ -91,17 +97,14 @@ class CslReferencesRenderer {
             $cslPath = CslCategoryDetector::resolveCslPath($this->citationStyle);
 
             if ($cslPath && file_exists($cslPath)) {
-                error_log('[CslRenderer] getCiteProc: loading from local file: ' . $cslPath);
                 $style = StyleSheet::loadStyleSheet($cslPath);
             } else {
                 // 2. Fall back to citeproc-php bundled styles (harvard, abnt, chicago-ad, etc.)
                 //    StyleSheet::loadStyleSheet() accepts a style name and resolves it internally.
-                error_log('[CslRenderer] getCiteProc: loading by name from bundled styles: ' . $this->citationStyle);
                 $style = StyleSheet::loadStyleSheet($this->citationStyle);
             }
 
             $this->citeProc = new CiteProc($style, $lang);
-            error_log('[CslRenderer] getCiteProc: CiteProc initialized OK for style=' . $this->citationStyle);
         } catch (\Throwable $e) {
             error_log('[CslRenderer] getCiteProc: EXCEPTION for style=' . $this->citationStyle . ' → ' . $e->getMessage());
             $this->citeProc = null;
@@ -126,12 +129,15 @@ class CslReferencesRenderer {
         }
 
         try {
-            $jatsDoc = new \JATSParser\Body\Document($this->absoluteXmlPath);
-            $jatsRefs = $jatsDoc->getReferences();
-            $jatsRefsById = [];
-            foreach ($jatsRefs as $ref) {
-                $jatsRefsById[$ref->getId()] = $ref;
+            if ($this->jatsRefsById === null) {
+                $jatsDoc = new \JATSParser\Body\Document($this->absoluteXmlPath);
+                $jatsRefs = $jatsDoc->getReferences();
+                $this->jatsRefsById = [];
+                foreach ($jatsRefs as $ref) {
+                    $this->jatsRefsById[$ref->getId()] = $ref;
+                }
             }
+            $jatsRefsById = $this->jatsRefsById;
 
             $cslItems = [];
             foreach ($references as $refId => $refData) {
@@ -154,7 +160,6 @@ class CslReferencesRenderer {
             }
 
             $rendered = $citeProc->render($cslItems, "citation");
-            error_log('[CslRenderer] renderCslCitationForXref: rendered=' . $rendered);
             return trim(strip_tags($rendered));
         } catch (\Throwable $e) {
             error_log('[CslRenderer] renderCslCitationForXref: EXCEPTION → ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine());
