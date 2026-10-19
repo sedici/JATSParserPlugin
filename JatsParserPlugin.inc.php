@@ -660,6 +660,8 @@ class JatsParserPlugin extends GenericPlugin
 		$state['components'][FORM_PUBLICATION_JATS_FULLTEXT] = $form->getConfig();
 		$state['publicationFormIds'][] = FORM_PUBLICATION_JATS_FULLTEXT;
 		$templateMgr->assign('state', $state);
+		$pluginBaseUrl = $request->getBaseUrl() . '/' . $this->getPluginPath();
+		$templateMgr->assign('jatsParserPluginUrl', $pluginBaseUrl);
 		$templateMgr->assign('jatsPublicationApiUrl', $latestPublicationApiUrl);
 
 		$templateMgr->display($this->getTemplateResource("workflowJatsFulltext.tpl"));

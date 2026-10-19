@@ -30,49 +30,60 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Function to save citations directly to the database via process_citations.php
+    // Function to save citations directly to the database via OJS REST API
     function saveCitationsToServer() {
-        let container = document.getElementById('citationFormAll');
-        if (!container) return;
-
-        let xmlFilePath = container.querySelector('input[name="xmlFilePath"]')?.value || '';
-        let citationStyleName = container.querySelector('input[name="citationStyleName"]')?.value || 'apa';
-        let publicationId = container.querySelector('input[name="publicationId"]')?.value || '';
-        let localeKey = container.querySelector('input[name="locale_key"]')?.value || 'es';
-
-        let formData = new FormData();
-        formData.append('xmlFilePath', xmlFilePath);
-        formData.append('citationStyleName', citationStyleName);
-        formData.append('publicationId', publicationId);
-        formData.append('locale_key', localeKey);
-        formData.append('ajax', '1');
-
-        container.querySelectorAll('.citation-select').forEach(function (select) {
-            let xrefId = select.id.replace('citationStyle_', '');
-            let val = select.value;
-            if (val === 'custom') {
-                let customInput = document.getElementById('customInput_' + xrefId);
-                val = customInput ? customInput.value.trim() : '';
-                if (val !== '') {
-                    formData.append('customCitation[' + xrefId + ']', val);
-                }
-            } else {
-                formData.append('citationStyle[' + xrefId + ']', val);
+        let apiUrl = window.jatsPublicationApiUrl;
+        if (!apiUrl) {
+            let app = window.pkp && window.pkp.registry && window.pkp.registry._instances && window.pkp.registry._instances['app'];
+            if (app && app.components && app.components['jatsUpload'] && app.components['jatsUpload'].action) {
+                apiUrl = app.components['jatsUpload'].action;
             }
-        });
+        }
+        if (!apiUrl) {
+            console.warn('jatsPublicationApiUrl is not defined, skipping REST API save.');
+            return Promise.resolve();
+        }
+
+        let json = getCitationsDataFromModal();
+        if (!json) return Promise.resolve();
+
+        let form = document.getElementById('citationFormAll');
+        let localeKey = form ? (form.querySelector('input[name="locale_key"]')?.value || 'es') : 'es';
+
+        let payload = {
+            'jatsParser::citationTableData': {}
+        };
+        payload['jatsParser::citationTableData'][localeKey] = json;
+
+        let csrfToken = (window.pkp && window.pkp.currentUser && window.pkp.currentUser.csrfToken)
+            ? window.pkp.currentUser.csrfToken
+            : (document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : '');
 
         try {
-            fetch('/plugins/generic/jatsParser/classes/components/forms/Helpers/process_citations.php', {
-                method: 'POST',
-                body: formData,
+            return fetch(apiUrl, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Csrf-Token': csrfToken
+                },
+                body: JSON.stringify(payload),
                 keepalive: true
+            }).then(function (response) {
+                if (!response.ok) {
+                    throw new Error(response.statusText || 'Request failed');
+                }
+                return response.json();
             }).catch(function (e) {
-                console.error('Error saving citations:', e);
+                console.error('Error saving citations via REST API:', e);
             });
         } catch (e) {
-            console.error('Fetch error saving citations:', e);
+            console.error('Fetch error saving citations via REST API:', e);
+            return Promise.reject(e);
         }
     }
+
+    // Expose globally if needed
+    window.jatsSaveCitationsToServer = saveCitationsToServer;
 
     // Function to sync the citations JSON into the PKP form input and Vue model
     function syncCitationsToForm() {

@@ -87,6 +87,8 @@ class TableHTML {
     private $arrayData = array();
     private $humanXmlFileName = null;
     private $selectedFileId = null;
+    private $resolvedCitationsMap = null;
+    private static $resolvedCitationsCache = [];
 
     public function __construct(String $citationStyle, ?String $absoluteXmlPath, $customCitationData, $publication, String $locale_key, ?string $humanXmlFileName = null, $selectedFileId = null)
     {
@@ -516,8 +518,26 @@ class TableHTML {
      * @return array
      */
     public function getResolvedCitationsMap(): array {
+        if ($this->resolvedCitationsMap !== null) {
+            return $this->resolvedCitationsMap;
+        }
+
+        $cacheKey = md5(
+            ($this->absoluteXmlPath ?? '') . '|' .
+            ($this->citationStyle ?? '') . '|' .
+            ($this->locale_key ?? '') . '|' .
+            ($this->publication ? $this->publication->getId() : '')
+        );
+
+        if (isset(self::$resolvedCitationsCache[$cacheKey])) {
+            $this->resolvedCitationsMap = self::$resolvedCitationsCache[$cacheKey];
+            return $this->resolvedCitationsMap;
+        }
+
         $saved = $this->getCurrentXmlSavedCitations();
         if (!empty($saved)) {
+            $this->resolvedCitationsMap = $saved;
+            self::$resolvedCitationsCache[$cacheKey] = $saved;
             return $saved;
         }
 
@@ -581,6 +601,8 @@ class TableHTML {
             }
         }
 
+        $this->resolvedCitationsMap = $map;
+        self::$resolvedCitationsCache[$cacheKey] = $map;
         return $map;
     }
 }
