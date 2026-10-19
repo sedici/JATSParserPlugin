@@ -42,6 +42,7 @@ use APP\notification\NotificationManager;
 use JATSParser\TemplateHandler\HTML\HTMLOutputStrategy;
 use JATSParser\TemplateHandler\PDF\PDFCreationService;
 use JATSParser\TemplateHandler\PDF\PDFOutputStrategy;
+use JATSParser\TemplateHandler\EPUB\EPUBOutputStrategy;
 use PKP\locale\Locale;
 use PKP\galley\Galley;
 
@@ -69,6 +70,7 @@ class JatsParserPlugin extends GenericPlugin
 				HookRegistry::add('Publication::edit', array($this, 'editPublicationReferences'));
 				HookRegistry::add('Publication::edit', array($this, 'createAllGalleys'));
 				HookRegistry::add('SubmissionFile::delete::before', array($this, 'onDeleteSubmissionFile'));
+				HookRegistry::add('Publication::edit', array($this, 'createEpubGalley'));
 			}
 
 			return true;
@@ -556,7 +558,6 @@ class JatsParserPlugin extends GenericPlugin
 		return $html;
 	}
 
-	
 	/**
 	 * Add a property to the publication schema
 	 *
@@ -579,6 +580,10 @@ class JatsParserPlugin extends GenericPlugin
 		]);
 		$schema->properties->{'jatsParser::deleteHtml'} = (object) array_merge($baseProp, ['type' => 'boolean']);
 		$schema->properties->{'jatsParser::pdfGalley'} = (object) array_merge($baseProp, [
+			'type' => 'array',
+			'items' => (object) ['type' => 'boolean']
+		]);
+		$schema->properties->{'jatsParser::epubGalley'} = (object) array_merge($baseProp, [
 			'type' => 'array',
 			'items' => (object) ['type' => 'boolean']
 		]);
@@ -948,6 +953,125 @@ class JatsParserPlugin extends GenericPlugin
 		$this->_importCitations($htmlDocument, $newPublication);
 
 		return false;
+	}
+
+	function createEpubGalley(string $hookname, array $args)
+	{
+		$newPublication = $args[0]; /* @var $newPublication Publication */
+		$params = $args[2];
+		$request = $args[3];
+		if (!array_key_exists('jatsParser::epubGalley', $params)) return false;
+		$localePare = $params['jatsParser::epubGalley'];
+
+		foreach ($localePare as $localeKey => $createEpub) {
+		
+			if (!$this->isCheckboxChecked($createEpub)) continue;
+			
+			// Obtener el ID del archivo XML para este idioma
+			$jatsFileId = $newPublication->getData('jatsParser::fullTextFileId', $localeKey);
+			if (empty($jatsFileId) && isset($params['jatsParser::fullTextFileId'][$localeKey])) {
+				$jatsFileId = $params['jatsParser::fullTextFileId'][$localeKey];
+			}
+			if (empty($jatsFileId)) continue;
+			
+			$jatsSubmissionFile = Repo::submissionFile()->get($jatsFileId);
+			if (!$jatsSubmissionFile) continue;
+			
+			// Parsear y enriquecer el HTML para compilar el EPUB
+			$fullTextHtml = $this->buildEnrichedHtml($jatsSubmissionFile, $newPublication, $localeKey, false);
+			
+			// Generar EPUB (delegado a epubCreation)
+			$epub = $this->epubCreation($fullTextHtml, $newPublication, $request, $localeKey, $jatsFileId);
+			if (empty($epub)) continue;
+			
+			// Crear la galerada EPUB
+			$epubGalleyId = $this->createGalley($localeKey, $newPublication, 'plugins.generic.jatsParser.publication.galley.epub.label');
+			
+			// Obtener el objeto Galley usando el Repo de OJS 3.4
+			$epubGalley = Repo::galley()
+				->getCollector()
+				->filterByPublicationIds([$newPublication->getId()])
+				->getMany()
+				->first(function ($g) use ($epubGalleyId) {
+					return $g->getBestGalleyId() === $epubGalleyId;
+			});
+
+			if ($epubGalley) {
+				// Crear y asociar el archivo físico del EPUB
+				$epubSubmissionFile = $this->_setEpubSubmissionFile($epub, $newPublication, $epubGalley);
+				if ($epubSubmissionFile) {
+					Repo::galley()->edit($epubGalley, [
+						'submissionFileId' => $epubSubmissionFile->getId(),
+					]);
+				} else {
+					Repo::galley()->delete($epubGalley);
+				}
+			}
+		}
+		// Limpiar flag temporal
+		$newPublication->setData('jatsParser::epubGalley', null);
+		return false;
+	}
+
+	function epubCreation(string $htmlString, Publication $publication, Request $request, string $localeKey, int $fileId) {
+		$metadata = $this->getMetadata($publication, $localeKey, $request, $htmlString);
+		$ojsConfiguration = $this->getConfiguration($request);
+		$configuration = new Configuration($metadata);
+		$fileMgr = new PrivateFileManager();
+		$journalId = $request->getContext()->getId();
+
+		$outputStrategy = EPUBOutputStrategy::class;
+		return $outputStrategy::generateOutput($this, $fileMgr, $journalId, $localeKey, $fileId, $htmlString, $configuration, $metadata, $ojsConfiguration);
+	}
+
+	/**
+	 * @param string $epubBinaryString binario del EPUB
+	 * @param Publication $publication
+	 * @param Galley $galley
+	 * @return SubmissionFile|null
+	 * @brief Crea un nuevo submission file para el EPUB en OJS
+	 */
+	private function _setEpubSubmissionFile(string $epubBinaryString, Publication $publication, Galley $galley)
+	{
+		$submission = Repo::submission()->get($publication->getData('submissionId'));
+		$request = $this->getRequest();
+		// Crear archivo temporal
+		$tmpFile = tempnam(sys_get_temp_dir(), 'jatsParser_epub');
+		file_put_contents($tmpFile, $epubBinaryString);
+		// Obtener directorio de almacenamiento del submission
+		$submissionFileRepo = Repo::submissionFile();
+		$submissionDir = $submissionFileRepo->getSubmissionDir($submission->getData('contextId'), $submission->getId());
+		// Guardar archivo en el sistema de archivos de OJS con extensión .epub
+		$fileId = Services::get('file')->add(
+			$tmpFile,
+			$submissionDir . DIRECTORY_SEPARATOR . uniqid() . '.epub'
+		);
+		// Obtener el nombre base a partir del XML
+		$jatsFileId = $publication->getData('jatsParser::fullTextFileId', $galley->getLocale());
+		$jatsFile = $submissionFileRepo->get($jatsFileId);
+		$name = [];
+		foreach ($jatsFile->getData('name') as $locale => $sourceName) {
+			$name[$locale] = pathinfo($sourceName)['filename'] . '.epub';
+		}
+		$genreDao = DAORegistry::getDAO('GenreDAO');
+		$genre = $genreDao->getByKey('SUBMISSION', $submission->getData('contextId'));
+		// Crear el registro SubmissionFile en OJS 3.4
+		$submissionFile = $submissionFileRepo->newDataObject();
+		$submissionFile->setAllData([
+			'fileId' => $fileId,
+			'assocType' => ASSOC_TYPE_GALLEY,
+			'assocId' => $galley->getId(),
+			'fileStage' => SUBMISSION_FILE_PROOF,
+			'mimetype' => 'application/epub+zip',
+			'locale' => $galley->getLocale(),
+			'genreId' => $genre->getId(),
+			'name' => $name,
+			'submissionId' => $submission->getId(),
+		]);
+		$submissionFileId = Repo::submissionFile()->add($submissionFile, $request);
+		$submissionFile = Repo::submissionFile()->get($submissionFileId);
+		unlink($tmpFile); // Limpiar archivo temporal
+		return $submissionFile;
 	}
 
 	function createAllGalleys(string $hookname, array $args)

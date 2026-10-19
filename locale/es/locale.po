@@ -65,6 +65,9 @@ msgstr "PDF"
 msgid "plugins.generic.jatsParser.publication.galley.html.label"
 msgstr "HTML"
 
+msgid "plugins.generic.jatsParser.publication.galley.epub.label"
+msgstr "EPUB"
+
 msgid "plugins.generic.jatsParser.publication.jats.fulltext"
 msgstr "JATSParser"
 
@@ -394,4 +397,11 @@ msgstr "Generar Galerada PDF"
 msgid "plugins.generic.jatsParser.publication.jats.pdf.description"
 msgstr "Genera la galerada PDF descargable en la sección de Galeradas de OJS a partir del XML seleccionado en el paso 1."
 
+msgid "plugins.generic.jatsParser.publication.jats.group.epubOutput"
+msgstr "5. Galerada EPUB"
 
+msgid "plugins.generic.jatsParser.publication.jats.epub.checkboxLabel"
+msgstr "Generar Galerada EPUB"
+
+msgid "plugins.generic.jatsParser.publication.jats.epub.description"
+msgstr "Genera la galerada EPUB descargable en la sección de Galeradas de OJS a partir del XML seleccionado en el paso 1."

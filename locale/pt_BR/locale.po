@@ -71,6 +71,9 @@ msgstr "PDF"
 msgid "plugins.generic.jatsParser.publication.galley.html.label"
 msgstr "HTML"
 
+msgid "plugins.generic.jatsParser.publication.galley.epub.label"
+msgstr "EPUB"
+
 msgid "plugins.generic.jatsParser.style.acm-sig-proceedings"
 msgstr "ACM"
 

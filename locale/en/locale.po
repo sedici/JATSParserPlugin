@@ -71,6 +71,9 @@ msgstr "PDF"
 msgid "plugins.generic.jatsParser.publication.galley.html.label"
 msgstr "HTML"
 
+msgid "plugins.generic.jatsParser.publication.galley.epub.label"
+msgstr "EPUB"
+
 msgid "plugins.generic.jatsParser.style.acm-sig-proceedings"
 msgstr "ACM"
 
@@ -379,4 +382,11 @@ msgstr "Generate PDF Galley"
 msgid "plugins.generic.jatsParser.publication.jats.pdf.description"
 msgstr "Generates the downloadable PDF galley in the OJS Galleys section from the XML file selected in step 1."
 
+msgid "plugins.generic.jatsParser.publication.jats.group.epubOutput"
+msgstr "5. EPUB Galley"
 
+msgid "plugins.generic.jatsParser.publication.jats.epub.checkboxLabel"
+msgstr "Generate EPUB Galley"
+
+msgid "plugins.generic.jatsParser.publication.jats.epub.description"
+msgstr "Generates the downloadable EPUB galley in the OJS Galleys section from the XML file selected in step 1."
