@@ -1,5 +1,5 @@
-<link rel="stylesheet" type="text/css" href="{$jatsParserPluginUrl|default:'/plugins/generic/jatsParser'}/app/citationTable.css?v=10" />
-<script src="{$jatsParserPluginUrl|default:'/plugins/generic/jatsParser'}/app/citationTable.js?v=7"></script>
+<link rel="stylesheet" type="text/css" href="{$jatsParserPluginUrl|default:'/plugins/generic/jatsParser'}/app/citationTable.css?v=12" />
+<script src="{$jatsParserPluginUrl|default:'/plugins/generic/jatsParser'}/app/citationTable.js?v=8"></script>
 
 <tab id="jatsUpload" label="{translate key="plugins.generic.jatsParser.publication.jats.fulltext"}">
     <pkp-form v-bind="components.{$smarty.const.FORM_PUBLICATION_JATS_FULLTEXT}" @set="set" />
@@ -159,11 +159,22 @@
                 var textElem = labelElem ? (labelElem.querySelector('.pkpFormFieldLabel_text') || labelElem) : null;
                 var newlySelectedXml = textElem ? textElem.textContent.trim() : '';
 
-                var badgeElem = document.querySelector('.citation-selected-xml-badge');
+                // Extract locale of the changed radio input
+                var localeKey = '';
+                var m = nameAttr.match(/fullTextFileId\[([a-zA-Z_]+)\]/) || nameAttr.match(/fullTextFileId-([a-zA-Z_]+)/);
+                if (m && m[1]) {
+                    localeKey = m[1];
+                }
+
+                var badgeElem = localeKey 
+                    ? document.querySelector('.citation-selected-xml-badge[data-locale="' + localeKey + '"]')
+                    : document.querySelector('.citation-selected-xml-badge');
                 var currentTableXml = badgeElem ? (badgeElem.getAttribute('data-current-xml') || '').trim() : '';
 
-                var alertBox = document.getElementById('citationUnsavedXmlAlert');
-                var alertText = document.getElementById('citationUnsavedXmlAlertText');
+                var alertBox = localeKey 
+                    ? document.getElementById('citationUnsavedXmlAlert_' + localeKey) 
+                    : (document.getElementById('citationUnsavedXmlAlert') || document.querySelector('.citationUnsavedXmlAlert'));
+                var alertText = alertBox ? (alertBox.querySelector('.citationUnsavedXmlAlertText') || alertBox.querySelector('#citationUnsavedXmlAlertText')) : null;
 
                 if (alertBox && alertText && newlySelectedXml && currentTableXml) {
                     if (newlySelectedXml !== currentTableXml) {

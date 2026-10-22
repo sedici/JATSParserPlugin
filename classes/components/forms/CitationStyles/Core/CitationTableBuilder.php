@@ -46,6 +46,9 @@ class CitationTableBuilder {
     /* Human friendly name of the XML file */
     private $humanXmlFileName;
 
+    /* Human friendly name of the locale */
+    private $humanLocaleName;
+
     /**
      * Constructor for the CitationTableBuilder
      * 
@@ -56,6 +59,7 @@ class CitationTableBuilder {
      * @param int $publicationId ID of the publication being processed
      * @param string $localeKey Locale key for internationalization
      * @param string|null $humanXmlFileName Human friendly XML name
+     * @param string|null $humanLocaleName Human friendly Locale name
      */
     public function __construct(
         $formatter,
@@ -65,7 +69,8 @@ class CitationTableBuilder {
         string $citationStyle,
         int $publicationId,
         string $localeKey,
-        ?string $humanXmlFileName = null
+        ?string $humanXmlFileName = null,
+        ?string $humanLocaleName = null
     ) {
         $this->formatter = $formatter;
         $this->bibrCitationData = $bibrCitationData;
@@ -75,6 +80,7 @@ class CitationTableBuilder {
         $this->publicationId = $publicationId;
         $this->localeKey = $localeKey;
         $this->humanXmlFileName = $humanXmlFileName;
+        $this->humanLocaleName = $humanLocaleName;
     }
     
     /** 
@@ -88,16 +94,24 @@ class CitationTableBuilder {
             return Messages::getEmptyCitationsMessage();
         }
 
-        $html = Buttons::getViewCitationsButton();
-        $html .= Modal::getOpeningCitationModal();
+        $html = Buttons::getViewCitationsButton($this->localeKey);
+        $html .= Modal::getOpeningCitationModal($this->localeKey);
 
         $html .= '<div class="citation-form-container" style="max-height: 80vh; overflow-y: auto; overflow-x: hidden;">';
         $html .= Messages::getErrorMessageHtml();
 
         $displayXmlName = !empty($this->humanXmlFileName) ? $this->humanXmlFileName : basename($this->xmlPath);
-        $html .= '<div class="citation-modal-xml-notice" style="background: #eef5fa; border: 1px solid #cce2f0; border-left: 4px solid #006798; border-radius: 4px; padding: 9px 14px; margin-bottom: 14px; font-size: 0.88rem; color: #006798; display: flex; align-items: center; gap: 8px;">'
+        $displayLocaleName = !empty($this->humanLocaleName) ? $this->humanLocaleName : $this->localeKey;
+
+        $html .= '<div class="citation-modal-xml-notice" style="background: #eef5fa; border: 1px solid #cce2f0; border-left: 4px solid #006798; border-radius: 4px; padding: 9px 14px; margin-bottom: 14px; font-size: 0.88rem; color: #006798; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">'
+            . '<div style="display: flex; align-items: center; gap: 8px;">'
             . '<span class="fa fa-file-code-o" style="font-size: 1.05rem;" aria-hidden="true"></span>'
             . '<span><strong>' . __('plugins.generic.jatsParser.publication.jats.citations.modalXmlNotice') . ':</strong> ' . htmlspecialchars($displayXmlName) . '</span>'
+            . '</div>'
+            . '<div style="display: inline-flex; align-items: center; gap: 6px; background-color: #ffffff; color: #006798; border: 1px solid #cce2f0; padding: 3px 10px; border-radius: 12px; font-size: 0.82rem; font-weight: 600;">'
+            . '<span class="fa fa-globe" aria-hidden="true"></span>'
+            . '<span>' . __('common.language') . ': ' . htmlspecialchars($displayLocaleName) . '</span>'
+            . '</div>'
             . '</div>';
 
         // ApaTableRenderer handles the modal/tabs/form structure (style-agnostic).
@@ -109,12 +123,12 @@ class CitationTableBuilder {
         // CslReferencesRenderer renders citation options dynamically via CiteProc for all styles.
         $tableReferencesRenderer = new CslReferencesRenderer($this->formatter, $this->xmlPath, $this->citationStyle, $this->publicationId, $this->localeKey);
 
-        $html .= $tableRenderer->getFormOpening('citationFormAll'); // Open single form for both tabs
+        $html .= $tableRenderer->getFormOpening('citationForm_' . $this->localeKey); // Open form scoped by locale
         $html .= $tableRenderer->getCitationTabs(); // Tabs header
         $html .= '<div class="citation-tab-panels">'; // Panels wrapper
 
         // References panel
-        $html .= '<div id="citation-tab-references" class="citation-tab-panel is-active">';
+        $html .= '<div id="citation-tab-references_' . htmlspecialchars($this->localeKey) . '" class="citation-tab-panel is-active">';
         if (!empty($this->bibrCitationData)) {
             $html .= $tableReferencesRenderer->getTableHeader();
             foreach ($this->bibrCitationData as $xrefId => $rowData) {
@@ -128,7 +142,7 @@ class CitationTableBuilder {
         $html .= '</div>';
 
         // Figures and Tables panel
-        $html .= '<div id="citation-tab-figtables" class="citation-tab-panel">';
+        $html .= '<div id="citation-tab-figtables_' . htmlspecialchars($this->localeKey) . '" class="citation-tab-panel">';
 
         if (!empty($this->figAndTableCitationData)) {
             $html .= $tableFigsRenderer->getTableHeader();
@@ -145,7 +159,7 @@ class CitationTableBuilder {
 
         // Close button at bottom of modal
         $html .= '<div style="margin-top: 18px; display: flex; justify-content: flex-end; padding-top: 12px; border-top: 1px solid #e0e0e0;">'
-            . '<button type="button" class="pkpButton citation-modal-close-btn" onclick="document.getElementById(\'citationModal\').style.display=\'none\';">'
+            . '<button type="button" class="pkpButton citation-modal-close-btn" data-locale="' . htmlspecialchars($this->localeKey) . '">'
             . __('common.close')
             . '</button>'
             . '</div>';

@@ -87,16 +87,23 @@ class TableHTML {
     private $arrayData = array();
     private $humanXmlFileName = null;
     private $selectedFileId = null;
+    private $humanLocaleName = null;
     private $resolvedCitationsMap = null;
     private static $resolvedCitationsCache = [];
 
-    public function __construct(String $citationStyle, ?String $absoluteXmlPath, $customCitationData, $publication, String $locale_key, ?string $humanXmlFileName = null, $selectedFileId = null)
+    public function __construct(String $citationStyle, ?String $absoluteXmlPath, $customCitationData, $publication, String $locale_key, ?string $humanXmlFileName = null, $selectedFileId = null, ?string $humanLocaleName = null)
     {
         $this->locale_key = $locale_key;
         $this->publication = $publication;
         $this->absoluteXmlPath = $absoluteXmlPath;
         $this->humanXmlFileName = $humanXmlFileName;
         $this->selectedFileId = $selectedFileId;
+        if (empty($humanLocaleName)) {
+            $metadata = class_exists('\PKP\facades\Locale') ? \PKP\facades\Locale::getMetadata($locale_key) : null;
+            $this->humanLocaleName = $metadata['displayName'] ?? $locale_key;
+        } else {
+            $this->humanLocaleName = $humanLocaleName;
+        }
         
         // Make sure citationsArray is properly structured even if empty
         $this->dbCitationsData = $customCitationData ?: [];
@@ -481,7 +488,8 @@ class TableHTML {
             $this->citationStyle, 
             $this->publication->getId(), 
             $this->locale_key,
-            $this->humanXmlFileName
+            $this->humanXmlFileName,
+            $this->humanLocaleName
         );
 
         $this->html = $tableStyle->makeHtml();

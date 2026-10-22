@@ -1,3 +1,65 @@
+/* MULTILINGUAL CITATION SECTION */
+.jats-citation-multilingual-wrapper {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 20px;
+    width: 100%;
+    margin: 15px 0 25px 0;
+    align-items: stretch;
+}
+
+.jats-citation-locale {
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* Primary locale column is always shown */
+.jats-citation-locale.jats-citation-locale--primary {
+    display: block;
+    flex: 1 1 100%;
+}
+
+/* Secondary locale columns are hidden by default until activated */
+.jats-citation-locale.jats-citation-locale--secondary {
+    display: none;
+    flex: 1 1 50%;
+}
+
+/* When a secondary locale is visible, primary and active secondary each take 50% */
+.jats-citation-multilingual-wrapper.has-secondary-visible .jats-citation-locale.jats-citation-locale--primary {
+    flex: 1 1 50%;
+}
+
+.jats-citation-locale.jats-citation-locale--secondary.is-active-locale {
+    display: block !important;
+}
+
+/* Card inside column should stretch to full height */
+.jats-citation-locale .jats-citation-stage-card {
+    margin: 0;
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.jats-citation-locale .jats-citation-stage-card > .jats-citation-stage-row,
+.jats-citation-locale .jats-citation-stage-card > .pkp_notification {
+    margin-top: auto;
+}
+
+@media (max-width: 991px) {
+    .jats-citation-multilingual-wrapper {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .jats-citation-locale.jats-citation-locale--primary,
+    .jats-citation-multilingual-wrapper.has-secondary-visible .jats-citation-locale.jats-citation-locale--primary,
+    .jats-citation-locale.jats-citation-locale--secondary.is-active-locale {
+        flex: 1 1 100%;
+    }
+}
+
 /* JATS PARSER STAGE 2 CARD CONTAINER */
 .jats-citation-stage-card {
     border: 1px solid rgba(0, 0, 0, 0.2);
