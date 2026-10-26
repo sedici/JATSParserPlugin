@@ -99,8 +99,20 @@ class TableHTML {
         $this->humanXmlFileName = $humanXmlFileName;
         $this->selectedFileId = $selectedFileId;
         if (empty($humanLocaleName)) {
-            $metadata = class_exists('\PKP\facades\Locale') ? \PKP\facades\Locale::getMetadata($locale_key) : null;
-            $this->humanLocaleName = $metadata['displayName'] ?? $locale_key;
+            $displayName = null;
+            try {
+                if (class_exists('\PKP\facades\Locale')) {
+                    $metadata = \PKP\facades\Locale::getMetadata($locale_key);
+                    if (is_object($metadata) && method_exists($metadata, 'getDisplayName')) {
+                        $displayName = $metadata->getDisplayName();
+                    } elseif (is_array($metadata)) {
+                        $displayName = $metadata['displayName'] ?? null;
+                    }
+                }
+            } catch (\Throwable $t) {
+                $displayName = null;
+            }
+            $this->humanLocaleName = $displayName ?: $locale_key;
         } else {
             $this->humanLocaleName = $humanLocaleName;
         }
