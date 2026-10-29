@@ -122,142 +122,154 @@ class PublicationJATSUploadForm extends FormComponent {
 				'value' => $values,
 			]));
 		
-			// SECTION 2: Citations Table
-			$locale_key = $context->getPrimaryLocale();
-			$selectedFileId = isset($values[$locale_key]) ? $values[$locale_key] : null;
-			if (empty($selectedFileId)) {
-				// Check if any other locale has a selected XML file
-				foreach ($values as $loc => $fId) {
-					if (!empty($fId)) {
-						$selectedFileId = $fId;
-						$locale_key = $loc;
-						break;
-					}
-				}
-			}
-
+			// SECTION 2: Citations Table (Multilingual synchronized with top-right switcher)
+			$primaryLocale = $context->getPrimaryLocale();
 			$stage2Title = __('plugins.generic.jatsParser.publication.jats.group.citations');
 			$stage2Description = __('plugins.generic.jatsParser.publication.jats.citations.cardDescription');
+			$fileMgr = new PrivateFileManager();
+			$customPublicationSettingsDao = new CustomPublicationSettingsDAO();
 
-			if (empty($selectedFileId)) {
-				// No XML selected/saved yet
-				$cardHtml = '
-				<div class="jats-citation-stage-card">
-					<div class="jats-citation-stage-title">
-						' . $stage2Title . '
-					</div>
-					<div class="jats-citation-stage-description">
-						' . $stage2Description . '
-					</div>
+			$localeCardsHtml = [];
+
+			foreach ($locales as $locItem) {
+				$locKey = $locItem['key'];
+				$locName = $locItem['label'];
+				$isPrimary = ($locKey === $primaryLocale);
+
+				$selectedFileId = isset($values[$locKey]) ? $values[$locKey] : null;
+
+				// In OJS multilingual forms, primary column shows field title, secondary shows language label (e.g. "Inglés")
+				$cardColTitle = $isPrimary ? $stage2Title : htmlspecialchars($locName);
+				$cardColDesc = $isPrimary ? $stage2Description : '';
+
+				if (empty($selectedFileId)) {
+					// No XML selected for this locale
+					$innerNotice = '
 					<div class="pkp_notification" style="margin: 0; font-weight: normal; text-transform: none;">
 						<div class="notifyInfo">
 							<span class="title">' . __('common.notice') . '</span>
-							<span class="description">' . __('plugins.generic.jatsParser.publication.jats.citations.noXmlSelected') . '</span>
-						</div>
-					</div>
-				</div>';
-
-				$this->addField(new FieldHTML("citationTableEmptyNotice", [
-					'description' => $cardHtml,
-				]));
-			} else {
-				// Show citation table for all styles that have more than one citation form.
-				// Numeric styles (IEEE, Vancouver, etc.) are excluded because they only produce one form (e.g. [1]).
-				if ($citationStyle && CslCategoryDetector::hasMultipleCitationForms($citationStyle)) {
-					$fileMgr = new PrivateFileManager();
-					$selectedFile = isset($submissionFilesById[$selectedFileId]) ? $submissionFilesById[$selectedFileId] : null;
-					$relativeFilePath = $selectedFile ? $selectedFile->getData('path') : null;
-
-					if ($relativeFilePath) {
-						$selectedFileName = $selectedFile ? ($selectedFile->getData('name', $locale_key) ?: $selectedFile->getLocalizedData('name')) : null;
-						if (empty($selectedFileName) && $selectedFile) {
-							$selectedFileName = $selectedFile->getData('originalFileName');
-						}
-						if (empty($selectedFileName)) {
-							$selectedFileName = __('common.none');
-						}
-
-						$absolutePath = $fileMgr->getBasePath() . DIRECTORY_SEPARATOR . $relativeFilePath;
-						$customPublicationSettingsDao = new CustomPublicationSettingsDAO();
-						$customCitationData = $customPublicationSettingsDao->getSetting($publication->getId(), 'jatsParser::citationTableData', $locale_key);
-
-						$tableHTML = new TableHTML($citationStyle, $absolutePath, $customCitationData, $publication, $locale_key, $selectedFileName, $selectedFileId);
-						$tableContent = $tableHTML->getHtml();
-
-						$hasCitationsInXml = $tableHTML->hasCitations();
-						$xmlBadgeHeader = '<span class="citation-selected-xml-badge" data-current-xml="' . htmlspecialchars($selectedFileName) . '" style="display: inline-flex; align-items: center; gap: 6px; background-color: #ffffff; color: #344054; border: 1px solid #d0d5dd; padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 500;" title="' . htmlspecialchars($selectedFileName) . '">
-							<span class="fa fa-file-code-o" style="color: #006798; font-size: 0.85rem;" aria-hidden="true"></span>
-							<strong class="citation-selected-xml-name" style="color: #101828; font-weight: 600; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' . htmlspecialchars($selectedFileName) . '</strong>
-						</span>';
-
-						if (!$hasCitationsInXml) {
-							// El XML no contiene citas ni referencias para mapear
-							$innerBody = '
-							<div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-								<div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
-									' . $xmlBadgeHeader . '
-									<span style="display: inline-block; background-color: #eef5fa; color: #006798; border: 1px solid #cce2f0; padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">'
-										. __('plugins.generic.jatsParser.publication.jats.citations.styleLabel') . ': ' . strtoupper(htmlspecialchars($citationStyle)) .
-									'</span>
-								</div>
-							</div>
-							<div class="pkp_notification" style="margin: 8px 0 0 0; font-weight: normal; text-transform: none;">
-								<div class="notifyInfo">
-									<span class="title">' . __('common.notice') . '</span>
-									<span class="description">' . __('plugins.generic.jatsParser.publication.jats.citations.noCitationsInXml', ['file' => htmlspecialchars($selectedFileName)]) . '</span>
-								</div>
-							</div>';
-						} else {
-							$innerBody = '
-							<div class="jats-citation-stage-row">
-								' . $tableContent . '
-								<div class="jats-citation-stage-badges">
-									' . $xmlBadgeHeader . '
-									<span class="jats-citation-style-badge">'
-										. __('plugins.generic.jatsParser.publication.jats.citations.styleLabel') . ': ' . strtoupper(htmlspecialchars($citationStyle)) .
-									'</span>
-								</div>
-							</div>
-							<div id="citationUnsavedXmlAlert" style="display: none; margin-top: 10px; font-size: 0.85rem; color: #9c4221; background: #fffaf0; border: 1px solid #fbd38d; border-radius: 4px; padding: 8px 12px; align-items: center; gap: 8px;">
-								<span class="fa fa-info-circle" style="font-size: 1rem;"></span>
-								<span id="citationUnsavedXmlAlertText"></span>
-							</div>';
-						}
-
-						$cardHtml = '
-						<div class="jats-citation-stage-card">
-							<div class="jats-citation-stage-title">
-								' . $stage2Title . '
-							</div>
-							<div class="jats-citation-stage-description">
-								' . $stage2Description . '
-							</div>
-							' . $innerBody . '
-						</div>';
-
-						$this->addField(new FieldHTML("citationTable", [
-							'description' => $cardHtml,
-						]));
-					}
-				} else {
-					$notSupportedNotice = '
-					<div class="jats-citation-stage-card">
-						<div class="jats-citation-stage-title">
-							' . $stage2Title . '
-						</div>
-						<div class="pkp_notification" style="margin: 0; font-weight: normal; text-transform: none;">
-							<div class="notifyWarning">
-								<span class="title">' . __('common.notice') . '</span>
-								<span class="description">' . __('plugins.generic.jatsParser.publication.jats.citations.styleNotSupported', ['style' => htmlspecialchars($citationStyle)]) . '</span>
-							</div>
+							<span class="description">' . __('plugins.generic.jatsParser.publication.jats.citations.noXmlSelected') . ' (' . htmlspecialchars($locName) . ')</span>
 						</div>
 					</div>';
 
-					$this->addField(new FieldHTML("citationTableNotSupported", [
-						'description' => $notSupportedNotice,
-					]));
+					$localeCardsHtml[$locKey] = '
+					<div class="jats-citation-stage-card">
+						<div class="jats-citation-stage-title">
+							' . $cardColTitle . '
+						</div>
+						' . ($cardColDesc ? '<div class="jats-citation-stage-description">' . $cardColDesc . '</div>' : '') . '
+						' . $innerNotice . '
+					</div>';
+				} else {
+					if ($citationStyle && CslCategoryDetector::hasMultipleCitationForms($citationStyle)) {
+						$selectedFile = isset($submissionFilesById[$selectedFileId]) ? $submissionFilesById[$selectedFileId] : null;
+						$relativeFilePath = $selectedFile ? $selectedFile->getData('path') : null;
+
+						if ($relativeFilePath) {
+							$selectedFileName = $selectedFile ? ($selectedFile->getData('name', $locKey) ?: $selectedFile->getLocalizedData('name')) : null;
+							if (empty($selectedFileName) && $selectedFile) {
+								$selectedFileName = $selectedFile->getData('originalFileName');
+							}
+							if (empty($selectedFileName)) {
+								$selectedFileName = __('common.none');
+							}
+
+							$absolutePath = $fileMgr->getBasePath() . DIRECTORY_SEPARATOR . $relativeFilePath;
+							$customCitationData = $customPublicationSettingsDao->getSetting($publication->getId(), 'jatsParser::citationTableData', $locKey);
+
+							$tableHTML = new TableHTML($citationStyle, $absolutePath, $customCitationData, $publication, $locKey, $selectedFileName, $selectedFileId, $locName);
+							$tableContent = $tableHTML->getHtml();
+
+							$hasCitationsInXml = $tableHTML->hasCitations();
+							$xmlBadgeHeader = '<span class="citation-selected-xml-badge" data-locale="' . htmlspecialchars($locKey) . '" data-current-xml="' . htmlspecialchars($selectedFileName) . '" style="display: inline-flex; align-items: center; gap: 6px; background-color: #ffffff; color: #344054; border: 1px solid #d0d5dd; padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 500;" title="' . htmlspecialchars($selectedFileName) . '">
+								<span class="fa fa-file-code-o" style="color: #006798; font-size: 0.85rem;" aria-hidden="true"></span>
+								<strong class="citation-selected-xml-name" style="color: #101828; font-weight: 600; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' . htmlspecialchars($selectedFileName) . '</strong>
+							</span>';
+
+							if (!$hasCitationsInXml) {
+								$innerBody = '
+								<div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+									<div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
+										' . $xmlBadgeHeader . '
+										<span style="display: inline-block; background-color: #eef5fa; color: #006798; border: 1px solid #cce2f0; padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">'
+											. __('plugins.generic.jatsParser.publication.jats.citations.styleLabel') . ': ' . strtoupper(htmlspecialchars($citationStyle)) .
+										'</span>
+									</div>
+								</div>
+								<div class="pkp_notification" style="margin: 8px 0 0 0; font-weight: normal; text-transform: none;">
+									<div class="notifyInfo">
+										<span class="title">' . __('common.notice') . '</span>
+										<span class="description">' . __('plugins.generic.jatsParser.publication.jats.citations.noCitationsInXml', ['file' => htmlspecialchars($selectedFileName)]) . '</span>
+									</div>
+								</div>';
+							} else {
+								$innerBody = '
+								<div class="jats-citation-stage-row">
+									' . $tableContent . '
+									<div class="jats-citation-stage-badges">
+										' . $xmlBadgeHeader . '
+										<span class="jats-citation-style-badge">'
+											. __('plugins.generic.jatsParser.publication.jats.citations.styleLabel') . ': ' . strtoupper(htmlspecialchars($citationStyle)) .
+										'</span>
+									</div>
+								</div>
+								<div id="citationUnsavedXmlAlert_' . htmlspecialchars($locKey) . '" class="citationUnsavedXmlAlert" style="display: none; margin-top: 10px; font-size: 0.85rem; color: #9c4221; background: #fffaf0; border: 1px solid #fbd38d; border-radius: 4px; padding: 8px 12px; align-items: center; gap: 8px;">
+									<span class="fa fa-info-circle" style="font-size: 1rem;"></span>
+									<span class="citationUnsavedXmlAlertText"></span>
+								</div>';
+							}
+
+							$localeCardsHtml[$locKey] = '
+							<div class="jats-citation-stage-card">
+								<div class="jats-citation-stage-title">
+									' . $cardColTitle . '
+								</div>
+								' . ($cardColDesc ? '<div class="jats-citation-stage-description">' . $cardColDesc . '</div>' : '') . '
+								' . $innerBody . '
+							</div>';
+						} else {
+							$localeCardsHtml[$locKey] = '
+							<div class="jats-citation-stage-card">
+								<div class="jats-citation-stage-title">' . $cardColTitle . '</div>
+								<div class="pkp_notification" style="margin: 0; font-weight: normal; text-transform: none;">
+									<div class="notifyInfo">
+										<span class="title">' . __('common.notice') . '</span>
+										<span class="description">' . __('plugins.generic.jatsParser.publication.jats.citations.noXmlSelected') . ' (' . htmlspecialchars($locName) . ')</span>
+									</div>
+								</div>
+							</div>';
+						}
+					} else {
+						$localeCardsHtml[$locKey] = '
+						<div class="jats-citation-stage-card">
+							<div class="jats-citation-stage-title">' . $cardColTitle . '</div>
+							<div class="pkp_notification" style="margin: 0; font-weight: normal; text-transform: none;">
+								<div class="notifyWarning">
+									<span class="title">' . __('common.notice') . '</span>
+									<span class="description">' . __('plugins.generic.jatsParser.publication.jats.citations.styleNotSupported', ['style' => htmlspecialchars($citationStyle)]) . '</span>
+								</div>
+							</div>
+						</div>';
+					}
 				}
 			}
+
+			// Wrap in multilingual container matching OJS pkpFormGroup layout
+			$fullHtml = '<div class="jats-citation-multilingual-wrapper pkpFormGroup__localeGroup -pkpClearfix">';
+			foreach ($locales as $locItem) {
+				$locKey = $locItem['key'];
+				$isPrimary = ($locKey === $primaryLocale);
+				$cardContent = $localeCardsHtml[$locKey] ?? '';
+				$visibilityClass = $isPrimary ? 'jats-citation-locale--primary pkpFormGroup__locale--isVisible' : 'jats-citation-locale--secondary';
+				$fullHtml .= '<div class="pkpFormGroup__locale jats-citation-locale ' . $visibilityClass . '" data-locale="' . htmlspecialchars($locKey) . '" data-is-primary="' . ($isPrimary ? '1' : '0') . '">'
+					. $cardContent
+					. '</div>';
+			}
+			$fullHtml .= '</div>';
+
+			$this->addField(new FieldHTML("citationTable", [
+				'description' => $fullHtml,
+			]));
 
 			// SECTION 3: HTML Output
 			$existingFullText = $publication->getData('jatsParser::fullText');

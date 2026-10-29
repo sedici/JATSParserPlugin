@@ -69,9 +69,11 @@ class ApaTableRenderer {
      * Renders the citation tabs (References / Figures & Tables).
      */
     public function getCitationTabs(): string {
+        $refTarget = '#citation-tab-references_' . htmlspecialchars($this->localeKey);
+        $figTarget = '#citation-tab-figtables_' . htmlspecialchars($this->localeKey);
         return '<div class="citation-tabs" role="tablist" aria-orientation="horizontal">'
-               . '<button type="button" class="citation-tab-button active" data-target="#citation-tab-references">' . __('plugins.generic.jatsParser.citationtable.titlereferences') . '</button>'
-               . '<button type="button" class="citation-tab-button" data-target="#citation-tab-figtables">' . __('plugins.generic.jatsParser.citationtable.titlefigsandtables') . '</button>'
+               . '<button type="button" class="citation-tab-button is-active" data-target="' . $refTarget . '">' . __('plugins.generic.jatsParser.citationtable.titlereferences') . '</button>'
+               . '<button type="button" class="citation-tab-button" data-target="' . $figTarget . '">' . __('plugins.generic.jatsParser.citationtable.titlefigsandtables') . '</button>'
                . '</div>';
     }
 }
