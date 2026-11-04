@@ -107,10 +107,12 @@
                         <table style="border-collapse: collapse;">
                             <tr>
                                 <td style="padding: 0; vertical-align: middle;">
-                                    {call name="getDoubleMetadata"
-                                        preOne="<a class='frontpage-anchor' href='" searchOne="{$author.orcid}" postOne="'>"
-                                        preTwo="<img src='" searchTwo="{$orcid_logo.white_bg}" postTwo="' class='frontpage-orcid-logo'></a>"
-                                    }
+                                    {if !empty($author.orcid)}
+                                        {call name="getDoubleMetadata"
+                                            preOne="<a class='frontpage-anchor' href='" searchOne="{$author.orcid}" postOne="'>"
+                                            preTwo="<img src='" searchTwo="{$orcid_logo.white_bg}" postTwo="' class='frontpage-orcid-logo'></a>"
+                                        }
+                                    {/if}
                                 </td>
                                 <td style="padding: 0; vertical-align: middle;">
                                     <div class="frontpage-author-name-colored">

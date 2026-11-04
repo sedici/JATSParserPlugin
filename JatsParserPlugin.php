@@ -408,8 +408,26 @@ class JatsParserPlugin extends GenericPlugin
 
 		$authors = array_values(iterator_to_array($publication->getData('authors')));
 		$simplifiedAuthors = array_map(function ($author) {
-			return $author->_data; // Extrae solo el contenido de '_data', así es más sencillo el acceso desde todos lados
+			$data = $author->_data;
+			if (!isset($data['orcid'])) {
+				$data['orcid'] = '';
+			}
+			return $data; // Extrae solo el contenido de '_data', así es más sencillo el acceso desde todos lados
 		}, $authors);
+
+		$rawKeywords = $publication->getData('keywords') ?: [];
+		$keywordsTexts = [];
+		foreach ($rawKeywords as $locale => $kwList) {
+			$keywordsTexts[$locale] = array_map(function ($kw) {
+				if (is_array($kw)) {
+					return $kw['name'] ?? '';
+				}
+				if (is_object($kw)) {
+					return $kw->name ?? '';
+				}
+				return (string) $kw;
+			}, (array) $kwList);
+		}
 
 		$metadata = [
 			'publication_pages' => $publication->getData('pages'),
@@ -441,7 +459,7 @@ class JatsParserPlugin extends GenericPlugin
 			'subject' => $publication->getLocalizedData('subject', $localeKey),
 			'abstract_texts' => $publication->getData('abstract'), // Returns an array like this: ['es' => 'Resumen', 'en' => 'Abstract']
 			'translations' => Translations::getTranslations(),
-			'keywords_texts' => $publication->getData('keywords'),
+			'keywords_texts' => $keywordsTexts,
 			'plugin_path' => $this->getPluginPath(),
 			'journal_url' => $request->getBaseUrl() . '/' . $journal->getPath(),
 			'titles' => $publication->getData('title'),
