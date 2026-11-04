@@ -1,4 +1,6 @@
-<?php namespace PKP\components\forms\Processors;
+<?php
+
+namespace APP\plugins\generic\jatsParser;
 
 class ReferencesProcessor {
 
@@ -82,4 +84,11 @@ class ReferencesProcessor {
         return $numberedRefs;
     }
 
+}
+
+if (!class_exists('ReferencesProcessor', false)) {
+    class_alias(\APP\plugins\generic\jatsParser\ReferencesProcessor::class, 'ReferencesProcessor');
+}
+if (!class_exists('PKP\components\forms\Processors\ReferencesProcessor', false)) {
+    class_alias(\APP\plugins\generic\jatsParser\ReferencesProcessor::class, 'PKP\components\forms\Processors\ReferencesProcessor');
 }

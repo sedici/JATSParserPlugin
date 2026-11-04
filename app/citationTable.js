@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function () {
+(function () {
     // Function to collect all citation selections from the modal table and build JSON
     function getCitationsDataFromModal() {
         let form = document.getElementById('citationFormAll');
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Expose globally if needed
+    // Expose globally
     window.jatsSaveCitationsToServer = saveCitationsToServer;
 
     // Function to sync the citations JSON into the PKP form input and Vue model
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function () {
             let form = document.getElementById('citationFormAll');
             let localeKey = form ? (form.querySelector('input[name="locale_key"]')?.value || 'es') : 'es';
 
-            // 1. Update Vue form component hiddenFields (OJS 3.4 FormComponent)
+            // 1. Update Vue form component hiddenFields (OJS 3.4/3.5 FormComponent)
             let app = window.pkp && window.pkp.registry && window.pkp.registry._instances && window.pkp.registry._instances['app'];
             if (app && app.components && app.components['jatsUpload']) {
                 let jatsForm = app.components['jatsUpload'];
@@ -126,59 +126,72 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Sync on page load
-    setTimeout(syncCitationsToForm, 300);
+    window.jatsInitCitationTable = function () {
+        setTimeout(syncCitationsToForm, 200);
+    };
 
-    // Modal open/close
-    let openBtn = document.getElementById('openCitationModalBtn');
-    let modal = document.getElementById('citationModal');
-    let closeBtn = modal ? modal.querySelector('.citation-modal-close') : null;
-
-    if (openBtn && modal) {
-        openBtn.addEventListener('click', function () {
+    function openModal() {
+        let modal = document.getElementById('citationModal');
+        if (modal) {
             modal.style.display = 'block';
             let defaultBtn = document.querySelector('.citation-tab-button.is-active') || document.querySelector('.citation-tab-button');
             if (defaultBtn) defaultBtn.click();
             syncCitationsToForm();
-        });
+        }
     }
 
     function closeModal() {
-        if (!modal) return;
-        modal.style.display = 'none';
+        let modal = document.getElementById('citationModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
         syncCitationsToForm();
     }
 
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeModal);
-    }
+    window.jatsOpenModal = openModal;
+    window.jatsCloseModal = closeModal;
 
-    if (modal) {
-        modal.addEventListener('click', function (e) {
-            if (e.target === modal || e.target.closest('.citation-modal-close-btn')) {
-                closeModal();
-            }
-        });
-    }
-
-    // Tabs navigation
+    // Delegated click handling for modal opening, closing, tabs
     document.addEventListener('click', function (e) {
-        let btn = e.target.closest('.citation-tab-button');
-        if (!btn) return;
-        let target = btn.getAttribute('data-target');
-        if (!target) return;
-        document.querySelectorAll('.citation-tab-button').forEach(function (b) {
-            b.classList.toggle('is-active', b === btn);
-        });
-        document.querySelectorAll('.citation-tab-panel').forEach(function (panel) {
-            panel.classList.toggle('is-active', '#' + panel.id === target);
-        });
+        // Open modal
+        let openBtn = e.target.closest('#openCitationModalBtn, .citation-open-btn');
+        if (openBtn) {
+            e.preventDefault();
+            openModal();
+            return;
+        }
+
+        // Close modal
+        let closeBtn = e.target.closest('.citation-modal-close, .citation-modal-close-btn');
+        if (closeBtn) {
+            e.preventDefault();
+            closeModal();
+            return;
+        }
+
+        // Click outside modal content
+        if (e.target && e.target.id === 'citationModal') {
+            closeModal();
+            return;
+        }
+
+        // Tabs navigation inside citation modal
+        let tabBtn = e.target.closest('.citation-tab-button');
+        if (tabBtn) {
+            let target = tabBtn.getAttribute('data-target');
+            if (target) {
+                document.querySelectorAll('.citation-tab-button').forEach(function (b) {
+                    b.classList.toggle('is-active', b === tabBtn);
+                });
+                document.querySelectorAll('.citation-tab-panel').forEach(function (panel) {
+                    panel.classList.toggle('is-active', '#' + panel.id === target);
+                });
+            }
+        }
     });
 
-    if (!modal) return;
-
-    // Delegación para selects
-    modal.addEventListener('change', function (event) {
+    // Delegated change handling for citation selects
+    document.addEventListener('change', function (event) {
         if (!event.target.classList.contains('citation-select')) return;
         let selectElem = event.target;
         let xrefId = selectElem.id.replace('citationStyle_', '');
@@ -210,7 +223,8 @@ document.addEventListener('DOMContentLoaded', function () {
         syncCitationsToForm();
     });
 
-    modal.addEventListener('input', function (event) {
+    // Delegated input handling for custom input fields
+    document.addEventListener('input', function (event) {
         if (!event.target.classList.contains('custom-input')) return;
         let inputElem = event.target;
 
@@ -231,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Sincronizar cambios en el formulario OJS antes de enviar
-    function handleSaveTrigger(e) {
+    function handleSaveTrigger() {
         try {
             syncCitationsToForm();
         } catch (err) {
@@ -244,11 +258,19 @@ document.addEventListener('DOMContentLoaded', function () {
             (e.target.matches && e.target.matches('button[type="submit"]') ? e.target : null) ||
             e.target.closest('.pkpButton--primary');
         if (submitBtn) {
-            handleSaveTrigger(e);
+            handleSaveTrigger();
         }
     }, true);
 
-    document.addEventListener('submit', function (e) {
-        handleSaveTrigger(e);
+    document.addEventListener('submit', function () {
+        handleSaveTrigger();
     }, true);
-});
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(syncCitationsToForm, 300);
+        });
+    } else {
+        setTimeout(syncCitationsToForm, 300);
+    }
+})();

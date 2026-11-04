@@ -1,5 +1,5 @@
 <?php
- 
+
 /**
  * @file plugins/generic/jatsParser/index.php
  *
@@ -11,8 +11,4 @@
  *
  */
 
-require_once('JatsParserPlugin.inc.php');
-
-return new JatsParserPlugin();
-
-?>
+return new \APP\plugins\generic\jatsParser\JatsParserPlugin();

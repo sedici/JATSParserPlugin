@@ -1,11 +1,15 @@
 <?php
-import('lib.pkp.classes.form.Form');
 
+namespace APP\plugins\generic\jatsParser;
+
+use PKP\form\Form;
 use JATSParser\TemplateHandler\PDF\PDFCreationService;
 use PKP\file\PrivateFileManager;
 use PKP\form\validation\FormValidatorPost;
 use PKP\form\validation\FormValidatorCSRF;
 use PKP\form\validation\FormValidatorRegExp;
+use APP\template\TemplateManager;
+use APP\core\Application;
 
 class JatsParserPartsForm extends Form
 {
@@ -25,39 +29,38 @@ class JatsParserPartsForm extends Form
 		$this->addCheck(new FormValidatorCSRF($this));
 	}
 
-	    function fetch($request, $template = null, $display = false)
-    {
-        $plugin = $this->_plugin;
-        $fileManager = new PrivateFileManager();
-        $config = $this->_plugin->getConfiguration($request);
-        $parts = PDFCreationService::getTemplatePartsAndLocation($config['selected_template'], $plugin, $fileManager, $this->_journalId, $request);
+	function fetch($request, $template = null, $display = false)
+	{
+		$plugin = $this->_plugin;
+		$fileManager = new PrivateFileManager();
+		$config = $this->_plugin->getConfiguration($request);
+		$parts = PDFCreationService::getTemplatePartsAndLocation($config['selected_template'], $plugin, $fileManager, $this->_journalId, $request);
 
 		$templateMgr = TemplateManager::getManager($request);
 
-        $context = $request->getContext();
-        $contextPath = $context->getPath();
+		$context = $request->getContext();
+		$contextPath = $context ? $context->getPath() : '';
 
 		$contextBaseUrl = $request->getBaseUrl();
 
-        if ($contextPath && strpos($contextBaseUrl, '/' . $contextPath) === false) {
-             $contextBaseUrl .= '/index.php/' . $contextPath;
-        }
+		if ($contextPath && strpos($contextBaseUrl, '/' . $contextPath) === false) {
+			$contextBaseUrl .= '/index.php/' . $contextPath;
+		}
 
-        $baseUrl = $contextBaseUrl . '/management';
-        
+		$baseUrl = $contextBaseUrl . '/management';
 		$goBackUrl = $baseUrl . '/settings/website#plugins';
-        
-        $templateMgr->assign([
-            'plugin' => $plugin,
-            'pluginName' => $plugin->getName(),
-            'go_back_url' => $goBackUrl,
-            'selectedTemplate' => $config['selected_template'],
-            'filesInformation' => $parts,
-            'validationErrors' => $this->validationErrors,
-        ]);
 
-        return parent::fetch($request, $template, $display);
-    }
+		$templateMgr->assign([
+			'plugin' => $plugin,
+			'pluginName' => $plugin->getName(),
+			'go_back_url' => $goBackUrl,
+			'selectedTemplate' => $config['selected_template'],
+			'filesInformation' => $parts,
+			'validationErrors' => $this->validationErrors,
+		]);
+
+		return parent::fetch($request, $template, $display);
+	}
 
 	function execute(...$functionArgs)
 	{
@@ -81,7 +84,7 @@ class JatsParserPartsForm extends Form
 				$fileManager = new PrivateFileManager();
 				$templateDir = $fileManager->getBasePath() . "/journals/$contextId/jatsParser_templates/$selectedTemplate/";
 
-				if (!file_exists($templateDir)) { # Si no existe el dir. de la template a la hora de subir el archivo, lo creo
+				if (!file_exists($templateDir)) {
 					mkdir($templateDir, 0751, true);
 				}
 
@@ -93,7 +96,9 @@ class JatsParserPartsForm extends Form
 
 				if (move_uploaded_file($fileInfo['tmp_name'], $targetFilePath)) {
 					if (pathinfo($fileName, PATHINFO_EXTENSION) === 'tpl') {
-						$cacheDir = \TemplateManager::getManager()->compile_dir;
+						$request = Application::get()->getRequest();
+						$templateMgr = TemplateManager::getManager($request);
+						$cacheDir = $templateMgr->compile_dir ?? ($templateMgr->getCompileDir() ?? sys_get_temp_dir());
 						$smarty = new \Smarty();
 						$smarty->setCompileDir($cacheDir);
 
@@ -134,9 +139,9 @@ class JatsParserPartsForm extends Form
 				$status .= 'Error de subida de archivo. Código: ' . $_FILES[$inputName]['error'];
 			}
 		}
-
-		#file_put_contents(__DIR__ . "/test.txt", $status); # Esto debería cambiarse por un manejo de errores como la gente
-
-		#parent::execute(...$functionArgs);
 	}
+}
+
+if (!class_exists('JatsParserPartsForm', false)) {
+	class_alias(\APP\plugins\generic\jatsParser\JatsParserPartsForm::class, 'JatsParserPartsForm');
 }

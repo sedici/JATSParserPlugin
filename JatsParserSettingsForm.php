@@ -1,8 +1,9 @@
 <?php
 
+namespace APP\plugins\generic\jatsParser;
 
 /**
- * @file plugins/generic/jatsParser/JatsParserSettingsForm.inc.php
+ * @file plugins/generic/jatsParser/JatsParserSettingsForm.php
  *
  * Copyright (c) 2017-2018 Vitaliy Bezsheiko, MD, Department of Psychosomatic Medicine and Psychotherapy, Bogomolets National Medical University, Kyiv, Ukraine
  * Distributed under the GNU GPL v3.
@@ -12,10 +13,11 @@
  *
  * @brief Form for journal managers to modify jatsParser plugin settings
  */
-import('lib.pkp.classes.form.Form');
 
+use PKP\form\Form;
 use PKP\form\validation\FormValidatorPost;
 use PKP\form\validation\FormValidatorCSRF;
+use APP\template\TemplateManager;
 
 class JatsParserSettingsForm extends Form
 {
@@ -111,4 +113,8 @@ class JatsParserSettingsForm extends Form
 	
 		parent::execute(...$functionArgs);
 	}
+}
+
+if (!class_exists('JatsParserSettingsForm', false)) {
+	class_alias(\APP\plugins\generic\jatsParser\JatsParserSettingsForm::class, 'JatsParserSettingsForm');
 }

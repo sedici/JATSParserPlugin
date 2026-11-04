@@ -1,10 +1,13 @@
 <?php
-import('lib.pkp.classes.form.Form');
 
+namespace APP\plugins\generic\jatsParser;
+
+use PKP\form\Form;
 use PKP\file\PrivateFileManager;
 use PKP\form\validation\FormValidatorPost;
 use PKP\form\validation\FormValidatorCSRF;
 use PKP\form\validation\FormValidatorRegExp;
+use APP\template\TemplateManager;
 
 class JatsParserPdfSettingsForm extends Form
 {
@@ -21,7 +24,7 @@ class JatsParserPdfSettingsForm extends Form
 
 		$this->addCheck(new FormValidatorPost($this));
 		$this->addCheck(new FormValidatorCSRF($this));
-		$this->addCheck(new FormValidatorRegExp($this, 'pdfTopMargin', 'optional', 'plugins.generic.jatsparser.pdfsettings.margin.error', '/^[0-9]+$/')); # En OJS no existe un type number, así que se verifica con este Regex
+		$this->addCheck(new FormValidatorRegExp($this, 'pdfTopMargin', 'optional', 'plugins.generic.jatsparser.pdfsettings.margin.error', '/^[0-9]+$/'));
 		$this->addCheck(new FormValidatorRegExp($this, 'pdfBottomMargin', 'optional', 'plugins.generic.jatsparser.pdfsettings.margin.error', '/^[0-9]+$/'));
 		$this->addCheck(new FormValidatorRegExp($this, 'pdfLeftMargin', 'optional', 'plugins.generic.jatsparser.pdfsettings.margin.error', '/^[0-9]+$/'));
 		$this->addCheck(new FormValidatorRegExp($this, 'pdfRightMargin', 'optional', 'plugins.generic.jatsparser.pdfsettings.margin.error', '/^[0-9]+$/'));
@@ -37,8 +40,6 @@ class JatsParserPdfSettingsForm extends Form
 		$left = $plugin->getSetting($contextId, 'pdfLeftMargin') ? $plugin->getSetting($contextId, 'pdfLeftMargin') : 15;
 		$right = $plugin->getSetting($contextId, 'pdfRightMargin') ? $plugin->getSetting($contextId, 'pdfRightMargin') : 15;
 		$selectedTemplate = $plugin->getSetting($contextId, 'selectedTemplate') ? $plugin->getSetting($contextId, 'selectedTemplate') : 'plugins.generic.jatsParser.pdf.empty.template';
-
-		# Esto lo hice de esta manera porque sino no funcionaba, se ve que no le copaba demasiado que lo haga in-line o usando ??
 
 		$this->setData('pdfTopMargin', $top);
 		$this->setData('pdfBottomMargin', $bottom);
@@ -82,7 +83,9 @@ class JatsParserPdfSettingsForm extends Form
 		$plugin->updateSetting($contextId, 'pdfLeftMargin', $this->getData('pdfLeftMargin'));
 		$plugin->updateSetting($contextId, 'pdfBottomMargin', $this->getData('pdfBottomMargin'));
 		$plugin->updateSetting($contextId, 'selectedTemplate', $this->getData('selectedTemplate'));
-
-		#parent::execute(...$functionArgs);
 	}
+}
+
+if (!class_exists('JatsParserPdfSettingsForm', false)) {
+	class_alias(\APP\plugins\generic\jatsParser\JatsParserPdfSettingsForm::class, 'JatsParserPdfSettingsForm');
 }

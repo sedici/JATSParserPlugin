@@ -1,5 +1,7 @@
 <?php
 
+namespace APP\plugins\generic\jatsParser;
+
 class CustomPublicationSettingsDAO {
     /**
      * Update setting in publication_settings table
@@ -67,3 +69,6 @@ class CustomPublicationSettingsDAO {
     }
 }
 
+if (!class_exists('CustomPublicationSettingsDAO', false)) {
+    class_alias(\APP\plugins\generic\jatsParser\CustomPublicationSettingsDAO::class, 'CustomPublicationSettingsDAO');
+}

@@ -1,22 +1,26 @@
 <?php
 
+namespace APP\plugins\generic\jatsParser;
+
 require_once __DIR__ . "/TableHTML.php";
-require_once __dir__ . '/../../daos/CustomPublicationSettingsDAO.inc.php';
+require_once __DIR__ . '/../../daos/CustomPublicationSettingsDAO.php';
 require_once __DIR__ . '/CitationStyles/Core/CslCategoryDetector.php';
 
 use PKP\components\forms\CitationStyles\Core\CslCategoryDetector;
-
-import('lib.pkp.classes.file.PrivateFileManager');
-
+use PKP\file\PrivateFileManager;
 use JATSParser\PDF\PDFConfig\Configuration;
 use PKP\components\forms\TableHTML;
 use PKP\components\forms\FieldHTML;
-use \PKP\components\forms\FormComponent;
-use \PKP\components\forms\FieldOptions;
+use PKP\components\forms\FormComponent;
+use PKP\components\forms\FieldOptions;
 use JATSParser\Body\Document as JATSDocument;
 use JATSParser\HTML\Document as HTMLDocument;
+use PKP\plugins\PluginRegistry;
+use APP\core\Application;
 
-define("FORM_PUBLICATION_JATS_FULLTEXT", "jatsUpload");
+if (!defined('FORM_PUBLICATION_JATS_FULLTEXT')) {
+	define("FORM_PUBLICATION_JATS_FULLTEXT", "jatsUpload");
+}
 
 class PublicationJATSUploadForm extends FormComponent {
 	/** @copydoc FormComponent::$id */
@@ -24,6 +28,8 @@ class PublicationJATSUploadForm extends FormComponent {
 
 	/** @copydoc FormComponent::$method */
 	public $method = 'PUT';
+
+	public $successMessage = '';
 
 	/**
 	 * Constructor
@@ -97,7 +103,7 @@ class PublicationJATSUploadForm extends FormComponent {
 		$plugin = PluginRegistry::getPlugin('generic', 'jatsparserplugin'); /* @var $plugin JATSParserPlugin */
 		$context = Application::get()->getRequest()->getContext();
 		$convertToPdf = $plugin->getSetting($context->getId(), 'convertToPdf');
-		$citationStyle = $plugin->getSetting($context->getId(), 'citationStyle');
+		$citationStyle = $plugin->getSetting($context->getId(), 'citationStyle') ?: 'apa';
 
 		if (!empty($options)) {
 			// Preload existing citation table data for all locales and register as hidden field
@@ -339,4 +345,8 @@ class PublicationJATSUploadForm extends FormComponent {
 			)));
 		}
 	}
+}
+
+if (!class_exists('PublicationJATSUploadForm', false)) {
+	class_alias(\APP\plugins\generic\jatsParser\PublicationJATSUploadForm::class, 'PublicationJATSUploadForm');
 }

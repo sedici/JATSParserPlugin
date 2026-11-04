@@ -1,9 +1,11 @@
 <?php
 
+namespace APP\plugins\generic\jatsParser;
+
 /**
- * @file plugins/generic/jatsParser/JatsParserPlugin.inc.php
+ * @file plugins/generic/jatsParser/JatsParserPlugin.php
  *
- * Copyright (c) 2017-2018 Vitalii Bezsheiko
+ * Copyright (c) 2017-2026 Vitalii Bezsheiko / SEDICI
  * Distributed under the GNU GPL v3.
  *
  * @class JatsParserPlugin
@@ -14,43 +16,52 @@
 require_once __DIR__ . '/JATSParser/vendor/autoload.php';
 require_once __DIR__ . '/JATSParser/src/JATSParser/PDF/PDFConfig/Configuration.php';
 require_once __DIR__ . '/JATSParser/src/JATSParser/PDF/PDFConfig/Translations.php';
+require_once __DIR__ . '/classes/JATSParserDocument.php';
+require_once __DIR__ . '/classes/components/forms/PublicationJATSUploadForm.php';
+require_once __DIR__ . '/classes/daos/CustomPublicationSettingsDAO.php';
+require_once __DIR__ . '/classes/Processors/ReferencesProcessor.php';
 
-import('lib.pkp.classes.plugins.GenericPlugin');
-import('plugins.generic.jatsParser.classes.JATSParserDocument');
-import('plugins.generic.jatsParser.classes.components.forms.PublicationJATSUploadForm');
-import('lib.pkp.classes.citation.Citation');
-import('lib.pkp.classes.file.PrivateFileManager');
-import('lib.pkp.classes.file.PKPPublicFileManager');
-import('lib.pkp.classes.linkAction.LinkAction');
-import('lib.pkp.classes.linkAction.request.AjaxModal');
-import('lib.pkp.classes.linkAction.request.RedirectAction');
-
-use PKP\decision\Decision;
-use PKP\citation\CitationListTokenizerFilter;
-use JATSParser\PDF\PDFConfig\Translations;
-use JATSParser\PDF\PDFConfig\Configuration;
-use JATSParser\Body\Document;
-use JATSParser\HTML\Document as HTMLDocument;
-use \PKP\components\forms\FormComponent;
-use APP\facades\Repo;
-use PKP\core\JSONMessage;
-use JATSParser\Body\Document as JATSDocument;
-use PKP\components\forms\Processors\ReferencesProcessor;
-
+use APP\core\Application;
 use APP\core\Request;
+use APP\facades\Repo;
+use APP\journal\Journal;
+use APP\journal\Section;
 use APP\notification\NotificationManager;
+use APP\publication\Publication;
+use APP\template\TemplateManager;
+use DOMDocument;
+use DOMXPath;
+use JATSParser\Body\Document;
+use JATSParser\Body\Document as JATSDocument;
+use JATSParser\HTML\Document as HTMLDocument;
+use JATSParser\PDF\PDFConfig\Configuration;
+use JATSParser\PDF\PDFConfig\Translations;
+use JATSParser\TemplateHandler\EPUB\EPUBOutputStrategy;
 use JATSParser\TemplateHandler\HTML\HTMLOutputStrategy;
 use JATSParser\TemplateHandler\PDF\PDFCreationService;
 use JATSParser\TemplateHandler\PDF\PDFOutputStrategy;
-use JATSParser\TemplateHandler\EPUB\EPUBOutputStrategy;
-use PKP\locale\Locale;
-use PKP\galley\Galley;
-
+use PKP\citation\CitationListTokenizerFilter;
+use PKP\components\forms\FormComponent;
+use PKP\core\JSONMessage;
+use PKP\core\PKPApplication;
 use PKP\db\DAORegistry;
+use PKP\decision\Decision;
 use PKP\facades\Locale as FacadesLocale;
+use PKP\file\PKPPublicFileManager;
 use PKP\file\PrivateFileManager;
+use PKP\galley\Galley;
+use PKP\linkAction\LinkAction;
+use PKP\linkAction\request\AjaxModal;
+use PKP\linkAction\request\RedirectAction;
+use PKP\plugins\GenericPlugin;
+use PKP\plugins\Hook;
+use PKP\plugins\PluginRegistry;
+use PKP\submission\Genre;
+use PKP\submissionFile\SubmissionFile;
 
-define("CREATE_PDF_QUERY", "download=pdf");
+if (!defined('CREATE_PDF_QUERY')) {
+	define("CREATE_PDF_QUERY", "download=pdf");
+}
 
 class JatsParserPlugin extends GenericPlugin
 {
@@ -58,19 +69,19 @@ class JatsParserPlugin extends GenericPlugin
 	function register($category, $path, $mainContextId = null)
 	{
 		if (parent::register($category, $path, $mainContextId)) {
-
-			if ($this->getEnabled()) {
-				HookRegistry::add('Template::Workflow::Publication', array($this, 'publicationTemplateData'));
-				HookRegistry::add('Schema::get::publication', array($this, 'addToSchema'));
-				HookRegistry::add('LoadHandler', array($this, 'loadFullTextAssocHandler'));
-				HookRegistry::add('Publication::edit', array($this, 'editPublicationFullText'));
-				HookRegistry::add('Templates::Article::Main', array($this, 'displayFullText'));
-				HookRegistry::add('TemplateManager::display', array($this, 'themeSpecificStyles'));
-				HookRegistry::add('Form::config::before', array($this, 'addCitationsFormFields'));
-				HookRegistry::add('Publication::edit', array($this, 'editPublicationReferences'));
-				HookRegistry::add('Publication::edit', array($this, 'createAllGalleys'));
-				HookRegistry::add('SubmissionFile::delete::before', array($this, 'onDeleteSubmissionFile'));
-				HookRegistry::add('Publication::edit', array($this, 'createEpubGalley'));
+			$contextId = ($mainContextId === null) ? $this->getCurrentContextId() : $mainContextId;
+			if ($this->getEnabled($contextId)) {
+				Hook::add('Schema::get::publication', [$this, 'addToSchema']);
+				Hook::add('LoadHandler', [$this, 'loadFullTextAssocHandler']);
+				Hook::add('Publication::edit', [$this, 'editPublicationFullText']);
+				Hook::add('Templates::Article::Main', [$this, 'displayFullText']);
+				Hook::add('TemplateManager::display', [$this, 'themeSpecificStyles']);
+				Hook::add('TemplateManager::display', [$this, 'workflowCustomAssets']);
+				Hook::add('Form::config::before', [$this, 'addCitationsFormFields']);
+				Hook::add('Publication::edit', [$this, 'editPublicationReferences']);
+				Hook::add('Publication::edit', [$this, 'createAllGalleys']);
+				Hook::add('SubmissionFile::delete::before', [$this, 'onDeleteSubmissionFile']);
+				Hook::add('Publication::edit', [$this, 'createEpubGalley']);
 			}
 
 			return true;
@@ -154,11 +165,13 @@ class JatsParserPlugin extends GenericPlugin
 	 */
 	function manage($args, $request)
 	{
+		require_once __DIR__ . '/JatsParserSettingsForm.php';
+		require_once __DIR__ . '/JatsParserPdfSettingsForm.php';
+		require_once __DIR__ . '/JatsParserPartsForm.php';
+
 		switch ($request->getUserVar('verb')) {
 			case 'settings':
 				$context = $request->getContext();
-				//AppLocale::requireComponents(LOCALE_COMPONENT_APP_COMMON,  LOCALE_COMPONENT_PKP_MANAGER);
-				$this->import('JatsParserSettingsForm');
 				$form = new JatsParserSettingsForm($this, $context->getId());
 				if ($request->getUserVar('save')) {
 					$form->readInputData();
@@ -173,7 +186,6 @@ class JatsParserPlugin extends GenericPlugin
 
 			case 'pdfSettings':
 				$context = $request->getContext();
-				$this->import('JatsParserPdfSettingsForm');
 				$form = new JatsParserPdfSettingsForm($this, $context->getId());
 				if ($request->getUserVar('save')) {
 					$form->readInputData();
@@ -187,7 +199,6 @@ class JatsParserPlugin extends GenericPlugin
 				return new JSONMessage(true, $form->fetch($request));
 			case 'pdfPartsSettings':
 				$context = $request->getContext();
-				$this->import('JatsParserPartsForm');
 				$form = new JatsParserPartsForm($this, $context->getId());
 				if ($request->getUserVar('save')) {
 					$form->readInputData();
@@ -207,7 +218,6 @@ class JatsParserPlugin extends GenericPlugin
 				return true;
 			case 'resetPart':
 				$context = $request->getContext();
-				$this->import('JatsParserPartsForm');
 				$form = new JatsParserPartsForm($this, $context->getId());
 
 				$part = $request->getUserVar('partName');
@@ -229,7 +239,6 @@ class JatsParserPlugin extends GenericPlugin
 				return true;
 			case 'resetAllParts':
 				$context = $request->getContext();
-				$this->import('JatsParserPartsForm');
 				$form = new JatsParserPartsForm($this, $context->getId());
 
 				$template = $request->getUserVar('template');
@@ -254,7 +263,6 @@ class JatsParserPlugin extends GenericPlugin
 				return true;
 			case 'downloadCurrentTemplate':
 				$context = $request->getContext();
-				$this->import('JatsParserPartsForm');
 				$form = new JatsParserPartsForm($this, $context->getId());
 				$fileManager = new PrivateFileManager();
 
@@ -288,7 +296,6 @@ class JatsParserPlugin extends GenericPlugin
 				return true;
 			case 'downloadOriginalTemplate':
 				$context = $request->getContext();
-				$this->import('JatsParserPartsForm');
 				$form = new JatsParserPartsForm($this, $context->getId());
 				$fileManager = new PrivateFileManager();
 
@@ -322,7 +329,6 @@ class JatsParserPlugin extends GenericPlugin
 				return true;
 			case 'downloadPart':
 				$context = $request->getContext();
-				$this->import('JatsParserPartsForm');
 				$form = new JatsParserPartsForm($this, $context->getId());
 
 				$template = $request->getuserVar('template');
@@ -348,8 +354,8 @@ class JatsParserPlugin extends GenericPlugin
 
 		//$submission = Services::get('submission')->get($publication->getData('submissionId')); /* @var $submission Submission */
 		$submission = Repo::submission()->get($publication->getData('submissionId'));
-		$context = $request->getContext(); /* @var $context Journal */
-		$journal = $request->getContext();
+		$context = $request->getContext() ?: Application::getContextDAO()->getById($submission->getData('contextId'));
+		$journal = $context;
 
 		$issueIdentification = "";
 		if ($publication->getData('issueId')) {
@@ -361,11 +367,9 @@ class JatsParserPlugin extends GenericPlugin
 		}
 
 		$section = Repo::section()->get($publication->getData('sectionId'));
-		$userGroups = Repo::userGroup()
-			->getCollector()
-			->filterByContextIds([$journal->getId()])
-			->getMany()
-			->all(); // si querés el array
+		$userGroups = \PKP\userGroup\UserGroup::withContextIds([$journal->getId()])
+			->get()
+			->all();
 
 
 		$plugin = PluginRegistry::getPlugin('generic', 'jatsparserplugin');
@@ -391,7 +395,7 @@ class JatsParserPlugin extends GenericPlugin
 
 		//Obtener la fecha de aceptación del envío si se saltea la etapa de revisión (ej: QuickSubmit)
 		if (!$acceptedDate) {
-			$acceptedDate = $submission->getDateSubmitted();
+			$acceptedDate = $submission->getData('dateSubmitted');
 		}
 
 		$licenseUrl = !empty($publication->getData('licenseUrl')) ? $publication->getData('licenseUrl') : $journal->getData('licenseUrl');
@@ -400,7 +404,7 @@ class JatsParserPlugin extends GenericPlugin
 		}
 
 		// Separar por "/" y reordenar como día/mes/año de forma segura
-		$date = $submission->getDatePublished();
+		$date = $publication->getData('datePublished') ?: $submission->getData('dateSubmitted');
 		$partes = $date ? explode('/', str_replace('-', '/', $date)) : [];
 		$anio = $partes[0] ?? '';
 		$mes  = $partes[1] ?? '';
@@ -415,7 +419,7 @@ class JatsParserPlugin extends GenericPlugin
 		$metadata = [
 			'publication_pages' => $publication->getData('pages'),
 			'section_title' => $section?->getLocalizedTitle(),
-			'citation_style' => $plugin->getCitationStyle($context),
+			'citation_style' => $this->getCitationStyle($context),
 			'publication_id' => $publication->getId(),
 			'doi' => $publication->getDoi(),
 			'journal_id' => $journal->getId(),
@@ -430,7 +434,7 @@ class JatsParserPlugin extends GenericPlugin
 			'license_url' => $licenseUrl,
 			'article_title' => $publication->getLocalizedData('title'),
 			'submission' => $submission,
-			'date_submitted' => date('d/m/Y', strtotime($submission->getDateSubmitted())),
+			'date_submitted' => $submission->getData('dateSubmitted') ? date('d/m/Y', strtotime($submission->getData('dateSubmitted'))) : '',
 			'date_accepted' => $acceptedDate ? date('d/m/Y', strtotime($acceptedDate)) : '',
 			'date_published' => $datePublished,
 			'journal_data' => $issueIdentification, // Includes volume, number, year of a journal.
@@ -457,14 +461,15 @@ class JatsParserPlugin extends GenericPlugin
 
 	public function getConfiguration($request)
 	{
-		$context = $request->getContext();
+		$context = $request ? $request->getContext() : null;
+		$contextId = $context ? $context->getId() : 1;
 
 		$ojsConfiguration = [
-			'margin_top' => $this->getSetting($context->getId(), 'pdfTopMargin'),
-			'margin_bottom' => $this->getSetting($context->getId(), 'pdfBottomMargin'),
-			'margin_left' => $this->getSetting($context->getId(), 'pdfLeftMargin'),
-			'margin_right' => $this->getSetting($context->getId(), 'pdfRightMargin'),
-			'selected_template' => $this->getSetting($context->getId(), 'selectedTemplate'),
+			'margin_top' => $this->getSetting($contextId, 'pdfTopMargin'),
+			'margin_bottom' => $this->getSetting($contextId, 'pdfBottomMargin'),
+			'margin_left' => $this->getSetting($contextId, 'pdfLeftMargin'),
+			'margin_right' => $this->getSetting($contextId, 'pdfRightMargin'),
+			'selected_template' => $this->getSetting($contextId, 'selectedTemplate'),
 		];
 
 		return $ojsConfiguration;
@@ -482,7 +487,8 @@ class JatsParserPlugin extends GenericPlugin
 		];
 
 		$fileManager = new PrivateFileManager();
-		$journalId = $request->getContext()->getId();
+		$context = $request ? $request->getContext() : null;
+		$journalId = $context ? $context->getId() : 1;
 
 		foreach ($items as $item) {
 			if ($item != '.' && $item != '..') { # Excluyo . y ..
@@ -514,7 +520,7 @@ class JatsParserPlugin extends GenericPlugin
 		$ojsConfiguration = $this->getConfiguration($request);
 		$configuration = new Configuration($metadata);
 		$fileMgr = new PrivateFileManager();
-		$journalId = $request->getContext()->getId();
+		$journalId = $request->getContext() ? $request->getContext()->getId() : 1;
 
 		$outputStrategy = PDFOutputStrategy::class; # Lo que hablamos fue que esto quede así hasta que se necesite hace un selector de estrategias, trabajo para otra persona
 		# Pero, esencialmente, sería un selector que te devuelve el FQCN de la estrategia a usar, en este caso PdfOutputStrategy::class retorna algo del estilo JATSParser\TemplateHandler\PDF\PdfOutputStrategy
@@ -533,7 +539,7 @@ class JatsParserPlugin extends GenericPlugin
 		$ojsConfiguration = $this->getConfiguration($request);
 		$configuration = new Configuration($metadata);
 		$fileMgr = new PrivateFileManager();
-		$journalId = $request->getContext()->getId();
+		$journalId = $request->getContext() ? $request->getContext()->getId() : 1;
 
 		# $htmloutput = HTMLOutputStrategy::class; # Sorpresa sorpresa, adapté la estrategia de salida de los PDFs para generar una salida en HTML, es probable que haya que meter algo de mano para que termine de ser funcional, pero el desarrollo está prácticamente hecho. Todo el procesamiento interno ya estaría acomdoado 👍 
 
@@ -616,7 +622,7 @@ class JatsParserPlugin extends GenericPlugin
 		*
 		*/
 		//$localeNames = AppLocale::getAllLocales();
-		$localeNames = PKP\facades\Locale::getLocales();
+		$localeNames = \PKP\facades\Locale::getLocales();
 
 		$locales = array_map(function ($localeKey) use ($localeNames) {
 			return ['key' => $localeKey, 'label' => isset($localeNames[$localeKey]) ? $localeNames[$localeKey]->getDisplayName() : $localeKey];
@@ -683,12 +689,93 @@ class JatsParserPlugin extends GenericPlugin
 		$op = $args[1];
 
 		if ($page == 'article' && $op == 'downloadFullTextAssoc') {
-			define('HANDLER_CLASS', 'FullTextArticleHandler');
+			define('HANDLER_CLASS', 'APP\plugins\generic\jatsParser\FullTextArticleHandler');
 			define('JATSPARSER_PLUGIN_NAME', $this->getName());
-			require_once($this->getPluginPath() . '/FullTextArticleHandler.inc.php');
+			require_once($this->getPluginPath() . '/FullTextArticleHandler.php');
 			return true;
 		}
+
+		if ($page === 'jatsParserWorkflow') {
+			$handler = &$args[3];
+			require_once($this->getPluginPath() . '/JatsParserWorkflowHandler.php');
+			$handler = new JatsParserWorkflowHandler($this);
+			return true;
+		}
+
 		return false;
+	}
+
+	/**
+	 * Inject custom assets for OJS 3.5 workflow
+	 */
+	public function workflowCustomAssets(string $hookname, array $args): void
+	{
+		$templateMgr = $args[0];
+		$template = $args[1];
+
+		if ($template !== 'dashboard/editors.tpl') return;
+
+		$request = Application::get()->getRequest();
+		$context = $request->getContext();
+		if (!$context) return;
+
+		$baseUrl = $request->getBaseUrl() . '/' . $this->getPluginPath();
+
+		$templateMgr->addStyleSheet(
+			'jatsParserCitationCss',
+			$baseUrl . '/app/citationTable.css',
+			['contexts' => ['backend']]
+		);
+
+		$templateMgr->addJavaScript(
+			'jatsParserCitationJs',
+			$baseUrl . '/app/citationTable.js',
+			['contexts' => ['backend']]
+		);
+
+		$templateMgr->addJavaScript(
+			'jatsParserWorkflowJs',
+			$baseUrl . '/js/jatsParserWorkflow.js',
+			['contexts' => ['backend']]
+		);
+
+		$formConfigUrl = $request->getDispatcher()->url($request, PKPApplication::ROUTE_PAGE, null, 'jatsParserWorkflow', 'formConfig');
+
+		$templateMgr->setConstants([
+			'jatsParserConfig' => [
+				'formConfigUrl' => $formConfigUrl,
+				'tabLabel' => __('plugins.generic.jatsParser.publication.jats.fulltext'),
+				'deleteConfirmTitle' => __('plugins.generic.jatsParser.publication.jats.html.deleteConfirmTitle'),
+				'deleteConfirmText' => __('plugins.generic.jatsParser.publication.jats.html.deleteConfirmText'),
+				'deleteBtn' => __('plugins.generic.jatsParser.publication.jats.html.deleteBtn'),
+				'cancel' => __('common.cancel'),
+				'notice' => __('common.notice'),
+				'error' => __('common.error'),
+				'deletedSuccess' => __('plugins.generic.jatsParser.publication.jats.html.deletedSuccess'),
+			]
+		]);
+
+		$configPayload = json_encode([
+			'formConfigUrl' => $formConfigUrl,
+			'tabLabel' => __('plugins.generic.jatsParser.publication.jats.fulltext'),
+			'deleteConfirmTitle' => __('plugins.generic.jatsParser.publication.jats.html.deleteConfirmTitle'),
+			'deleteConfirmText' => __('plugins.generic.jatsParser.publication.jats.html.deleteConfirmText'),
+			'deleteBtn' => __('plugins.generic.jatsParser.publication.jats.html.deleteBtn'),
+			'cancel' => __('common.cancel'),
+			'notice' => __('common.notice'),
+			'error' => __('common.error'),
+			'deletedSuccess' => __('plugins.generic.jatsParser.publication.jats.html.deletedSuccess'),
+		]);
+
+		$templateMgr->addJavaScript(
+			'jatsParserConfigJs',
+			'window.pkp = window.pkp || {}; pkp.const = pkp.const || {}; pkp.const.jatsParserConfig = ' . $configPayload . ';',
+			[
+				'contexts' => ['backend'],
+				'inline' => true,
+				'priority' => \PKP\template\PKPTemplateManager::STYLE_SEQUENCE_CORE,
+			]
+		);
 	}
 
 	/**
@@ -716,7 +803,6 @@ class JatsParserPlugin extends GenericPlugin
 	 */
 	private function buildEnrichedHtml($submissionFile, $publication, string $localeKey, bool $isBase64Images): string
 	{
-		import('lib.pkp.classes.file.PrivateFileManager');
 		$privateFileManager = new PrivateFileManager();
 		$jatsFilePath = $privateFileManager->getBasePath() . DIRECTORY_SEPARATOR . $submissionFile->getData('path');
 
@@ -786,7 +872,7 @@ class JatsParserPlugin extends GenericPlugin
 
 		// Handle Citations Table Data saving
 		if (array_key_exists('jatsParser::citationTableData', $params)) {
-			require_once __DIR__ . '/classes/daos/CustomPublicationSettingsDAO.inc.php';
+			require_once __DIR__ . '/classes/daos/CustomPublicationSettingsDAO.php';
 			$customPublicationSettingsDao = new \CustomPublicationSettingsDAO();
 			$citationParam = $params['jatsParser::citationTableData'];
 
@@ -892,9 +978,12 @@ class JatsParserPlugin extends GenericPlugin
 	 * use CitationStyleLanguagePlugin if set
 	 * use vancouver style otherwise
 	 */
-	function getCitationStyle(Journal $context): string
+	function getCitationStyle(?Journal $context = null): string
 	{
-		$contextId = $context->getId();
+		if (!$context) {
+			$context = Application::get()->getRequest()->getContext() ?: Application::getContextDAO()->getById(1);
+		}
+		$contextId = $context ? $context->getId() : 1;
 
 		$citationStyle = $this->getSetting($contextId, 'citationStyle');
 
@@ -987,14 +1076,8 @@ class JatsParserPlugin extends GenericPlugin
 			// Crear la galerada EPUB
 			$epubGalleyId = $this->createGalley($localeKey, $newPublication, 'plugins.generic.jatsParser.publication.galley.epub.label');
 			
-			// Obtener el objeto Galley usando el Repo de OJS 3.4
-			$epubGalley = Repo::galley()
-				->getCollector()
-				->filterByPublicationIds([$newPublication->getId()])
-				->getMany()
-				->first(function ($g) use ($epubGalleyId) {
-					return $g->getBestGalleyId() === $epubGalleyId;
-			});
+			// Obtener el objeto Galley usando Repo::galley()->get()
+			$epubGalley = Repo::galley()->get($epubGalleyId);
 
 			if ($epubGalley) {
 				// Crear y asociar el archivo físico del EPUB
@@ -1018,7 +1101,7 @@ class JatsParserPlugin extends GenericPlugin
 		$ojsConfiguration = $this->getConfiguration($request);
 		$configuration = new Configuration($metadata);
 		$fileMgr = new PrivateFileManager();
-		$journalId = $request->getContext()->getId();
+		$journalId = $request->getContext() ? $request->getContext()->getId() : 1;
 
 		$outputStrategy = EPUBOutputStrategy::class;
 		return $outputStrategy::generateOutput($this, $fileMgr, $journalId, $localeKey, $fileId, $htmlString, $configuration, $metadata, $ojsConfiguration);
@@ -1042,33 +1125,49 @@ class JatsParserPlugin extends GenericPlugin
 		$submissionFileRepo = Repo::submissionFile();
 		$submissionDir = $submissionFileRepo->getSubmissionDir($submission->getData('contextId'), $submission->getId());
 		// Guardar archivo en el sistema de archivos de OJS con extensión .epub
-		$fileId = Services::get('file')->add(
+		$fileId = app()->get('file')->add(
 			$tmpFile,
 			$submissionDir . DIRECTORY_SEPARATOR . uniqid() . '.epub'
 		);
 		// Obtener el nombre base a partir del XML
 		$jatsFileId = $publication->getData('jatsParser::fullTextFileId', $galley->getLocale());
+		if (empty($jatsFileId)) {
+			$allJatsFileIds = $publication->getData('jatsParser::fullTextFileId');
+			if (is_array($allJatsFileIds)) {
+				$jatsFileId = $allJatsFileIds[$galley->getLocale()] ?? reset($allJatsFileIds);
+			} elseif (is_numeric($allJatsFileIds)) {
+				$jatsFileId = (int) $allJatsFileIds;
+			}
+		}
+		if (empty($jatsFileId)) {
+			unlink($tmpFile);
+			return null;
+		}
 		$jatsFile = $submissionFileRepo->get($jatsFileId);
+		if (!$jatsFile) {
+			unlink($tmpFile);
+			return null;
+		}
 		$name = [];
 		foreach ($jatsFile->getData('name') as $locale => $sourceName) {
 			$name[$locale] = pathinfo($sourceName)['filename'] . '.epub';
 		}
 		$genreDao = DAORegistry::getDAO('GenreDAO');
 		$genre = $genreDao->getByKey('SUBMISSION', $submission->getData('contextId'));
-		// Crear el registro SubmissionFile en OJS 3.4
+		// Crear el registro SubmissionFile en OJS 3.5
 		$submissionFile = $submissionFileRepo->newDataObject();
 		$submissionFile->setAllData([
 			'fileId' => $fileId,
-			'assocType' => ASSOC_TYPE_GALLEY,
+			'assocType' => Application::ASSOC_TYPE_GALLEY,
 			'assocId' => $galley->getId(),
-			'fileStage' => SUBMISSION_FILE_PROOF,
+			'fileStage' => SubmissionFile::SUBMISSION_FILE_PROOF,
 			'mimetype' => 'application/epub+zip',
 			'locale' => $galley->getLocale(),
 			'genreId' => $genre->getId(),
 			'name' => $name,
 			'submissionId' => $submission->getId(),
 		]);
-		$submissionFileId = Repo::submissionFile()->add($submissionFile, $request);
+		$submissionFileId = Repo::submissionFile()->add($submissionFile);
 		$submissionFile = Repo::submissionFile()->get($submissionFileId);
 		unlink($tmpFile); // Limpiar archivo temporal
 		return $submissionFile;
@@ -1081,7 +1180,8 @@ class JatsParserPlugin extends GenericPlugin
 		$request = $args[3];
 
 		if (!array_key_exists('jatsParser::pdfGalley', $params)) return false;
-		if (!$this->getSetting($request->getContext()->getId(), 'convertToPdf')) return false;
+		$contextId = ($request && $request->getContext()) ? $request->getContext()->getId() : 1;
+		if (!$this->getSetting($contextId, 'convertToPdf')) return false;
 
 		$localePare = $params['jatsParser::pdfGalley'];
 		foreach ($localePare as $localeKey => $createPdf) {
@@ -1106,14 +1206,8 @@ class JatsParserPlugin extends GenericPlugin
 			// --- Crear o actualizar galerada para PDF ---
 			$pdfGalleyId = $this->createGalley($localeKey, $newPublication, 'plugins.generic.jatsParser.publication.galley.pdf.label');
 
-			// Obtener el galley PDF usando Repo
-			$pdfGalley = Repo::galley()
-				->getCollector()
-				->filterByPublicationIds([$newPublication->getId()])
-				->getMany()
-				->first(function ($g) use ($pdfGalleyId) {
-					return $g->getBestGalleyId() === $pdfGalleyId;
-				});
+			// Obtener el galley PDF usando Repo::galley()->get()
+			$pdfGalley = Repo::galley()->get($pdfGalleyId);
 
 			if ($pdfGalley) {
 				// Crear archivo de sumisión del PDF
@@ -1157,7 +1251,6 @@ class JatsParserPlugin extends GenericPlugin
 	private function _setPdfSubmissionFile(string $pdfBinaryString, Publication $publication, Galley $galley)
 	{
 
-		//$submission = Services::get('submission')->get($publication->getData('submissionId')); /* @var $submission Submission */
 		$submission = Repo::submission()->get($publication->getData('submissionId'));
 
 		$request = $this->getRequest();
@@ -1167,19 +1260,32 @@ class JatsParserPlugin extends GenericPlugin
 		file_put_contents($tmpFile, $pdfBinaryString);
 
 		// Set main Submission File data
-		//$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO'); /* @var $submissionFileDao SubmissionFileDAO */
-		//$submissionDir = Services::get('submissionFile')->getSubmissionDir($submission->getData('contextId'), $submission->getId());
 		$submissionFile = Repo::submissionFile();
 		$submissionDir = $submissionFile->getSubmissionDir($submission->getData('contextId'), $submission->getId());
 
-		$fileId = Services::get('file')->add(
+		$fileId = app()->get('file')->add(
 			$tmpFile,
 			$submissionDir . DIRECTORY_SEPARATOR . uniqid() . '.pdf'
 		);
 
-		//$jatsFile = Services::get('submissionFile')->get($jatsFileId);
 		$jatsFileId = $publication->getData('jatsParser::fullTextFileId', $galley->getLocale());
+		if (empty($jatsFileId)) {
+			$allJatsFileIds = $publication->getData('jatsParser::fullTextFileId');
+			if (is_array($allJatsFileIds)) {
+				$jatsFileId = $allJatsFileIds[$galley->getLocale()] ?? reset($allJatsFileIds);
+			} elseif (is_numeric($allJatsFileIds)) {
+				$jatsFileId = (int) $allJatsFileIds;
+			}
+		}
+		if (empty($jatsFileId)) {
+			unlink($tmpFile);
+			return null;
+		}
 		$jatsFile = $submissionFile->get($jatsFileId);
+		if (!$jatsFile) {
+			unlink($tmpFile);
+			return null;
+		}
 
 		$name = [];
 		foreach ($jatsFile->getData('name') as $locale => $sourceName) {
@@ -1194,23 +1300,19 @@ class JatsParserPlugin extends GenericPlugin
 		$submissionFile->setAllData(
 			[
 				'fileId' => $fileId,
-				'assocType' => ASSOC_TYPE_GALLEY,
+				'assocType' => Application::ASSOC_TYPE_GALLEY,
 				'assocId' => $galley->getId(),
-				'fileStage' => SUBMISSION_FILE_PROOF,
+				'fileStage' => SubmissionFile::SUBMISSION_FILE_PROOF,
 				'mimetype' => 'application/pdf',
-				'locale' => 'uk',
+				'locale' => $galley->getLocale(),
 				'genreId' => $genre->getId(),
 				'name' => $name,
 				'submissionId' => $submission->getId(),
 			]
 		);
-		//$submissionFile = Services::get('submissionFile')->add($submissionFile, $request);
-		$submissionFileId = Repo::submissionFile()->add($submissionFile, $request);
+		$submissionFileId = Repo::submissionFile()->add($submissionFile);
 		$submissionFile = Repo::submissionFile()->get($submissionFileId);
-
-
-		//$submissionFile = Repo::submissionFile()->get($submissionFileId);
-		unlink($tmpFile); // remove temporary file
+		unlink($tmpFile);
 		return $submissionFile;
 	}
 
@@ -1232,8 +1334,11 @@ class JatsParserPlugin extends GenericPlugin
 
 		$numberedCitations = Configuration::getNumberedReferences();
 		$context = Application::get()->getRequest()->getContext();
-		$plugin = PluginRegistry::getPlugin('generic', 'jatsparserplugin'); /* @var $plugin JATSParserPlugin */
-		$citationStyle = $plugin->getCitationStyle($context);
+		if (!$context) {
+			$submission = Repo::submission()->get($publication->getData('submissionId'));
+			$context = Application::getContextDAO()->getById($submission ? $submission->getData('contextId') : 1);
+		}
+		$citationStyle = $this->getCitationStyle($context);
 
 		//Obtain xml jats file
 		// Create a JATSDocument instance
@@ -1328,7 +1433,6 @@ class JatsParserPlugin extends GenericPlugin
 	 */
 	public function getFullTextFromJats(SubmissionFile $submissionFile): HTMLDocument
 	{
-		import('lib.pkp.classes.file.PrivateFileManager');
 		$fileMgr = new PrivateFileManager();
 		$htmlDocument = new HTMLDocument(new Document($fileMgr->getBasePath() . DIRECTORY_SEPARATOR . $submissionFile->getData('path')));
 		return $htmlDocument;
@@ -1355,7 +1459,7 @@ class JatsParserPlugin extends GenericPlugin
 		$html = null;
 
 		if (empty($fullTexts)) return false;
-		$currentLocale = PKP\facades\Locale::getLocale();
+		$currentLocale = \PKP\facades\Locale::getLocale();
 		$hasFullTextForLocale = false;
 		if (array_key_exists($currentLocale, $fullTexts) && !empty($fullTexts[$currentLocale])) {
 			$html = $fullTexts[$currentLocale];
@@ -1365,7 +1469,7 @@ class JatsParserPlugin extends GenericPlugin
 			$submissionFile = Repo::submissionFile()->get($submissionFileId);
 			$hasFullTextForLocale = true;
 		} else {
-			$locales = PKP\facades\Locale::getLocales();
+			$locales = \PKP\facades\Locale::getLocales();
 			$msg = __('plugins.generic.jatsParser.article.fulltext.availableLocale');
 			if (count($fullTexts) > 1) {
 				$msg = __('plugins.generic.jatsParser.article.fulltext.availableLocales');
@@ -1428,7 +1532,7 @@ class JatsParserPlugin extends GenericPlugin
 		foreach ($dependentFilesIterator as $dependentFile) {
 
 			$genre = $genreDao->getById($dependentFile->getData('genreId'));
-			if ($genre->getCategory() !== GENRE_CATEGORY_ARTWORK) continue; // only art works are supported
+			if ($genre->getCategory() !== Genre::GENRE_CATEGORY_ARTWORK) continue; // only art works are supported
 			if (!in_array($dependentFile->getData('mimetype'), self::getSupportedSupplFileTypes())) continue; // check if MIME type is supported
 
 			$submissionId = $submissionFile->getData('submissionId');
@@ -1544,21 +1648,6 @@ class JatsParserPlugin extends GenericPlugin
 		$templateMgr = $args[0];
 		$template = $args[1];
 
-		// Rutas absolutas para debug
-		$cssPath = __DIR__ . '/app/citationTable.css';
-		$jsPath = __DIR__ . '/app/citationTable.js';
-
-		$templateMgr->addJavaScript(
-			'citationTable',
-			$jsPath,
-		);
-
-		$templateMgr->addStyleSheet(
-			'citationTableCss',
-			$cssPath,
-		);
-		////////////////////////////////////////////
-
 		if ($template !== "frontend/pages/article.tpl") return false;
 
 		$request = $this->getRequest();
@@ -1596,12 +1685,11 @@ class JatsParserPlugin extends GenericPlugin
 		$publicationDao = DAORegistry::getDAO('PublicationDAO');
 		$fileManager = new PrivateFileManager();
 
-		$submissions = Services::get('submission')->getMany([
-			'contextId' => $context->getId(),
-			'stageIds' => [
-				WORKFLOW_STAGE_ID_PRODUCTION
-			]
-		]);
+		$submissions = Repo::submission()
+			->getCollector()
+			->filterByContextIds([$context->getId()])
+			->filterByStageIds([PKPApplication::WORKFLOW_STAGE_ID_PRODUCTION])
+			->getMany();
 
 		foreach ($submissions as $submission) {
 			$publication = $submission->getCurrentPublication();
@@ -1622,8 +1710,8 @@ class JatsParserPlugin extends GenericPlugin
 				if (empty($document->getArticleSections())) continue;
 
 				// Copy galley as a production ready submission file
-				$submissionDir = Services::get('submissionFile')->getSubmissionDir($request->getContext()->getId(), $submission->getId());
-				$fileId = Services::get('file')->add(
+				$submissionDir = Repo::submissionFile()->getSubmissionDir($request->getContext()->getId(), $submission->getId());
+				$fileId = app()->get('file')->add(
 					$fileManager->getBasePath() . DIRECTORY_SEPARATOR . $submissionFile->getData('path'),
 					$submissionDir . '/' . uniqid() . '.xml'
 				);
@@ -1633,28 +1721,29 @@ class JatsParserPlugin extends GenericPlugin
 					[
 						'fileId' => $fileId,
 						'uploaderUserId' => $user->getId(),
-						'fileStage' => SUBMISSION_FILE_PRODUCTION_READY,
+						'fileStage' => SubmissionFile::SUBMISSION_FILE_PRODUCTION_READY,
 						'submissionId' => $submission->getId(),
 						'genreId' => $submissionFile->getData('genreId'),
 						'name' => $submissionFile->getData('name'),
 					],
 				);
-				$newSubmissionFile = Services::get('submissionFile')->add($newSubmissionFile, $request);
+				$newSubmissionFileId = Repo::submissionFile()->add($newSubmissionFile);
+				$newSubmissionFile = Repo::submissionFile()->get($newSubmissionFileId);
 
 				// copy and attach dependent files, only images are supported
-				$assocFiles = Services::get('submissionFile')->getMany(
-					[
-						'assocTypes' => [ASSOC_TYPE_SUBMISSION_FILE],
-						'assocIds' => [$submissionFile->getId()],
-						'submissionIds' => [$submission->getId()],
-						'fileStages' => [SUBMISSION_FILE_DEPENDENT],
-						'includeDependentFiles' => true,
-					]
-				);
+				$assocFiles = Repo::submissionFile()->getCollector()
+					->filterBySubmissionIds([$submission->getId()])
+					->filterByFileStages([SubmissionFile::SUBMISSION_FILE_DEPENDENT])
+					->getMany()
+					->filter(function($f) use ($submissionFile) {
+						return $f->getData('assocType') === PKPApplication::ASSOC_TYPE_SUBMISSION_FILE &&
+							$f->getData('assocId') == $submissionFile->getId();
+					});
+
 				foreach ($assocFiles as $assocFile) {
 					/** @var $assocFile SubmissionFile */
 					if (in_array($assocFile->getData('mimetype'), $this->getSupportedSupplFileTypes())) {
-						$newAssocFileId = Services::get('file')->add(
+						$newAssocFileId = app()->get('file')->add(
 							$fileManager->getBasePath() . DIRECTORY_SEPARATOR . $assocFile->getData('path'),
 							$submissionDir . '/' . uniqid() . '.' . $fileManager->parseFileExtension($assocFile->getData('path'))
 						);
@@ -1663,9 +1752,9 @@ class JatsParserPlugin extends GenericPlugin
 						$assocSubmissionFile->setAllData([
 							'fileId' => $newAssocFileId,
 							'assocId' => $newSubmissionFile->getId(),
-							'assocType' => ASSOC_TYPE_SUBMISSION_FILE,
+							'assocType' => PKPApplication::ASSOC_TYPE_SUBMISSION_FILE,
 							'uploaderUserId' => $user->getId(),
-							'fileStage' =>  SUBMISSION_FILE_DEPENDENT,
+							'fileStage' =>  SubmissionFile::SUBMISSION_FILE_DEPENDENT,
 							'submissionId' => $submission->getId(),
 							'genreId' => $assocFile->getData('genreId'),
 							'name' => $assocFile->getData('name'),
@@ -1674,7 +1763,7 @@ class JatsParserPlugin extends GenericPlugin
 							'credit' => $assocFile->getData('credit'),
 							'terms' => $assocFile->getData('terms'),
 						]);
-						Services::get('submissionFile')->add($assocSubmissionFile, $request);
+						Repo::submissionFile()->add($assocSubmissionFile);
 					}
 				}
 
@@ -1770,7 +1859,6 @@ class JatsParserPlugin extends GenericPlugin
 		if (!$submissionFile) return $htmlString;
 
 		// Get the path to the JATS XML file
-		import('lib.pkp.classes.file.PrivateFileManager');
 		$fileMgr = new PrivateFileManager();
 		$jatsFilePath = $fileMgr->getBasePath() . DIRECTORY_SEPARATOR . $submissionFile->getData('path');
 
@@ -1865,3 +1953,8 @@ class JatsParserPlugin extends GenericPlugin
 		$newPublication->setData('citationsRaw', $rawCitations);
 	}
 }
+
+if (!class_exists('JatsParserPlugin', false)) {
+	class_alias(\APP\plugins\generic\jatsParser\JatsParserPlugin::class, 'JatsParserPlugin');
+}
+

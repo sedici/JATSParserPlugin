@@ -1,5 +1,7 @@
 <?php
 
+namespace APP\plugins\generic\jatsParser;
+
 require_once __DIR__ . '/../JATSParser/vendor/autoload.php';
 
 use JATSParser\HTML\Document as Document;
@@ -24,4 +26,8 @@ class JATSParserDocument extends Document {
 		if(!$this->jatsDocument->getReferences()) return true;
 		return false;
 	}
+}
+
+if (!class_exists('JATSParserDocument', false)) {
+    class_alias(\APP\plugins\generic\jatsParser\JATSParserDocument::class, 'JATSParserDocument');
 }
