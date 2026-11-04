@@ -64,7 +64,7 @@
 			</div>
 
 			<div v-else-if="formConfig">
-				<pkp-form v-bind="formConfig" @set="setForm" />
+				<pkp-form v-bind="formConfig" @set="setForm" @success="onFormSuccess" />
 			</div>
 
 			<!-- Modal nativo de confirmación para eliminar HTML -->
@@ -136,6 +136,7 @@
 				if (data && data.status === true && data.content) {
 					this.formConfig = data.content;
 					window.jatsPublicationApiUrl = this.formConfig.action;
+					window.jatsWorkflowComponent = this;
 
 					// Wait for Vue DOM to update, then initialize citation table handlers
 					this.$nextTick(() => {
@@ -157,6 +158,10 @@
 			if (this.formConfig && this.formConfig.id === formId) {
 				Object.assign(this.formConfig, data);
 			}
+		},
+
+		onFormSuccess() {
+			window.location.reload();
 		},
 
 		openDeleteModal(locale, localeName) {
@@ -234,7 +239,7 @@
 			if (window.pkp && window.pkp.eventBus) {
 				window.pkp.eventBus.$on('form-success', function (formId, response) {
 					if (formId === 'jatsUpload') {
-						self.loadFormConfig();
+						window.location.reload();
 					}
 				});
 			}

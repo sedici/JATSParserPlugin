@@ -95,6 +95,19 @@
             let localeKey = form ? (form.querySelector('input[name="locale_key"]')?.value || 'es') : 'es';
 
             // 1. Update Vue form component hiddenFields (OJS 3.4/3.5 FormComponent)
+            let formUpdated = false;
+            if (window.jatsWorkflowComponent && window.jatsWorkflowComponent.formConfig) {
+                let fc = window.jatsWorkflowComponent.formConfig;
+                if (!fc.hiddenFields) {
+                    fc.hiddenFields = {};
+                }
+                if (typeof fc.hiddenFields['jatsParser::citationTableData'] !== 'object' || fc.hiddenFields['jatsParser::citationTableData'] === null) {
+                    fc.hiddenFields['jatsParser::citationTableData'] = {};
+                }
+                fc.hiddenFields['jatsParser::citationTableData'][localeKey] = json;
+                formUpdated = true;
+            }
+
             let app = window.pkp && window.pkp.registry && window.pkp.registry._instances && window.pkp.registry._instances['app'];
             if (app && app.components && app.components['jatsUpload']) {
                 let jatsForm = app.components['jatsUpload'];
@@ -105,6 +118,7 @@
                     jatsForm.hiddenFields['jatsParser::citationTableData'] = {};
                 }
                 jatsForm.hiddenFields['jatsParser::citationTableData'][localeKey] = json;
+                formUpdated = true;
             }
 
             // 2. Also update DOM inputs if any exist

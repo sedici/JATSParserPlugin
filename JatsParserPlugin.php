@@ -887,11 +887,13 @@ class JatsParserPlugin extends GenericPlugin
 					if (!empty($citationJson)) {
 						$jsonString = is_array($citationJson) ? json_encode($citationJson) : $citationJson;
 						$customPublicationSettingsDao->updateSetting($newPublication->getId(), 'jatsParser::citationTableData', $jsonString, $localeKey);
+						$newPublication->setData('jatsParser::citationTableData', $jsonString, $localeKey);
 					}
 				}
 			} elseif (is_string($citationParam) && !empty($citationParam)) {
 				$localeKey = $newPublication->getData('locale') ?: 'es';
 				$customPublicationSettingsDao->updateSetting($newPublication->getId(), 'jatsParser::citationTableData', $citationParam, $localeKey);
+				$newPublication->setData('jatsParser::citationTableData', $citationParam, $localeKey);
 			}
 		}
 
