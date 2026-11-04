@@ -403,13 +403,8 @@ class JatsParserPlugin extends GenericPlugin
 			$licenseUrl .= "/";
 		}
 
-		// Separar por "/" y reordenar como día/mes/año de forma segura
 		$date = $publication->getData('datePublished') ?: $submission->getData('dateSubmitted');
-		$partes = $date ? explode('/', str_replace('-', '/', $date)) : [];
-		$anio = $partes[0] ?? '';
-		$mes  = $partes[1] ?? '';
-		$dia  = $partes[2] ?? '';
-		$datePublished = ($dia && $mes && $anio) ? "$dia/$mes/$anio" : '';
+		$datePublished = $date ? date('d/m/Y', strtotime($date)) : '';
 
 		$authors = array_values(iterator_to_array($publication->getData('authors')));
 		$simplifiedAuthors = array_map(function ($author) {
