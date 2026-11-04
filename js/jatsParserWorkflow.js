@@ -7,7 +7,20 @@
  * @brief Vue 3 component and workflow integration for the "Texto completo JATS" publication tab.
  */
 
-pkp.registry.registerComponent('JatsParserPublicationSection', {
+(function () {
+	function registerJatsParserWorkflow() {
+		if (
+			typeof pkp === 'undefined' ||
+			!pkp.registry ||
+			!pkp.registry._piniaInstance ||
+			typeof pkp.registry.registerComponent !== 'function' ||
+			typeof pkp.registry.storeExtendFn !== 'function'
+		) {
+			setTimeout(registerJatsParserWorkflow, 25);
+			return;
+		}
+
+		pkp.registry.registerComponent('JatsParserPublicationSection', {
 	name: 'JatsParserPublicationSection',
 
 	props: {
@@ -257,72 +270,78 @@ pkp.registry.registerComponent('JatsParserPublicationSection', {
 	},
 });
 
-/**
- * Add a custom "Texto completo JATS" secondary tab under Publication.
- */
-pkp.registry.storeExtendFn('workflow', 'getMenuItems', function (originalItems, args) {
-	const cfg = (window.pkp && window.pkp.const && window.pkp.const.jatsParserConfig) || window.jatsParserConfig || {};
-	const tabLabel = cfg.tabLabel || 'Texto completo JATS';
+		/**
+		 * Add a custom "JATSParser" secondary tab under Publication.
+		 */
+		pkp.registry.storeExtendFn('workflow', 'getMenuItems', function (originalItems, args) {
+			const cfg = window.jatsParserConfig || (window.pkp && window.pkp.const && window.pkp.const.jatsParserConfig) || {};
+			const tabLabel = (cfg && cfg.tabLabel) ? cfg.tabLabel : 'JATSParser';
 
-	return originalItems.map(function (item) {
-		if (item.key === 'publication' && Array.isArray(item.items)) {
-			// Avoid duplicate tab registration
-			if (item.items.some(function (i) { return i.key === 'publication_jatsUpload'; })) {
+			return originalItems.map(function (item) {
+				if (item.key === 'publication' && Array.isArray(item.items)) {
+					// Avoid duplicate tab registration
+					if (item.items.some(function (i) { return i.key === 'publication_jatsUpload' || i.key === 'publication_jatsparser'; })) {
+						return item;
+					}
+					return Object.assign({}, item, {
+						items: item.items.concat([
+							{
+								key: 'publication_jatsUpload',
+								label: tabLabel,
+								state: {
+									primaryMenuItem: 'publication',
+									secondaryMenuItem: 'jatsUpload',
+									title: tabLabel,
+								},
+							},
+						]),
+					});
+				}
 				return item;
-			}
-			return Object.assign({}, item, {
-				items: item.items.concat([
-					{
-						key: 'publication_jatsUpload',
-						label: tabLabel,
-						state: {
-							primaryMenuItem: 'publication',
-							secondaryMenuItem: 'jatsUpload',
-							title: tabLabel,
-						},
-					},
-				]),
 			});
-		}
-		return item;
-	});
-});
+		});
 
-/**
- * Inject JatsParserPublicationSection into the "jatsUpload" publication tab.
- */
-pkp.registry.storeExtendFn(
-	'workflow',
-	'getPrimaryItems',
-	function (originalItems, args) {
-		if (
-			args.selectedMenuState &&
-			args.selectedMenuState.primaryMenuItem === 'publication' &&
-			args.selectedMenuState.secondaryMenuItem === 'jatsUpload'
-		) {
-			const publication =
-				(args.submission && args.submission.publications && args.selectedMenuState.publicationId
-					? args.submission.publications.find(function (p) { return p.id === args.selectedMenuState.publicationId; })
-					: null) ||
-				(args.submission && args.submission.publications
-					? (args.submission.publications.find(function (p) { return p.status === 1; }) ||
-					   args.submission.publications[args.submission.publications.length - 1])
-					: null);
+		/**
+		 * Inject JatsParserPublicationSection into the "jatsUpload" publication tab.
+		 */
+		pkp.registry.storeExtendFn(
+			'workflow',
+			'getPrimaryItems',
+			function (originalItems, args) {
+				if (
+					args &&
+					args.selectedMenuState &&
+					args.selectedMenuState.primaryMenuItem === 'publication' &&
+					(args.selectedMenuState.secondaryMenuItem === 'jatsUpload' || args.selectedMenuState.secondaryMenuItem === 'jatsparser')
+				) {
+					const publication =
+						args.selectedPublication ||
+						(args.submission && args.submission.publications && args.selectedMenuState.publicationId
+							? args.submission.publications.find(function (p) { return p.id === args.selectedMenuState.publicationId; })
+							: null) ||
+						(args.submission && args.submission.publications
+							? (args.submission.publications.find(function (p) { return p.status === 1; }) ||
+							   args.submission.publications[args.submission.publications.length - 1])
+							: null);
 
-			return [
-				{
-					component: 'JatsParserPublicationSection',
-					props: {
-						submission: args.submission,
-						publication: publication,
-						canEdit: args.permissions
-							? args.permissions.canEditPublication
-							: false,
-					},
-				},
-			];
-		}
+					return [
+						{
+							component: 'JatsParserPublicationSection',
+							props: {
+								submission: args.submission,
+								publication: publication,
+								canEdit: args.permissions
+									? args.permissions.canEditPublication
+									: false,
+							},
+						},
+					];
+				}
 
-		return originalItems;
+				return originalItems;
+			}
+		);
 	}
-);
+
+	registerJatsParserWorkflow();
+})();

@@ -713,7 +713,7 @@ class JatsParserPlugin extends GenericPlugin
 		$templateMgr = $args[0];
 		$template = $args[1];
 
-		if ($template !== 'dashboard/editors.tpl') return;
+		if (!in_array($template, ['dashboard/editors.tpl', 'workflow/workflow.tpl'])) return;
 
 		$request = Application::get()->getRequest();
 		$context = $request->getContext();
@@ -730,13 +730,19 @@ class JatsParserPlugin extends GenericPlugin
 		$templateMgr->addJavaScript(
 			'jatsParserCitationJs',
 			$baseUrl . '/app/citationTable.js',
-			['contexts' => ['backend']]
+			[
+				'contexts' => ['backend'],
+				'priority' => \PKP\template\PKPTemplateManager::STYLE_SEQUENCE_LAST,
+			]
 		);
 
 		$templateMgr->addJavaScript(
 			'jatsParserWorkflowJs',
 			$baseUrl . '/js/jatsParserWorkflow.js',
-			['contexts' => ['backend']]
+			[
+				'contexts' => ['backend'],
+				'priority' => \PKP\template\PKPTemplateManager::STYLE_SEQUENCE_LAST,
+			]
 		);
 
 		$formConfigUrl = $request->getDispatcher()->url($request, PKPApplication::ROUTE_PAGE, null, 'jatsParserWorkflow', 'formConfig');
@@ -769,7 +775,7 @@ class JatsParserPlugin extends GenericPlugin
 
 		$templateMgr->addJavaScript(
 			'jatsParserConfigJs',
-			'window.pkp = window.pkp || {}; pkp.const = pkp.const || {}; pkp.const.jatsParserConfig = ' . $configPayload . ';',
+			'window.jatsParserConfig = ' . $configPayload . '; window.pkp = window.pkp || {}; pkp.const = pkp.const || {}; pkp.const.jatsParserConfig = window.jatsParserConfig;',
 			[
 				'contexts' => ['backend'],
 				'inline' => true,
