@@ -71,11 +71,32 @@
 /* VIEW CITATIONS BUTTON */
 .view-btn-citations {
     display: inline-flex;
+    position: relative;
     align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    font-size: 0.9rem;
-
+    column-gap: 0.25rem;
+    padding: 0.4375rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+    color: rgb(0 103 152); /* text-primary */
+    background-color: rgb(255 255 255); /* bg-secondary */
+    border: 1px solid rgb(187 187 187); /* border-light */
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+.view-btn-citations:hover {
+    color: rgb(0 130 191); /* hover:text-hover */
+    border-color: rgb(150 150 150);
+}
+.view-btn-citations:focus {
+    outline: 2px solid rgb(0 103 152);
+    outline-offset: 1px;
+}
+.view-btn-citations .fa {
+    font-size: 1rem;
+    line-height: 1;
 }
 
 /* ERROR MESSAGES */
@@ -195,6 +216,32 @@
     cursor: pointer;
 }
 
+.citation-modal-close-btn {
+    display: inline-flex;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4375rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+    color: rgb(0 103 152); /* text-primary */
+    background-color: rgb(255 255 255); /* bg-secondary */
+    border: 1px solid rgb(187 187 187); /* border-light */
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+.citation-modal-close-btn:hover {
+    color: rgb(0 130 191); /* hover:text-hover */
+    border-color: rgb(150 150 150);
+}
+.citation-modal-close-btn:focus {
+    outline: 2px solid rgb(0 103 152);
+    outline-offset: 1px;
+}
+
 /* Container for the scrollable table and form */
 .citation-form-container {
     padding-right: 20px;
@@ -287,4 +334,92 @@
 .citation-form-container table tr.citation-row-pending td,
 .citation-form-container table .citation-row-pending td {
     background-color: #ffe066 !important;
+}
+
+.jatsDeleteHtmlBtn {
+    display: inline-flex;
+    position: relative;
+    align-items: center;
+    column-gap: 0.25rem;
+    padding: 0.4375rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+    color: rgb(208 10 108); /* text-negative */
+    background-color: rgb(255 255 255); /* bg-secondary */
+    border: 1px solid rgb(187 187 187); /* border-light */
+    border-radius: 4px;
+    cursor: pointer;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+.jatsDeleteHtmlBtn:hover {
+    color: rgb(255 255 255);
+    background-color: rgb(208 10 108);
+    border-color: rgb(208 10 108);
+}
+.jatsDeleteHtmlBtn:focus {
+    outline: 2px solid rgb(208 10 108);
+    outline-offset: 1px;
+}
+
+/* ==========================================================================
+   BOTONES DEL MODAL DE CONFIRMACIÓN DE ELIMINACIÓN (OJS 3.5)
+   ========================================================================== */
+/* 1. Botón "Cancelar" dentro del modal (Botón secundario OJS) */
+.citation-modal-content button.pkpButton:not(.pkpButton--isWarnable) {
+    display: inline-flex;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4375rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+    color: rgb(0 103 152); /* text-primary */
+    background-color: rgb(255 255 255); /* bg-secondary */
+    border: 1px solid rgb(187 187 187); /* border-light */
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+.citation-modal-content button.pkpButton:not(.pkpButton--isWarnable):hover {
+    color: rgb(0 130 191); /* hover:text-hover */
+    border-color: rgb(150 150 150);
+}
+.citation-modal-content button.pkpButton:not(.pkpButton--isWarnable):focus {
+    outline: 2px solid rgb(0 103 152);
+    outline-offset: 1px;
+}
+/* 2. Botón "Eliminar HTML de publicación" dentro del modal (isWarnable destructivo) */
+.citation-modal-content button.pkpButton.pkpButton--isWarnable {
+    display: inline-flex;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4375rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+    color: rgb(208 10 108); /* text-negative */
+    background-color: rgb(255 255 255); /* bg-secondary */
+    border: 1px solid rgb(187 187 187); /* border-light */
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+.citation-modal-content button.pkpButton.pkpButton--isWarnable:hover {
+    color: rgb(255 255 255);
+    background-color: rgb(208 10 108);
+    border-color: rgb(208 10 108);
+}
+.citation-modal-content button.pkpButton.pkpButton--isWarnable:focus {
+    outline: 2px solid rgb(208 10 108);
+    outline-offset: 1px;
+}
+/* Estado deshabilitado mientras se procesa la eliminación */
+.citation-modal-content button.pkpButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
